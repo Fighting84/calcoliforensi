@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calcoli Forensi — calcolatori legali e fiscali per professionisti</title>
+<meta name="description" content="Danno biologico (art. 139 CdA e Tabelle di Milano 2024), danno parentale, interessi legali e di mora, contributo unificato. Formula, norma e tabella accanto a ogni risultato.">
+<link rel="canonical" href="https://calcoliforensi.it/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Calcoli Forensi — calcolatori legali e fiscali per professionisti">
+<meta property="og:description" content="Danno biologico (art. 139 CdA e Tabelle di Milano 2024), danno parentale, interessi legali e di mora, contributo unificato. Formula, norma e tabella accanto a ogni risultato.">
+<meta property="og:url" content="https://calcoliforensi.it/">
+<meta property="og:locale" content="it_IT">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230E5A48'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='34' font-weight='700' text-anchor='middle' fill='white'%3ECF%3C/text%3E%3C/svg%3E">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Calcoli Forensi","url":"https://calcoliforensi.it/","applicationCategory":"BusinessApplication","operatingSystem":"Web","inLanguage":"it","description":"Danno biologico (art. 139 CdA e Tabelle di Milano 2024), danno parentale, interessi legali e di mora, contributo unificato. Formula, norma e tabella accanto a ogni risultato.","offers":[{"@type":"Offer","price":"0","priceCurrency":"EUR","name":"Gratis"},{"@type":"Offer","price":"19","priceCurrency":"EUR","name":"Pro mensile"},{"@type":"Offer","price":"149","priceCurrency":"EUR","name":"Pro annuale"}]}
+</script>
+<style>
+html{color-scheme:light dark}
+body{margin:0;font-family:system-ui,sans-serif;font-size:14px}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F2F4F6; --surface:#FFFFFF; --surface-2:#E9EDF0; --line:#D5DBE1;
+  --ink:#151B22; --ink-2:#4B5560; --ink-3:#7B8590;
+  --accent:#0E5A48; --accent-ink:#FFFFFF; --accent-soft:#DCEDE6;
+  --pro:#9A6B12; --pro-soft:#F6EBD2;
+  --ok:#1E7A45; --warn:#A8651B;
+  --serif:"IBM Plex Serif",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --radius:6px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1317; --surface:#171C22; --surface-2:#1F262E; --line:#2C353F;
+    --ink:#E6E9EC; --ink-2:#AEB6BF; --ink-3:#7E8792;
+    --accent:#3FA98A; --accent-ink:#0B1512; --accent-soft:#16332B;
+    --pro:#D9A94B; --pro-soft:#332A14;
+    --ok:#4FBF7A; --warn:#D99A4E;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1317; --surface:#171C22; --surface-2:#1F262E; --line:#2C353F;
+  --ink:#E6E9EC; --ink-2:#AEB6BF; --ink-3:#7E8792;
+  --accent:#3FA98A; --accent-ink:#0B1512; --accent-soft:#16332B;
+  --pro:#D9A94B; --pro-soft:#332A14;
+  --ok:#4FBF7A; --warn:#D99A4E;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5}
+a{color:var(--accent)}
+button{font:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0;text-wrap:balance}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- shell ---------- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;color:var(--ink)}
+.brand b{font-family:var(--serif);font-size:20px;font-weight:600}
+.brand span{font-size:12px;color:var(--ink-3)}
+.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px;border-radius:var(--radius);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-weight:500;font-size:14px}
+.btn:hover{background:var(--surface-2)}
+.btn:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.pro{background:var(--pro);color:#fff;border-color:var(--pro)}
+.pill{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid var(--line);color:var(--ink-2)}
+.pill.pro{background:var(--pro-soft);color:var(--pro);border-color:transparent}
+.pill.free{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.pill.soon{color:var(--ink-3)}
+
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px;display:grid;grid-template-columns:260px 1fr;gap:24px}
+@media (max-width:820px){.wrap{grid-template-columns:1fr}}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 64px);align-self:start}
+@media (max-width:820px){.nav{position:static}}
+.nav .group{margin-bottom:14px}
+.nav .group .eyebrow{padding:0 8px 6px}
+.nav a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border-radius:var(--radius);text-decoration:none;color:var(--ink);font-size:14px}
+.nav a:hover{background:var(--surface-2)}
+.nav a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav a.soon{color:var(--ink-3);cursor:default}
+.nav-select{display:none;width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);font:inherit}
+@media (max-width:820px){.nav-list{display:none}.nav-select{display:block}}
+
+/* ---------- main ---------- */
+.main{min-width:0}
+.head{margin-bottom:18px}
+.head h1{font-size:26px}
+.head p{color:var(--ink-2);margin:6px 0 0;max-width:62ch}
+.head .refs{margin-top:8px;font-size:12px;color:var(--ink-3)}
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:980px){.calc{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.panel .ph{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.panel .ph h2{font-size:15px;font-family:var(--sans);font-weight:600}
+.panel .pb{padding:16px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.form{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:4px}
+.field.full{grid-column:1/-1}
+.field label{font-size:12.5px;font-weight:500;color:var(--ink-2)}
+.field input,.field select{padding:8px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);font:inherit;font-size:15px;width:100%}
+.field input[type=number]{font-family:var(--mono)}
+.field .hint{font-size:11.5px;color:var(--ink-3)}
+.fieldset-title{grid-column:1/-1;font-size:12px;font-weight:600;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;margin-top:6px;padding-top:10px;border-top:1px dashed var(--line)}
+
+.total{padding:16px;border-bottom:1px solid var(--line);background:var(--accent-soft)}
+.total .eyebrow{color:var(--accent)}
+.total .big{font-family:var(--mono);font-size:32px;font-weight:500;color:var(--accent);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.total .sub{font-size:13px;color:var(--ink-2);margin-top:2px}
+.rows{width:100%;border-collapse:collapse;font-size:14px}
+.rows th,.rows td{padding:7px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.rows th{font-weight:500;color:var(--ink-2);font-size:12.5px}
+.rows td.r,.rows th.r{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rows tr.sum td{font-weight:600;border-top:2px solid var(--ink);border-bottom:none}
+.rows tr.muted td{color:var(--ink-3)}
+.tblwrap{overflow-x:auto}
+.warn{font-size:12.5px;color:var(--warn);margin-top:10px}
+.note{font-size:12.5px;color:var(--ink-3);margin-top:12px;line-height:1.45}
+
+/* ---------- pro gate ---------- */
+.gate{position:relative}
+.gate .locked{filter:blur(4px);pointer-events:none;user-select:none;opacity:.7}
+.gate .cta{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px}
+.gate .cta-card{background:var(--surface);border:1px solid var(--pro);border-radius:var(--radius);padding:16px 18px;max-width:380px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.gate .cta-card h3{font-family:var(--sans);font-size:15px;margin-bottom:4px}
+.gate .cta-card p{margin:0 0 12px;font-size:13px;color:var(--ink-2)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line)}
+
+/* ---------- home ---------- */
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:end;margin-bottom:24px}
+@media (max-width:820px){.hero{grid-template-columns:1fr}}
+.hero h1{font-size:34px}
+.hero p{color:var(--ink-2);font-size:16px;max-width:56ch;margin:10px 0 0}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0 28px}
+@media (max-width:820px){.plans{grid-template-columns:1fr}}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:8px}
+.plan.hl{border-color:var(--pro)}
+.plan .price{font-family:var(--mono);font-size:26px}
+.plan .price small{font-family:var(--sans);font-size:13px;color:var(--ink-3)}
+.plan ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)}
+.plan .btn{margin-top:auto;justify-content:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;gap:6px}
+.card:hover{border-color:var(--accent)}
+.card h3{font-size:15px;font-family:var(--sans)}
+.card p{margin:0;font-size:13px;color:var(--ink-2)}
+.card .meta{display:flex;gap:6px;margin-top:auto;padding-top:6px}
+.card.soon{opacity:.6}
+
+/* ---------- misc ---------- */
+.toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:var(--radius);font-size:14px;z-index:20}
+dialog{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);padding:20px;max-width:440px;width:calc(100% - 32px)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h2{font-size:18px;margin-bottom:6px}
+dialog p{font-size:14px;color:var(--ink-2);margin:0 0 12px}
+dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);font:inherit;font-family:var(--mono)}
+.foot{max-width:1180px;margin:0 auto;padding:16px;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line)}
+.foot p{margin:4px 0;max-width:90ch}
+
+@media print{
+  .top,.nav,.actions,.foot,.gate .cta,.no-print{display:none!important}
+  .wrap{display:block;padding:0}
+  .calc{grid-template-columns:1fr}
+  .panel{border:none;page-break-inside:avoid}
+  .gate .locked{filter:none;opacity:1}
+  body{background:#fff;color:#000}
+  .print-head{display:block!important;margin-bottom:16px;border-bottom:1px solid #000;padding-bottom:8px}
+}
+.print-head{display:none;font-family:var(--serif)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#/"><b>Calcoli Forensi</b><span>calcolatori legali e fiscali, aggiornati</span></a>
+    <div class="top-actions">
+      <span id="licenseBadge" class="pill free">Versione gratuita</span>
+      <button class="btn" id="btnLicense">Ho una licenza</button>
+      <a class="btn pro" id="btnUpgrade" href="#/piani">Passa a Pro</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="nav" id="nav"></nav>
+  <main class="main" id="main"></main>
+</div>
+
+<footer class="foot">
+  <p><strong>Calcoli Forensi</strong> — strumenti di calcolo per professionisti del diritto. I risultati sono elaborazioni automatiche su dati normativi e tabellari pubblici e non costituiscono consulenza legale; la verifica finale spetta al professionista.</p>
+  <p id="footVersion"></p>
+</footer>
+
+<dialog id="dlgLicense">
+  <h2>Attiva la licenza Pro</h2>
+  <p>Incolla la chiave ricevuta via email dopo l'acquisto.</p>
+  <input id="licenseKey" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" autocomplete="off">
+  <p id="licenseMsg" style="margin-top:8px"></p>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+    <button class="btn" id="licenseCancel">Annulla</button>
+    <button class="btn primary" id="licenseOk">Attiva</button>
+  </div>
+</dialog>
+
+<script>
+/* ===================== CONFIG ===================== */
+const CONFIG = {
+  version: "0.2.0 — 17 settembre 2026",
+  checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
+  checkoutStudio:"#/piani",
+  checkoutReport:"#/piani",
+  licenseApi: "https://api.lemonsqueezy.com/v1/licenses/validate"
+};
+
+/* ===================== DATI NORMATIVI ===================== */
+// Art. 1284 c.c. — saggio legale per anno (DM MEF). Dal 1991 in poi.
+const TASSI_LEGALI = {
+  1991:10,1992:10,1993:10,1994:10,1995:10,1996:10,
+  1997:5,1998:5,1999:2.5,2000:2.5,2001:3.5,2002:3,2003:3,
+  2004:2.5,2005:2.5,2006:2.5,2007:2.5,2008:3,2009:3,2010:1,2011:1.5,
+  2012:2.5,2013:2.5,2014:1,2015:0.5,2016:0.2,2017:0.1,2018:0.3,2019:0.8,
+  2020:0.05,2021:0.01,2022:1.25,2023:5,2024:2.5,2025:2,2026:1.6
+};
+// D.Lgs. 231/2002 — tasso BCE di riferimento per semestre (maggiorazione +8 dal 2013, +7 prima)
+const TASSI_BCE = {
+  "2013-1":0.75,"2013-2":0.5,"2014-1":0.25,"2014-2":0.15,"2015-1":0.05,"2015-2":0.05,
+  "2016-1":0.05,"2016-2":0,"2017-1":0,"2017-2":0,"2018-1":0,"2018-2":0,"2019-1":0,"2019-2":0,
+  "2020-1":0,"2020-2":0,"2021-1":0,"2021-2":0,"2022-1":0,"2022-2":0,
+  "2023-1":2.5,"2023-2":4,"2024-1":4.5,"2024-2":4.25,"2025-1":3.15,"2025-2":2.15,
+  "2026-1":2.15,"2026-2":2.4
+};
+// Art. 139 CdA — DM 18/07/2025
+const MICRO = { puntoBase:963.40, itt:56.18, itp75:42.14, itp50:28.09, itp25:14.05,
+  coeff:[0,1,1.1,1.2,1.3,1.5,1.7,1.9,2.1,2.3] };
+// Tabelle di Milano 2024 (Osservatorio giustizia civile, 4/6/2024; riv. ISTAT +16,2268%).
+// Colonna (A): punto danno biologico/dinamico-relazionale per invalidità 1..100, età 1 anno.
+const MILANO_A = [0,
+  1393.28,1480.36,1567.44,1654.52,1741.60,1915.76,2089.92,2264.08,2438.24,2612.40,
+  2732.57,2851.87,2972.04,3091.34,3211.51,3330.81,3450.98,3570.28,3690.45,3809.75,
+  3929.92,4049.22,4169.39,4288.69,4408.86,4528.16,4648.33,4767.63,4887.80,5007.10,
+  5127.27,5246.57,5366.74,5486.04,5606.21,5725.51,5845.68,5964.98,6085.15,6204.45,
+  6324.62,6443.92,6564.09,6683.39,6803.56,6922.86,7043.03,7162.33,7282.50,7401.80,
+  7517.62,7629.08,7737.06,7840.68,7940.83,8037.48,8129.79,8218.61,8303.95,8385.80,
+  8464.18,8538.19,8609.60,8678.39,8742.83,8804.66,8863.00,8918.73,8971.85,9021.49,
+  9068.51,9112.92,9153.85,9193.04,9229.61,9263.57,9294.92,9325.40,9351.52,9376.77,
+  9399.42,9420.31,9440.34,9457.76,9473.43,9487.37,9500.43,9511.75,9522.20,9530.91,
+  9538.74,9545.71,9551.81,9557.03,9561.38,9565.74,9569.22,9572.70,9575.32,9578.80];
+const MILANO = { ittGiorno:115, ittBio:84, ittSoff:31, persTempMax:50,
+  soffPct: p=> p<=9?25 : p<=34? 16+p : 50,          // (B) incremento % per sofferenza soggettiva
+  persMax: p=> p<=9?50 : p<=34? 59-p : 25,          // aumento personalizzato massimo
+  demolt: eta=> Math.round((1-0.005*(Math.min(100,Math.max(1,eta))-1))*1000)/1000 };
+// Tabelle integrate a punti per la perdita del rapporto parentale — Milano 2024
+const PARENTALE = {
+  genitori:{ label:"genitore / figlio / coniuge / unione civile / convivente", cap:391103.18, puntiMax:118,
+    eta:[[10,28],[20,26],[30,24],[40,22],[50,20],[60,18],[70,16],[80,12],[90,8],[100,4]],
+    conv:{si:16,stabile:8,no:0}, superstiti:[16,14,12,9] },
+  fratelli:{ label:"fratello / sorella / nipote / nonno", cap:169830.60, puntiMax:116,
+    eta:[[20,20],[30,18],[40,16],[50,14],[60,12],[70,10],[80,8],[90,4],[100,2]],
+    conv:{si:20,si30:25,si40:30,stabile:8,no:0}, superstiti:[16,14,12,9] }
+};
+// DPR 115/2002 art. 13 — scaglioni cognizione ordinaria
+const CU_SCAGLIONI = [[1100,43],[5200,98],[26000,237],[52000,518],[260000,759],[520000,1214],[Infinity,1686]];
+
+/* ===================== UTILITÀ ===================== */
+const fmt = new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"});
+const fmtN = (n,d=2)=>new Intl.NumberFormat("it-IT",{minimumFractionDigits:d,maximumFractionDigits:d}).format(n);
+const r2 = x=>Math.round(x*100)/100;
+const pd = s=>{const [y,m,d]=s.split("-").map(Number);return Date.UTC(y,m-1,d);};
+const daysBetween=(a,b)=>Math.round((pd(b)-pd(a))/86400000); // dies a quo non computatur
+const fmtD = s=>{const [y,m,d]=s.split("-");return `${d}/${m}/${y}`;};
+const todayISO=()=>new Date().toISOString().slice(0,10);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ===================== MOTORI DI CALCOLO ===================== */
+const ENGINES = {
+  interessiLegali(cap, da, a){
+    if(!(cap>0)||!da||!a||pd(a)<=pd(da)) return null;
+    const periodi=[]; let tot=0;
+    let y0=+da.slice(0,4), y1=+a.slice(0,4);
+    for(let y=y0;y<=y1;y++){
+      const start = y===y0? da : `${y}-01-01`;
+      const end   = y===y1? a  : `${y}-12-31`;
+      // giorni: nell'anno di partenza escludo il dies a quo; negli anni pieni conto tutti i giorni (dal 31/12 precedente)
+      const from = y===y0? da : `${y-1}-12-31`;
+      const g = daysBetween(from,end);
+      const t = TASSI_LEGALI[y] ?? TASSI_LEGALI[2026];
+      const i = r2(cap*t/100*g/365);
+      periodi.push({anno:y,dal:start,al:end,giorni:g,tasso:t,interessi:i}); tot+=i;
+    }
+    tot=r2(tot);
+    return {capitale:cap,totale:tot,montante:r2(cap+tot),periodi};
+  },
+  interessiMora(cap, da, a){
+    if(!(cap>0)||!da||!a||pd(a)<=pd(da)) return null;
+    const periodi=[]; let tot=0;
+    // "from" è l'ultimo giorno escluso dal conteggio (dies a quo non computatur); "label" il primo giorno del semestre
+    let from=da, label=da;
+    while(pd(from)<pd(a)){
+      const y=+label.slice(0,4), m=+label.slice(5,7);
+      const sem = m<=6?1:2;
+      const semEnd = sem===1? `${y}-06-30` : `${y}-12-31`;
+      const end = pd(semEnd)<pd(a)? semEnd : a;
+      const bce = TASSI_BCE[`${y}-${sem}`] ?? TASSI_BCE["2026-2"];
+      const magg = y<2013?7:8;
+      const tasso = r2(bce+magg);
+      const g = daysBetween(from,end);
+      const i = r2(cap*tasso/100*g/365);
+      periodi.push({dal:label,al:end,giorni:g,bce,tasso,interessi:i}); tot+=i;
+      from = end;
+      label = sem===1? `${y}-07-01` : `${y+1}-01-01`;
+    }
+    tot=r2(tot);
+    return {capitale:cap,totale:tot,montante:r2(cap+tot),periodi};
+  },
+  dannoMicro(pct, eta, itt, itp75, itp50, itp25, pers){
+    pct=Math.round(pct); if(!(pct>=1&&pct<=9)||!(eta>=0&&eta<=120)) return null;
+    const rid = eta>10? Math.round((1-0.005*(eta-10))*1000)/1000 : 1;
+    const puntoRid = MICRO.puntoBase*rid;
+    const punti=[]; let perm=0;
+    for(let k=1;k<=pct;k++){const v=puntoRid*MICRO.coeff[k]; perm+=v; punti.push({k,coeff:MICRO.coeff[k],valore:r2(v)});}
+    perm=r2(perm);
+    const t = {itt:r2((itt||0)*MICRO.itt), itp75:r2((itp75||0)*MICRO.itp75), itp50:r2((itp50||0)*MICRO.itp50), itp25:r2((itp25||0)*MICRO.itp25)};
+    const temp = r2(t.itt+t.itp75+t.itp50+t.itp25);
+    const base = r2(perm+temp);
+    const morale = r2(base*(pers||0)/100);
+    return {pct,eta,rid,puntoRid:r2(puntoRid),punti,perm,t,temp,base,pers:pers||0,morale,totale:r2(base+morale)};
+  },
+  dannoMilano(pct, eta, pers, itt, itp75, itp50, itp25, persTemp){
+    pct=Math.round(pct); eta=Math.round(eta);
+    if(!(pct>=1&&pct<=100)||!(eta>=0&&eta<=100)) return null;
+    const A=MILANO_A[pct], b=MILANO.soffPct(pct), AB=A*(1+b/100), dem=MILANO.demolt(eta);
+    const cella=Math.round(AB*pct*dem);                 // valore tabellare (arrotondato all'euro come in tabella)
+    const bio=Math.round(A*pct*dem), soff=cella-bio;
+    const persMax=MILANO.persMax(pct); pers=Math.min(Math.max(pers||0,0),persMax);
+    const persImp=Math.round(cella*pers/100);
+    const permanente=cella+persImp;
+    const g={itt:itt||0,itp75:itp75||0,itp50:itp50||0,itp25:itp25||0};
+    const tBase=r2(g.itt*MILANO.ittGiorno + g.itp75*MILANO.ittGiorno*0.75 + g.itp50*MILANO.ittGiorno*0.5 + g.itp25*MILANO.ittGiorno*0.25);
+    persTemp=Math.min(Math.max(persTemp||0,0),MILANO.persTempMax);
+    const tPers=r2(tBase*persTemp/100), temporaneo=r2(tBase+tPers);
+    return {pct,eta,A,b,AB:r2(AB),dem,cella,bio,soff,persMax,pers,persImp,permanente,g,tBase,persTemp,tPers,temporaneo,totale:r2(permanente+temporaneo)};
+  },
+  dannoParentale(cat, etaV, etaS, conv, superstiti, rel){
+    const T=PARENTALE[cat]; if(!T) return null;
+    const pt=(tab,e)=>{ e=Math.max(0,Math.min(100,Math.round(e||0))); return (tab.find(r=>e<=r[0])||tab[tab.length-1])[1]; };
+    const pA=pt(T.eta,etaV), pB=pt(T.eta,etaS);
+    const pC=T.conv[conv]??0;
+    const n=Math.max(0,Math.round(superstiti||0)); const pD=n<=3?T.superstiti[n]:0;
+    const pE=Math.min(30,Math.max(0,Math.round(rel||0)));
+    const punti=pA+pB+pC+pD+pE;
+    const punto=T.cap/100;
+    const lordo=r2(punti*punto);
+    const importo=Math.min(lordo,T.cap);
+    return {cat,pA,pB,pC,pD,pE,punti,punto,lordo,importo,cap:T.cap,capped:lordo>T.cap,puntiMax:T.puntiMax};
+  },
+  contributoUnificato(valore, tipo, grado){
+    if(!(valore>=0)) return null;
+    const scag = v=>CU_SCAGLIONI.find(s=>v<=s[0])[1];
+    let base, nota="";
+    switch(tipo){
+      case "cognizione": base=scag(valore); break;
+      case "monitorio": base=scag(valore)/2; nota="Procedimento monitorio: metà del contributo ordinario (art. 13, c. 3)."; break;
+      case "cautelari": base=scag(valore)/2; nota="Procedimenti cautelari: metà del contributo ordinario (art. 13, c. 3)."; break;
+      case "esecuzione_mobiliare": base= valore<=2500?43:139; nota="Esecuzione mobiliare: 139 € (43 € se valore ≤ 2.500 €)."; break;
+      case "esecuzione_immobiliare": base=278; nota="Esecuzione immobiliare: importo fisso 278 € (art. 13, c. 2)."; break;
+      case "volontaria_giurisdizione": base=98; nota="Volontaria giurisdizione: importo fisso 98 €."; break;
+      case "separazione_consensuale": case "divorzio_congiunto": base=43; nota="Procedimento consensuale/congiunto: 43 €."; break;
+      case "separazione_giudiziale": case "divorzio_giudiziale": base=98; nota="Procedimento giudiziale: 98 €."; break;
+      case "lavoro": base=0; nota="Controversie di lavoro: esenzione in primo grado per redditi sotto soglia (art. 9, c. 1-bis); altrimenti metà del contributo ordinario."; break;
+      default: base=scag(valore);
+    }
+    const molt = grado==="appello"?1.5: grado==="cassazione"?2:1;
+    return {valore,tipo,grado,base:r2(base),molt,dovuto:r2(base*molt),nota};
+  }
+};
+
+/* ===================== LICENZA ===================== */
+const LIC = {
+  key:null, valid:false,
+  load(){ try{ const k=localStorage.getItem("cf_license"); if(k){this.key=k;this.valid=true;} }catch(e){} },
+  save(k){ try{ localStorage.setItem("cf_license",k); }catch(e){} this.key=k; this.valid=true; },
+  clear(){ try{ localStorage.removeItem("cf_license"); }catch(e){} this.key=null; this.valid=false; },
+  async validate(k){
+    // Verifica online (Lemon Squeezy License API). In anteprima, senza rete, accetta il formato per test locale.
+    const looksOk=/^[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}$/i.test(k.trim());
+    if(!looksOk) return {ok:false,msg:"Formato chiave non valido."};
+    try{
+      const r = await fetch(CONFIG.licenseApi,{method:"POST",headers:{"Accept":"application/json","Content-Type":"application/x-www-form-urlencoded"},body:"license_key="+encodeURIComponent(k.trim())});
+      const j = await r.json();
+      if(j && j.valid) return {ok:true,msg:"Licenza attiva."};
+      return {ok:false,msg:(j&&j.error)||"Licenza non valida o scaduta."};
+    }catch(e){
+      return {ok:false,msg:"Verifica non disponibile in questa anteprima. Sul sito definitivo la chiave viene controllata online."};
+    }
+  }
+};
+
+/* ===================== CATALOGO ===================== */
+const CATALOG = [
+  {group:"Danno alla persona", items:[
+    {id:"danno-micro", title:"Danno biologico — micropermanenti", desc:"Lesioni 1–9% (art. 139 CdA): permanente, temporanea, personalizzazione.", refs:"Art. 139 D.Lgs. 209/2005 — valori DM 18/07/2025", status:"free"},
+    {id:"danno-milano", title:"Danno non patrimoniale — Tabelle di Milano", desc:"Lesioni 1–100% con tabella milanese 2024: componente biologica e sofferenza, demoltiplicatore età, personalizzazione, temporanea.", refs:"Osservatorio giustizia civile di Milano — Tabelle edizione 2024 (4/6/2024), riv. ISTAT +16,2268%", status:"free"},
+    {id:"danno-parentale", title:"Danno da perdita del rapporto parentale", desc:"Tabella integrata a punti Milano 2024: età, convivenza, superstiti, qualità della relazione.", refs:"Tabelle milanesi 2024, tabelle integrate a punti (Cass. 10579/2021)", status:"free"},
+  ]},
+  {group:"Interessi e rivalutazione", items:[
+    {id:"interessi-legali", title:"Interessi legali", desc:"Art. 1284 c.c., cambio automatico di saggio per anno.", refs:"Art. 1284 c.c. — saggi DM MEF annuali", status:"free"},
+    {id:"interessi-mora", title:"Interessi di mora commerciali", desc:"D.Lgs. 231/2002: tasso BCE + 8 punti, per semestre.", refs:"D.Lgs. 231/2002, art. 5 — tassi BCE semestrali", status:"free"},
+    {id:"rivalutazione", title:"Rivalutazione monetaria ISTAT", desc:"Indici FOI, con interessi sul rivalutato (Cass. SU 1712/1995).", status:"soon"},
+  ]},
+  {group:"Spese di giustizia e compensi", items:[
+    {id:"contributo-unificato", title:"Contributo unificato", desc:"Scaglioni DPR 115/2002 per rito e grado.", refs:"DPR 115/2002, art. 13", status:"free"},
+    {id:"parcella-civile", title:"Parcella avvocato — civile", desc:"Parametri DM 55/2014 per fase e scaglione.", status:"soon"},
+    {id:"preventivo", title:"Preventivo ex art. 13 L. 247/2012", desc:"Preventivo scritto obbligatorio, pronto da inviare.", status:"soon"},
+  ]},
+  {group:"Lavoro e fisco", items:[
+    {id:"tfr", title:"TFR e indennità di preavviso", desc:"Art. 2120 c.c., tassazione separata.", status:"soon"},
+    {id:"imu", title:"IMU e valore catastale", desc:"Rendita, coefficienti, aliquote comunali.", status:"soon"},
+    {id:"scadenze", title:"Scadenze processuali civili", desc:"Termini 183/190, impugnazioni, sospensione feriale.", status:"soon"},
+  ]},
+];
+const findCalc = id=>CATALOG.flatMap(g=>g.items).find(i=>i.id===id);
+
+/* ===================== VISTE ===================== */
+const $ = s=>document.querySelector(s);
+const state = {inputs:{}};
+
+function renderNav(active){
+  const nav=$("#nav");
+  let html='<div class="nav-list">';
+  html+=`<div class="group"><a href="#/" class="${active==="home"?"active":""}">Tutti i calcolatori</a></div>`;
+  for(const g of CATALOG){
+    html+=`<div class="group"><div class="eyebrow">${esc(g.group)}</div>`;
+    for(const it of g.items){
+      if(it.status==="soon") html+=`<a class="soon" tabindex="-1">${esc(it.title)}<span class="pill soon">presto</span></a>`;
+      else html+=`<a href="#/${it.id}" class="${active===it.id?"active":""}">${esc(it.title)}</a>`;
+    }
+    html+='</div>';
+  }
+  html+='</div>';
+  html+='<select class="nav-select" id="navSelect" aria-label="Scegli calcolatore"><option value="/">Tutti i calcolatori</option>';
+  for(const g of CATALOG){ html+=`<optgroup label="${esc(g.group)}">`; for(const it of g.items){ html+=`<option value="/${it.id}" ${active===it.id?"selected":""} ${it.status==="soon"?"disabled":""}>${esc(it.title)}${it.status==="soon"?" (presto)":""}</option>`;} html+='</optgroup>'; }
+  html+='</select>';
+  nav.innerHTML=html;
+  $("#navSelect").addEventListener("change",e=>location.hash="#"+e.target.value);
+}
+
+function renderHome(){
+  renderNav("home");
+  const free=CATALOG.flatMap(g=>g.items).filter(i=>i.status!=="soon").length;
+  const soon=CATALOG.flatMap(g=>g.items).filter(i=>i.status==="soon").length;
+  $("#main").innerHTML=`
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Per avvocati, praticanti, patronati, periti</div>
+      <h1>Il calcolo giusto, con la norma accanto.</h1>
+      <p>Danno biologico, interessi, rivalutazione, contributo unificato, parcelle: ogni risultato mostra la formula applicata, il riferimento normativo e la data di aggiornamento delle tabelle. Gratis il risultato; con Pro il prospetto completo e la relazione stampabile.</p>
+    </div>
+    <div class="panel"><div class="pb">
+      <div class="eyebrow">Stato tabelle</div>
+      <table class="rows" style="margin-top:6px">
+        <tr><td>Saggio legale 2026</td><td class="r">1,60 %</td></tr>
+        <tr><td>BCE 2° sem. 2026 (mora +8)</td><td class="r">10,40 %</td></tr>
+        <tr><td>Punto 1% art. 139 CdA (DM 18/07/2025)</td><td class="r">963,40 €</td></tr>
+        <tr><td>Punto 1% Tabelle Milano 2024</td><td class="r">1.393,28 €</td></tr>
+        <tr><td>ITT giornaliera CdA / Milano</td><td class="r">56,18 € / 115,00 €</td></tr>
+        <tr><td>Punto danno parentale Milano 2024</td><td class="r">3.911,03 €</td></tr>
+      </table>
+      <div class="note">${free} calcolatori attivi, ${soon} in arrivo. Aggiornamento tabelle: automatico, verificato ogni giorno su Gazzetta Ufficiale.</div>
+    </div></div>
+  </section>
+  ${CATALOG.map(g=>`<div class="eyebrow" style="margin:18px 0 8px">${esc(g.group)}</div><div class="grid">${g.items.map(it=> it.status==="soon"
+    ? `<div class="card soon"><h3>${esc(it.title)}</h3><p>${esc(it.desc)}</p><div class="meta"><span class="pill soon">in arrivo</span></div></div>`
+    : `<a class="card" href="#/${it.id}"><h3>${esc(it.title)}</h3><p>${esc(it.desc)}</p><div class="meta"><span class="pill free">gratis</span><span class="pill pro">prospetto Pro</span></div></a>`).join("")}</div>`).join("")}
+  <div id="piani" style="margin-top:32px"></div>`;
+  renderPlansInto($("#piani"));
+}
+
+function renderPlansInto(el){
+  el.innerHTML=`
+  <div class="eyebrow" style="margin-bottom:8px">Piani</div>
+  <div class="plans">
+    <div class="plan"><div class="eyebrow">Gratis</div><div class="price">0 €</div>
+      <ul><li>Risultato finale di ogni calcolatore</li><li>Riferimenti normativi</li><li>Nessuna registrazione</li></ul>
+      <a class="btn" href="#/">Usa gratis</a></div>
+    <div class="plan hl"><div class="eyebrow" style="color:var(--pro)">Pro</div><div class="price">19 € <small>/ mese · o 149 €/anno</small></div>
+      <ul><li>Prospetto analitico per ogni calcolo</li><li>Relazione stampabile / PDF con fonti</li><li>Tutti i nuovi calcolatori inclusi</li><li>Aggiornamenti tabellari automatici</li></ul>
+      <a class="btn pro" href="${CONFIG.checkoutPro}">Attiva Pro</a></div>
+    <div class="plan"><div class="eyebrow">Studio</div><div class="price">39 € <small>/ mese</small></div>
+      <ul><li>Tutto Pro, per 5 professionisti</li><li>Intestazione dello studio sulle relazioni</li><li>Supporto prioritario</li></ul>
+      <a class="btn" href="${CONFIG.checkoutStudio}">Attiva Studio</a></div>
+  </div>
+  <div class="note">Serve una sola relazione? Report singolo a 9 €, senza abbonamento. Fatturazione e IVA gestite da Lemon Squeezy; disdetta in un click.</div>`;
+}
+
+function renderPlans(){ renderNav("piani"); $("#main").innerHTML=`<div class="head"><h1>Piani e prezzi</h1><p>Il risultato è sempre gratis. Pro sblocca il prospetto, la relazione e gli aggiornamenti.</p></div><div id="piani"></div>`; renderPlansInto($("#piani")); }
+
+/* ---- generico: form + risultato ---- */
+function field(id,label,type,val,opts={}){
+  const v=state.inputs[id]??val;
+  if(type==="select") return `<div class="field ${opts.full?"full":""}"><label for="${id}">${label}</label><select id="${id}" data-in>${opts.options.map(o=>`<option value="${o[0]}" ${o[0]==v?"selected":""}>${o[1]}</option>`).join("")}</select>${opts.hint?`<div class="hint">${opts.hint}</div>`:""}</div>`;
+  return `<div class="field ${opts.full?"full":""}"><label for="${id}">${label}</label><input id="${id}" data-in type="${type}" value="${v}" ${opts.min!=null?`min="${opts.min}"`:""} ${opts.max!=null?`max="${opts.max}"`:""} ${opts.step?`step="${opts.step}"`:""}>${opts.hint?`<div class="hint">${opts.hint}</div>`:""}</div>`;
+}
+function num(id){ const v=parseFloat(($("#"+id)||{}).value); return isNaN(v)?0:v; }
+function val(id){ return ($("#"+id)||{}).value; }
+
+function gate(inner){
+  if(LIC.valid) return inner;
+  return `<div class="gate"><div class="locked">${inner}</div><div class="cta"><div class="cta-card"><h3>Prospetto analitico e relazione</h3><p>Con Pro vedi ogni passaggio del calcolo, le fonti applicate e stampi la relazione da allegare.</p><a class="btn pro" href="${CONFIG.checkoutPro}">Attiva Pro — 19 €/mese</a><div style="margin-top:8px"><a href="#" id="gateHasKey" style="font-size:13px">Ho già una chiave</a></div></div></div></div>`;
+}
+function actions(){ return `<div class="actions"><button class="btn" id="btnPrint">${LIC.valid?"Stampa relazione / PDF":"Stampa relazione (Pro)"}</button><button class="btn" id="btnCopy">Copia risultato</button></div>`; }
+
+function renderCalc(id){
+  const c=findCalc(id); if(!c||c.status==="soon"){ location.hash="#/"; return; }
+  renderNav(id);
+  const V=VIEWS[id];
+  $("#main").innerHTML=`<div class="head"><div class="eyebrow">${esc(CATALOG.find(g=>g.items.includes(c)).group)}</div><h1>${esc(c.title)}</h1><p>${esc(c.desc)}</p><div class="refs">${esc(c.refs||"")}</div></div>
+  <div class="print-head"><b>Calcoli Forensi</b> — ${esc(c.title)} — relazione del ${fmtD(todayISO())}</div>
+  <div class="calc">
+    <div class="panel"><div class="ph"><h2>Dati</h2><span class="pill free">calcolo immediato</span></div><div class="pb"><div class="form">${V.form()}</div></div></div>
+    <div class="panel" id="result"></div>
+  </div>`;
+  const update=()=>{ document.querySelectorAll("[data-in]").forEach(el=>state.inputs[el.id]=el.value); $("#result").innerHTML=V.result(); bindResult(); };
+  document.querySelectorAll("[data-in]").forEach(el=>el.addEventListener("input",update));
+  update();
+}
+function bindResult(){
+  const p=$("#btnPrint"); if(p) p.onclick=()=>{ if(!LIC.valid){ location.hash="#/piani"; return; } window.print(); };
+  const cpy=$("#btnCopy"); if(cpy) cpy.onclick=()=>{ const t=$("#result .total"); if(!t) return; const txt=t.innerText.replace(/\s+/g," ").trim(); navigator.clipboard?.writeText(txt).then(()=>toast("Risultato copiato")).catch(()=>toast("Copia non disponibile")); };
+  const g=$("#gateHasKey"); if(g) g.onclick=e=>{e.preventDefault();openLicense();};
+}
+const empty = msg=>`<div class="pb"><div class="note">${msg}</div></div>`;
+
+const VIEWS = {
+  "danno-micro":{
+    form:()=>[
+      field("pct","Invalidità permanente (%)","number",5,{min:1,max:9,step:1,hint:"da 1 a 9 punti"}),
+      field("eta","Età al momento del sinistro","number",35,{min:0,max:120,step:1}),
+      `<div class="fieldset-title">Invalidità temporanea (giorni)</div>`,
+      field("itt","ITT al 100%","number",10,{min:0,step:1}),
+      field("itp75","ITP al 75%","number",0,{min:0,step:1}),
+      field("itp50","ITP al 50%","number",20,{min:0,step:1}),
+      field("itp25","ITP al 25%","number",0,{min:0,step:1}),
+      `<div class="fieldset-title">Personalizzazione</div>`,
+      field("pers","Aumento per sofferenza morale (%)","number",10,{min:0,max:20,step:1,full:true,hint:"art. 139, c. 3: fino al 20% per particolari condizioni soggettive"}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.dannoMicro(num("pct"),num("eta"),num("itt"),num("itp75"),num("itp50"),num("itp25"),num("pers"));
+      if(!R) return empty("Inserisci una percentuale tra 1 e 9 e un'età valida.");
+      return `<div class="total"><div class="eyebrow">Totale risarcimento</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">${R.pct}% a ${R.eta} anni · permanente ${fmt.format(R.perm)} · temporanea ${fmt.format(R.temp)}${R.pers?` · personalizzazione +${R.pers}%`:""}</div></div>
+      <div class="pb">${gate(`
+        <div class="eyebrow" style="margin-bottom:6px">Danno permanente</div>
+        <div class="tblwrap"><table class="rows"><tr><th>Punto</th><th>Coeff.</th><th class="r">Valore punto</th></tr>
+        ${R.punti.map(p=>`<tr><td>${p.k}°</td><td class="num">${fmtN(p.coeff,1)}</td><td class="r">${fmt.format(p.valore)}</td></tr>`).join("")}
+        <tr class="muted"><td colspan="2">Punto base ${fmt.format(MICRO.puntoBase)} × riduzione età ${fmtN(R.rid,3)} = ${fmt.format(R.puntoRid)}</td><td></td></tr>
+        <tr class="sum"><td colspan="2">Danno permanente</td><td class="r">${fmt.format(R.perm)}</td></tr></table></div>
+        <div class="eyebrow" style="margin:14px 0 6px">Danno temporaneo</div>
+        <div class="tblwrap"><table class="rows"><tr><th>Voce</th><th class="r">Giorni</th><th class="r">Importo</th></tr>
+        <tr><td>ITT 100% (${fmt.format(MICRO.itt)}/g)</td><td class="r">${num("itt")}</td><td class="r">${fmt.format(R.t.itt)}</td></tr>
+        <tr><td>ITP 75% (${fmt.format(MICRO.itp75)}/g)</td><td class="r">${num("itp75")}</td><td class="r">${fmt.format(R.t.itp75)}</td></tr>
+        <tr><td>ITP 50% (${fmt.format(MICRO.itp50)}/g)</td><td class="r">${num("itp50")}</td><td class="r">${fmt.format(R.t.itp50)}</td></tr>
+        <tr><td>ITP 25% (${fmt.format(MICRO.itp25)}/g)</td><td class="r">${num("itp25")}</td><td class="r">${fmt.format(R.t.itp25)}</td></tr>
+        <tr class="sum"><td colspan="2">Danno temporaneo</td><td class="r">${fmt.format(R.temp)}</td></tr></table></div>
+        <div class="eyebrow" style="margin:14px 0 6px">Riepilogo</div>
+        <table class="rows"><tr><td>Danno biologico (permanente + temporaneo)</td><td class="r">${fmt.format(R.base)}</td></tr>
+        <tr><td>Personalizzazione ${R.pers}%</td><td class="r">${fmt.format(R.morale)}</td></tr>
+        <tr class="sum"><td>Totale</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
+        <div class="note">Formula: valore punto = 963,40 € × coefficiente crescente per punto (1,0 → 2,3) × [1 − 0,5% × (età − 10)]. Valori monetari aggiornati con DM 18 luglio 2025 ai sensi dell'art. 139, c. 5, D.Lgs. 209/2005. Il risultato non include rivalutazione e interessi: usa i calcolatori dedicati.</div>`)}
+      </div>${actions()}`;
+    }
+  },
+  "danno-milano":{
+    form:()=>[
+      field("mpct","Invalidità permanente (%)","number",25,{min:1,max:100,step:1,hint:"da 1 a 100 punti"}),
+      field("meta","Età al momento del sinistro","number",40,{min:0,max:100,step:1}),
+      field("mpers","Aumento personalizzato (%)","number",0,{min:0,max:50,step:1,full:true,hint:"massimo variabile per fascia: 50% fino al 9%, decrescente fino al 25% dal 35%"}),
+      `<div class="fieldset-title">Inabilità temporanea (giorni)</div>`,
+      field("mitt","Al 100%","number",0,{min:0,step:1}),
+      field("mitp75","Al 75%","number",0,{min:0,step:1}),
+      field("mitp50","Al 50%","number",0,{min:0,step:1}),
+      field("mitp25","Al 25%","number",0,{min:0,step:1}),
+      field("mpersT","Aumento personalizzato temporanea (%)","number",0,{min:0,max:50,step:1,full:true,hint:"fino al 50% per peculiarità allegate e provate"}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.dannoMilano(num("mpct"),num("meta"),num("mpers"),num("mitt"),num("mitp75"),num("mitp50"),num("mitp25"),num("mpersT"));
+      if(!R) return empty("Inserisci una percentuale tra 1 e 100 e un'età tra 0 e 100.");
+      const over=num("mpers")>R.persMax;
+      return `<div class="total"><div class="eyebrow">Danno non patrimoniale — Milano 2024</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">${R.pct}% a ${R.eta} anni · valore tabellare ${fmt.format(R.cella)}${R.pers?` · personalizzazione +${R.pers}%`:""}${R.temporaneo?` · temporanea ${fmt.format(R.temporaneo)}`:""}</div></div>
+      <div class="pb">${over?`<div class="warn" style="margin:0 0 10px">Per il ${R.pct}% l'aumento massimo è ${R.persMax}%: applicato il massimo.</div>`:""}${gate(`
+        <div class="eyebrow" style="margin-bottom:6px">Danno permanente</div>
+        <table class="rows">
+        <tr><td>(A) Punto biologico/dinamico-relazionale al ${R.pct}%</td><td class="r">${fmt.format(R.A)}</td></tr>
+        <tr><td>(B) Sofferenza soggettiva interiore media presumibile +${R.b}%</td><td class="r">${fmt.format(R.AB-R.A)}</td></tr>
+        <tr><td>(A+B) Punto danno non patrimoniale</td><td class="r">${fmt.format(R.AB)}</td></tr>
+        <tr><td>Demoltiplicatore età (${R.eta} anni)</td><td class="r">${fmtN(R.dem,3)}</td></tr>
+        <tr class="muted"><td>Valore tabellare = ${fmt.format(R.AB)} × ${R.pct} × ${fmtN(R.dem,3)}</td><td class="r">${fmt.format(R.cella)}</td></tr>
+        <tr><td style="padding-left:14px">di cui biologico/dinamico-relazionale</td><td class="r">${fmt.format(R.bio)}</td></tr>
+        <tr><td style="padding-left:14px">di cui sofferenza soggettiva interiore</td><td class="r">${fmt.format(R.soff)}</td></tr>
+        <tr><td>Aumento personalizzato ${R.pers}% (max ${R.persMax}%)</td><td class="r">${fmt.format(R.persImp)}</td></tr>
+        <tr class="sum"><td>Danno permanente</td><td class="r">${fmt.format(R.permanente)}</td></tr></table>
+        <div class="eyebrow" style="margin:14px 0 6px">Inabilità temporanea</div>
+        <div class="tblwrap"><table class="rows"><tr><th>Voce</th><th class="r">Giorni</th><th class="r">Importo</th></tr>
+        <tr><td>100% (${fmt.format(MILANO.ittGiorno)}/g = ${fmt.format(MILANO.ittBio)} + ${fmt.format(MILANO.ittSoff)})</td><td class="r">${R.g.itt}</td><td class="r">${fmt.format(r2(R.g.itt*MILANO.ittGiorno))}</td></tr>
+        <tr><td>75% (${fmt.format(MILANO.ittGiorno*0.75)}/g)</td><td class="r">${R.g.itp75}</td><td class="r">${fmt.format(r2(R.g.itp75*MILANO.ittGiorno*0.75))}</td></tr>
+        <tr><td>50% (${fmt.format(MILANO.ittGiorno*0.5)}/g)</td><td class="r">${R.g.itp50}</td><td class="r">${fmt.format(r2(R.g.itp50*MILANO.ittGiorno*0.5))}</td></tr>
+        <tr><td>25% (${fmt.format(MILANO.ittGiorno*0.25)}/g)</td><td class="r">${R.g.itp25}</td><td class="r">${fmt.format(r2(R.g.itp25*MILANO.ittGiorno*0.25))}</td></tr>
+        <tr><td>Aumento personalizzato ${R.persTemp}%</td><td></td><td class="r">${fmt.format(R.tPers)}</td></tr>
+        <tr class="sum"><td colspan="2">Danno temporaneo</td><td class="r">${fmt.format(R.temporaneo)}</td></tr></table></div>
+        <table class="rows" style="margin-top:12px"><tr class="sum"><td>Totale danno non patrimoniale</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
+        <div class="note">Tabelle milanesi edizione 2024: valori 2021 rivalutati del 16,2268% (ISTAT 1.1.2021→1.1.2024) e arrotondati all'euro; il demoltiplicatore per età scende di 0,005 per anno da 1 (1 anno) a 0,505 (100 anni). Per lesioni da RC auto e sanitaria con invalidità 1–9% si applica invece l'art. 139 CdA (calcolatore dedicato). Importi all'1.1.2024: per la liquidazione attuale aggiungi rivalutazione e interessi.</div>`)}
+      </div>${actions()}`;
+    }
+  },
+  "danno-parentale":{
+    form:()=>[
+      field("pcat","Rapporto perduto","select","genitori",{full:true,options:[["genitori","Genitore, figlio, coniuge, unione civile, convivente di fatto"],["fratelli","Fratello/sorella, nipote, nonno"]]}),
+      field("petaV","Età della vittima primaria (deceduto)","number",15,{min:0,max:100,step:1}),
+      field("petaS","Età del superstite","number",45,{min:0,max:100,step:1}),
+      field("pconv","Convivenza","select","si",{options:[["si","Conviventi"],["si30","Conviventi da oltre 30 anni (solo fratelli/nipoti)"],["si40","Conviventi da oltre 40 anni (solo fratelli/nipoti)"],["stabile","Non conviventi, stesso stabile/condominio"],["no","Non conviventi"]]}),
+      field("psup","Altri congiunti superstiti del nucleo primario","select","2",{options:[["0","Nessuno"],["1","Uno"],["2","Due"],["3","Tre"],["4","Quattro o più"]]}),
+      field("prel","Qualità e intensità della relazione (punti 0–30)","number",15,{min:0,max:30,step:1,full:true,hint:"0 = minimo, 15 = ipotesi intermedia, 30 = massimo (frequentazioni, festività, vacanze, assistenza, agonia…)"}),
+    ].join(""),
+    result:()=>{
+      const cat=val("pcat"); let conv=val("pconv"); if(cat==="genitori"&&(conv==="si30"||conv==="si40")) conv="si";
+      const R=ENGINES.dannoParentale(cat,num("petaV"),num("petaS"),conv,num("psup"),num("prel"));
+      if(!R) return empty("Seleziona il rapporto.");
+      const T=PARENTALE[cat];
+      return `<div class="total"><div class="eyebrow">Danno da perdita del rapporto parentale</div><div class="big">${fmt.format(R.importo)}</div><div class="sub">${R.punti} punti × ${fmt.format(R.punto)}${R.capped?` = ${fmt.format(R.lordo)} → ridotto al tetto di ${fmt.format(R.cap)}`:""}</div></div>
+      <div class="pb">${gate(`<table class="rows"><tr><th>Parametro</th><th class="r">Punti</th></tr>
+        <tr><td>A. Età della vittima primaria (${num("petaV")} anni)</td><td class="r">${R.pA}</td></tr>
+        <tr><td>B. Età della vittima secondaria (${num("petaS")} anni)</td><td class="r">${R.pB}</td></tr>
+        <tr><td>C. Convivenza</td><td class="r">${R.pC}</td></tr>
+        <tr><td>D. Sopravvivenza di altri congiunti del nucleo primario</td><td class="r">${R.pD}</td></tr>
+        <tr><td>E. Qualità e intensità della relazione affettiva</td><td class="r">${R.pE}</td></tr>
+        <tr class="sum"><td>Totale punti (max attribuibili ${R.puntiMax})</td><td class="r">${R.punti}</td></tr></table>
+        <table class="rows" style="margin-top:12px"><tr><td>Valore punto 2024 (${fmt.format(R.cap)} / 100)</td><td class="r">${fmt.format(R.punto)}</td></tr>
+        <tr><td>Importo da punti</td><td class="r">${fmt.format(R.lordo)}</td></tr>
+        <tr><td>Tetto di regola (cap)</td><td class="r">${fmt.format(R.cap)}</td></tr>
+        <tr class="sum"><td>Importo liquidabile</td><td class="r">${fmt.format(R.importo)}</td></tr></table>
+        <div class="note">Tabella integrata a punti — ${esc(T.label)} (Milano 2024). Il tetto può essere superato solo in circostanze eccezionali con adeguata motivazione; contrasti, violenze o reati del superstite verso la vittima possono ridurre fino ad azzerare l'importo. Con 4 o più superstiti il parametro D vale 0 punti, come negli esempi ufficiali dell'Osservatorio. Importi all'1.1.2024.</div>`)}</div>${actions()}`;
+    }
+  },
+  "interessi-legali":{
+    form:()=>[
+      field("cap","Capitale (€)","number",10000,{min:0,step:0.01,full:true}),
+      field("da","Decorrenza","date","2021-03-15"),
+      field("a","Data di calcolo","date",todayISO()),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.interessiLegali(num("cap"),val("da"),val("a"));
+      if(!R) return empty("Inserisci capitale e un intervallo di date valido.");
+      return `<div class="total"><div class="eyebrow">Interessi legali maturati</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">montante ${fmt.format(R.montante)} · dal ${fmtD(val("da"))} al ${fmtD(val("a"))} · ${R.periodi.reduce((s,p)=>s+p.giorni,0)} giorni</div></div>
+      <div class="pb">${gate(`<div class="tblwrap"><table class="rows"><tr><th>Periodo</th><th class="r">Giorni</th><th class="r">Saggio</th><th class="r">Interessi</th></tr>
+      ${R.periodi.map(p=>`<tr><td>${fmtD(p.dal)} – ${fmtD(p.al)}</td><td class="r">${p.giorni}</td><td class="r">${fmtN(p.tasso,2)} %</td><td class="r">${fmt.format(p.interessi)}</td></tr>`).join("")}
+      <tr class="sum"><td colspan="3">Totale interessi semplici</td><td class="r">${fmt.format(R.totale)}</td></tr></table></div>
+      <div class="note">Art. 1284 c.c.: saggio fissato annualmente con decreto del Ministro dell'Economia; interessi semplici, computo per giorni (dies a quo non computatur) su base 365. Divieto di anatocismo salvo art. 1283 c.c.</div>`)}</div>${actions()}`;
+    }
+  },
+  "interessi-mora":{
+    form:()=>[
+      field("capm","Credito commerciale (€)","number",25000,{min:0,step:0.01,full:true}),
+      field("dam","Decorrenza mora","date","2024-01-10",{hint:"giorno successivo alla scadenza (art. 4 D.Lgs. 231/2002)"}),
+      field("am","Data di calcolo","date",todayISO()),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.interessiMora(num("capm"),val("dam"),val("am"));
+      if(!R) return empty("Inserisci importo e un intervallo di date valido.");
+      return `<div class="total"><div class="eyebrow">Interessi di mora</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">totale dovuto ${fmt.format(R.montante)} · tasso attuale ${fmtN(R.periodi[R.periodi.length-1].tasso,2)} %</div></div>
+      <div class="pb">${gate(`<div class="tblwrap"><table class="rows"><tr><th>Semestre</th><th class="r">Giorni</th><th class="r">BCE</th><th class="r">Mora</th><th class="r">Interessi</th></tr>
+      ${R.periodi.map(p=>`<tr><td>${fmtD(p.dal)} – ${fmtD(p.al)}</td><td class="r">${p.giorni}</td><td class="r">${fmtN(p.bce,2)} %</td><td class="r">${fmtN(p.tasso,2)} %</td><td class="r">${fmt.format(p.interessi)}</td></tr>`).join("")}
+      <tr class="sum"><td colspan="4">Totale interessi di mora</td><td class="r">${fmt.format(R.totale)}</td></tr></table></div>
+      <div class="note">D.Lgs. 231/2002, art. 5: tasso di riferimento BCE del 1° gennaio / 1° luglio, maggiorato di 8 punti (7 fino al 2012). Solo transazioni commerciali tra imprese o con la PA; per i privati usa gli interessi legali. Oltre agli interessi spetta l'indennizzo forfettario di 40 € per i costi di recupero (art. 6).</div>`)}</div>${actions()}`;
+    }
+  },
+  "contributo-unificato":{
+    form:()=>[
+      field("cuv","Valore della causa (€)","number",15000,{min:0,step:0.01,full:true,hint:"per valore indeterminabile inserisci 52.000 (scaglione 518 €)"}),
+      field("cut","Tipo di procedimento","select","cognizione",{options:[["cognizione","Cognizione ordinaria"],["monitorio","Decreto ingiuntivo (monitorio)"],["cautelari","Cautelare"],["esecuzione_mobiliare","Esecuzione mobiliare"],["esecuzione_immobiliare","Esecuzione immobiliare"],["volontaria_giurisdizione","Volontaria giurisdizione"],["separazione_consensuale","Separazione consensuale"],["separazione_giudiziale","Separazione giudiziale"],["divorzio_congiunto","Divorzio congiunto"],["divorzio_giudiziale","Divorzio giudiziale"],["lavoro","Lavoro / previdenza"]]}),
+      field("cug","Grado","select","primo",{options:[["primo","Primo grado"],["appello","Appello (×1,5)"],["cassazione","Cassazione (×2)"]]}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.contributoUnificato(num("cuv"),val("cut"),val("cug"));
+      if(!R) return empty("Inserisci il valore della causa.");
+      return `<div class="total"><div class="eyebrow">Contributo unificato dovuto</div><div class="big">${fmt.format(R.dovuto)}</div><div class="sub">base ${fmt.format(R.base)}${R.molt!==1?` × ${fmtN(R.molt,1)}`:""} · oltre a marca da 27 € per notifiche d'ufficio (art. 30) ove dovuta</div></div>
+      <div class="pb">${gate(`<div class="tblwrap"><table class="rows"><tr><th>Scaglione (art. 13, c. 1)</th><th class="r">CU</th></tr>
+      ${CU_SCAGLIONI.map((s,i)=>{const lo=i?CU_SCAGLIONI[i-1][0]:0; const hit=R.tipo==="cognizione"||R.tipo==="monitorio"||R.tipo==="cautelari"; const on=hit&&R.valore>lo&&R.valore<=s[0]; return `<tr class="${on?"":"muted"}"><td>${s[0]===Infinity?`oltre ${fmtN(lo,0)} €`:`fino a ${fmtN(s[0],0)} €`}${on?" ◂":""}</td><td class="r">${fmt.format(s[1])}</td></tr>`;}).join("")}
+      </table></div>
+      <table class="rows" style="margin-top:12px"><tr><td>Contributo base</td><td class="r">${fmt.format(R.base)}</td></tr><tr><td>Moltiplicatore di grado</td><td class="r">× ${fmtN(R.molt,1)}</td></tr><tr class="sum"><td>Dovuto</td><td class="r">${fmt.format(R.dovuto)}</td></tr></table>
+      ${R.nota?`<div class="warn">${esc(R.nota)}</div>`:""}
+      <div class="note">DPR 115/2002 (T.U. spese di giustizia), art. 13: importi in vigore dal 2023. In appello aumento del 50%, in cassazione raddoppio (c. 1-bis). Raddoppio ulteriore se l'impugnazione è respinta o dichiarata inammissibile (c. 1-quater). Il valore si determina ex artt. 10 ss. c.p.c.</div>`)}</div>${actions()}`;
+    }
+  }
+};
+
+/* ===================== LICENZA UI ===================== */
+function openLicense(){ $("#licenseMsg").textContent=""; $("#licenseKey").value=LIC.key||""; $("#dlgLicense").showModal(); }
+$("#btnLicense").onclick=openLicense;
+$("#licenseCancel").onclick=()=>$("#dlgLicense").close();
+$("#licenseOk").onclick=async()=>{
+  const k=$("#licenseKey").value.trim();
+  if(!k){ LIC.clear(); refreshBadge(); $("#dlgLicense").close(); route(); return; }
+  $("#licenseMsg").textContent="Verifica in corso…";
+  const r=await LIC.validate(k);
+  $("#licenseMsg").textContent=r.msg;
+  if(r.ok){ LIC.save(k); refreshBadge(); setTimeout(()=>{ $("#dlgLicense").close(); route(); },500); }
+};
+function refreshBadge(){ const b=$("#licenseBadge"); if(LIC.valid){b.textContent="Pro attivo";b.className="pill pro";$("#btnUpgrade").hidden=true;$("#btnLicense").textContent="Licenza";} else {b.textContent="Versione gratuita";b.className="pill free";$("#btnUpgrade").hidden=false;$("#btnLicense").textContent="Ho una licenza";} }
+function toast(m){ const t=document.createElement("div"); t.className="toast"; t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),1800); }
+
+/* ===================== ROUTER ===================== */
+function route(){
+  const h=(location.hash||"#/").slice(1);
+  if(h==="/"||h==="") renderHome();
+  else if(h==="/piani") renderPlans();
+  else if(h==="/verifica") renderTests();
+  else renderCalc(h.slice(1));
+  window.scrollTo({top:0});
+}
+window.addEventListener("hashchange",route);
+LIC.load(); refreshBadge(); $("#footVersion").textContent="Versione "+CONFIG.version+" · tabelle: saggio legale 2026, BCE 2° sem. 2026, DM 18/07/2025, Tabelle milanesi ed. 2024, DPR 115/2002.";
+route();
+
+/* ===================== AUTOVERIFICA (#/verifica) ===================== */
+// Casi presi dagli MCP Legal IT il 17/09/2026: il motore deve riprodurli al centesimo.
+const TESTS = [
+  ["micro 5%/35a",()=>ENGINES.dannoMicro(5,35,10,0,20,0,10).totale,6892.32],
+  ["micro 1%/70a",()=>ENGINES.dannoMicro(1,70,0,0,0,0,0).totale,674.38],
+  ["micro 9%/20a",()=>ENGINES.dannoMicro(9,20,30,15,0,40,0).totale,15784.24],
+  ["micro 3%/50a +20%",()=>ENGINES.dannoMicro(3,50,5,0,0,0,20).totale,3389.13],
+  ["legali 10k 2021→2026",()=>ENGINES.interessiLegali(10000,"2021-03-15","2026-09-17").totale,1190.45],
+  ["legali 5k 2015→2020",()=>ENGINES.interessiLegali(5000,"2015-06-01","2020-06-01").totale,85.66],
+  ["mora 25k 2024→2026",()=>ENGINES.interessiMora(25000,"2024-01-10","2026-09-17").totale,7498.97],
+  ["mora giorni 1° sem.",()=>ENGINES.interessiMora(25000,"2024-01-10","2026-09-17").periodi[0].giorni,172],
+  ["Milano 25%/1a (tab. 155.412)",()=>ENGINES.dannoMilano(25,1,0,0,0,0,0,0).cella,155412],
+  ["Milano 70%/5a (tab. 928.311)",()=>ENGINES.dannoMilano(70,5,0,0,0,0,0,0).cella,928311],
+  ["Milano 100%/100a (tab. 725.594)",()=>ENGINES.dannoMilano(100,100,0,0,0,0,0,0).cella,725594],
+  ["Parentale es. 1 Osservatorio (74 punti)",()=>ENGINES.dannoParentale("genitori",15,45,"si",2,0).punti,74],
+  ["Parentale es. fratelli (26 punti)",()=>ENGINES.dannoParentale("fratelli",51,45,"no",5,0).punti,26],
+  ["CU 15k cognizione",()=>ENGINES.contributoUnificato(15000,"cognizione","primo").dovuto,237],
+  ["CU 80k monitorio",()=>ENGINES.contributoUnificato(80000,"monitorio","primo").dovuto,379.5],
+  ["CU 300k appello",()=>ENGINES.contributoUnificato(300000,"cognizione","appello").dovuto,1821],
+  ["CU 3k cassazione",()=>ENGINES.contributoUnificato(3000,"cognizione","cassazione").dovuto,196],
+  ["CU esec. immobiliare",()=>ENGINES.contributoUnificato(1000000,"esecuzione_immobiliare","primo").dovuto,278],
+];
+function renderTests(){
+  renderNav("verifica");
+  const rows=TESTS.map(([n,f,exp])=>{let got;try{got=f();}catch(e){got="ERR "+e.message;} const ok=typeof got==="number"&&Math.abs(got-exp)<0.011; return {n,got,exp,ok};});
+  const pass=rows.filter(r=>r.ok).length;
+  $("#main").innerHTML=`<div class="head"><h1>Verifica motori di calcolo</h1><p>${pass}/${rows.length} casi coincidono con gli output MCP Legal IT.</p></div><div class="panel"><div class="pb"><table class="rows"><tr><th>Caso</th><th class="r">Atteso</th><th class="r">Ottenuto</th><th>Esito</th></tr>${rows.map(r=>`<tr><td>${esc(r.n)}</td><td class="r">${r.exp}</td><td class="r">${typeof r.got==="number"?r.got:esc(r.got)}</td><td style="color:${r.ok?"var(--ok)":"var(--warn)"}">${r.ok?"OK":"DIFF"}</td></tr>`).join("")}</table></div></div>`;
+}
+</script>
+
+</body>
+</html>
