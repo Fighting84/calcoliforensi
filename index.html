@@ -55,7 +55,13 @@ img{max-width:100%}
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;hyphens:auto;-webkit-hyphens:auto}
+[hidden]{display:none!important}
+/* testo corrente: giustificato, con sillabazione, larghezza di lettura controllata */
+.just,.head p,.hero p,.note,.warn,.foot p,dialog p,.cta-card p{text-align:justify;text-justify:inter-word;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
+.card p,.plan li,.field .hint{text-align:left;text-wrap:pretty}
+.head p,.hero p{max-width:66ch}
+.note,.warn{max-width:none}
 a{color:var(--accent)}
 button{font:inherit}
 h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0;text-wrap:balance}
@@ -92,6 +98,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0;text-
 .nav a:hover{background:var(--surface-2)}
 .nav a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
 .nav a.soon{color:var(--ink-3);cursor:default}
+.nav a .pill{flex:none}
 .nav-select{display:none;width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);font:inherit}
 @media (max-width:820px){.nav-list{display:none}.nav-select{display:block}}
 
@@ -147,12 +154,14 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0;text-
 .hero p{color:var(--ink-2);font-size:16px;max-width:56ch;margin:10px 0 0}
 .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0 28px}
 @media (max-width:820px){.plans{grid-template-columns:1fr}}
-.plan{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:8px}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 16px;display:grid;grid-template-rows:auto auto 1fr auto;gap:10px;align-items:start}
 .plan.hl{border-color:var(--pro)}
-.plan .price{font-family:var(--mono);font-size:26px}
-.plan .price small{font-family:var(--sans);font-size:13px;color:var(--ink-3)}
-.plan ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)}
-.plan .btn{margin-top:auto;justify-content:center}
+.plan .price{font-family:var(--mono);font-size:26px;line-height:1.2;min-height:2.4em;display:flex;flex-direction:column;justify-content:flex-start}
+.plan .price small{font-family:var(--sans);font-size:12.5px;color:var(--ink-3);display:block;margin-top:2px}
+.plan ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);display:flex;flex-direction:column;gap:4px}
+.plan li{padding-left:2px}
+.plan .btn{justify-content:center;align-self:end;width:100%}
+.plans-note{max-width:78ch;margin-top:2px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;gap:6px}
 .card:hover{border-color:var(--accent)}
@@ -219,7 +228,7 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 <script>
 /* ===================== CONFIG ===================== */
 const CONFIG = {
-  version: "0.5.0 — 21 settembre 2026",
+  version: "0.5.1 — 21 settembre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -741,10 +750,10 @@ function renderPlansInto(el){
       <ul><li>Tutto Pro, per 5 professionisti</li><li>Intestazione dello studio sulle relazioni</li><li>Supporto prioritario</li></ul>
       <a class="btn" href="${CONFIG.checkoutStudio}">Attiva Studio</a></div>
   </div>
-  <div class="note">Serve una sola relazione? Report singolo a 9 €, senza abbonamento. Fatturazione e IVA gestite da Lemon Squeezy; disdetta in un click.</div>`;
+  <div class="note plans-note">Serve una sola relazione? È disponibile il report singolo a 9 €, senza abbonamento. Fatturazione e IVA sono gestite dalla piattaforma di pagamento; la disdetta si fa in un click, senza vincoli di durata.</div>`;
 }
 
-function renderPlans(){ renderNav("piani"); $("#main").innerHTML=`<div class="head"><h1>Piani e prezzi</h1><p>Il risultato è sempre gratis. Pro sblocca il prospetto, la relazione e gli aggiornamenti.</p></div><div id="piani"></div>`; renderPlansInto($("#piani")); }
+function renderPlans(){ renderNav("piani"); $("#main").innerHTML=`<div class="head"><h1>Piani e prezzi</h1><p>Il risultato di ogni calcolatore è sempre gratuito e senza registrazione. Il piano Pro sblocca il prospetto analitico con tutti i passaggi, la relazione stampabile con le fonti applicate e gli aggiornamenti tabellari automatici; il piano Studio estende le stesse funzioni a cinque professionisti.</p></div><div id="piani"></div>`; renderPlansInto($("#piani")); }
 
 /* ---- generico: form + risultato ---- */
 function field(id,label,type,val,opts={}){
@@ -1140,6 +1149,7 @@ function route(){
   window.scrollTo({top:0});
 }
 window.addEventListener("hashchange",route);
+document.documentElement.lang="it";   // necessario per la sillabazione automatica
 LIC.load(); refreshBadge(); $("#footVersion").textContent="Versione "+CONFIG.version+" · tabelle: saggio legale 2026, BCE 2° sem. 2026, DM 18/07/2025, DPR 12/2025 (TUN), Tabelle milanesi ed. 2024, DPR 115/2002.";
 route();
 
