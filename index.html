@@ -219,11 +219,12 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 <script>
 /* ===================== CONFIG ===================== */
 const CONFIG = {
-  version: "0.2.0 — 17 settembre 2026",
+  version: "0.3.0 — 21 settembre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
-  licenseApi: "https://api.lemonsqueezy.com/v1/licenses/validate"
+  licenseApi: "https://api.lemonsqueezy.com/v1/licenses/validate",
+  testKey: "PROVA-CALCOLI-FORENSI-2026"   // chiave di collaudo: da rimuovere all'attivazione dei pagamenti
 };
 
 /* ===================== DATI NORMATIVI ===================== */
@@ -263,6 +264,31 @@ const MILANO = { ittGiorno:115, ittBio:84, ittSoff:31, persTempMax:50,
   soffPct: p=> p<=9?25 : p<=34? 16+p : 50,          // (B) incremento % per sofferenza soggettiva
   persMax: p=> p<=9?50 : p<=34? 59-p : 25,          // aumento personalizzato massimo
   demolt: eta=> Math.round((1-0.005*(Math.min(100,Math.max(1,eta))-1))*1000)/1000 };
+// Tabella Unica Nazionale — DPR 13/01/2025 n. 12 (GU n. 40 del 18/02/2025, S.O. n. 4), art. 138 CdA.
+// Allegato I: Tavola 1.A coefficiente moltiplicatore biologico (indice = % I.P. 10..100)
+const TUN_CM = {10:2.75773,11:2.91941,12:3.07459,13:3.22456,14:3.37024,15:3.5123,16:3.65125,17:3.78749,18:3.92129,19:4.05292,
+  20:4.18254,21:4.31033,22:4.4364,23:4.56086,24:4.68379,25:4.80527,26:4.92536,27:5.04411,28:5.16157,29:5.27777,
+  30:5.39275,31:5.50654,32:5.61916,33:5.73064,34:5.84099,35:5.95024,36:6.0584,37:6.16548,38:6.27149,39:6.37645,
+  40:6.48037,41:6.58326,42:6.68512,43:6.78596,44:6.88578,45:6.98461,46:7.08243,47:7.17926,48:7.2751,49:7.36995,
+  50:7.46382,51:7.55671,52:7.64863,53:7.73958,54:7.82955,55:7.91857,56:8.00661,57:8.0937,58:8.17983,59:8.265,
+  60:8.34922,61:8.43248,62:8.5148,63:8.59616,64:8.67657,65:8.75604,66:8.83456,67:8.91214,68:8.98877,69:9.06446,
+  70:9.13921,71:9.21302,72:9.28588,73:9.35781,74:9.42881,75:9.49886,76:9.56798,77:9.63616,78:9.70341,79:9.76972,
+  80:9.8351,81:9.89954,82:9.96305,83:10.02563,84:10.08728,85:10.14799,86:10.20778,87:10.26663,88:10.32456,89:10.38155,
+  90:10.43762,91:10.49275,92:10.54696,93:10.60023,94:10.65258,95:10.70401,96:10.7545,97:10.80407,98:10.8527,99:10.90042,100:10.9472};
+// Tavola 1.B coefficiente di riduzione per età (indice = età 0..100; 0 anni = 1)
+const TUN_ETA = [1,1,0.995,0.99,0.985,0.98,0.975,0.97,0.965,0.96,0.955,0.95,0.945,0.94,0.935,0.93,0.925,0.92,0.915,0.91,
+  0.905,0.901,0.896,0.891,0.886,0.881,0.876,0.871,0.866,0.861,0.856,0.851,0.846,0.841,0.836,0.831,0.826,0.821,0.816,0.811,
+  0.806,0.801,0.797,0.792,0.787,0.782,0.777,0.772,0.767,0.762,0.757,0.752,0.747,0.742,0.738,0.733,0.728,0.723,0.718,0.713,
+  0.708,0.703,0.698,0.694,0.689,0.684,0.679,0.674,0.669,0.664,0.66,0.655,0.65,0.645,0.64,0.636,0.631,0.626,0.621,0.617,
+  0.612,0.607,0.602,0.598,0.593,0.588,0.584,0.579,0.574,0.57,0.565,0.56,0.556,0.551,0.547,0.542,0.537,0.533,0.529,0.525,0.522];
+// Tavola 2 coefficiente danno morale, valore minimo (medio = +0,05; massimo = +0,10)
+const TUN_MORALE_MIN = {10:.210,11:.241,12:.253,13:.263,14:.271,15:.278,16:.285,17:.291,18:.296,19:.302,20:.307,21:.311,22:.316,23:.320,24:.324,25:.328,
+  26:.332,27:.336,28:.340,29:.343,30:.347,31:.350,32:.353,33:.357,34:.360,35:.363,36:.366,37:.369,38:.372,39:.375,40:.377,41:.380,42:.383,43:.386,44:.388,45:.391,
+  46:.393,47:.396,48:.398,49:.401,50:.403,51:.406,52:.408,53:.410,54:.413,55:.415,56:.417,57:.420,58:.422,59:.424,60:.426,61:.428,62:.430,63:.433,64:.435,65:.437,
+  66:.439,67:.441,68:.443,69:.445,70:.447,71:.449,72:.451,73:.453,74:.455,75:.456,76:.458,77:.460,78:.462,79:.464,80:.466,81:.468,82:.469,83:.471,84:.473,85:.475,
+  86:.476,87:.478,88:.480,89:.482,90:.483,91:.485,92:.487,93:.488,94:.490,95:.492,96:.493,97:.495,98:.497,99:.498,100:.500};
+// Valore del primo punto (art. 139 CdA, aggiornato annualmente) e ITT giornaliera, per anno di riferimento
+const TUN_P1 = { "2025":{p1:963.40, itt:56.18, fonte:"DM MIMIT 18/07/2025"}, "2024":{p1:947.30, itt:55.24, fonte:"valori 2024 usati nella tabella pubblicata in GU"} };
 // Tabelle integrate a punti per la perdita del rapporto parentale — Milano 2024
 const PARENTALE = {
   genitori:{ label:"genitore / figlio / coniuge / unione civile / convivente", cap:391103.18, puntiMax:118,
@@ -354,6 +380,26 @@ const ENGINES = {
     const tPers=r2(tBase*persTemp/100), temporaneo=r2(tBase+tPers);
     return {pct,eta,A,b,AB:r2(AB),dem,cella,bio,soff,persMax,pers,persImp,permanente,g,tBase,persTemp,tPers,temporaneo,totale:r2(permanente+temporaneo)};
   },
+  dannoTUN(pct, eta, anno, morale, pers, itt, itp75, itp50, itp25, moraleTemp){
+    pct=Math.round(pct); eta=Math.round(eta);
+    if(!(pct>=10&&pct<=100)||!(eta>=0&&eta<=100)) return null;
+    const Y=TUN_P1[anno]||TUN_P1["2025"];
+    const cm=TUN_CM[pct], R=TUN_ETA[eta];
+    const punto=r2(Y.p1*cm);                       // valore del punto danno biologico
+    const cellaBio=Math.round(punto*pct*R);        // Allegato II, tabella 1 (arrotondata all'euro come in GU)
+    const cmMor = morale==="none"?0 : TUN_MORALE_MIN[pct] + (morale==="med"?0.05: morale==="max"?0.10:0);
+    const puntoMor=r2(punto*cmMor);
+    const cellaTot=Math.round((punto+puntoMor)*pct*R);   // Allegato II, tabella 2 (A+B)
+    const moraleImp=cellaTot-cellaBio;
+    pers=Math.min(Math.max(pers||0,0),30);
+    const persImp=Math.round(cellaTot*pers/100);
+    const permanente=cellaTot+persImp;
+    const g={itt:itt||0,itp75:itp75||0,itp50:itp50||0,itp25:itp25||0};
+    const tBase=r2(g.itt*Y.itt + g.itp75*Y.itt*0.75 + g.itp50*Y.itt*0.5 + g.itp25*Y.itt*0.25);
+    moraleTemp=Math.min(Math.max(moraleTemp||0,0),60);
+    const tMor=r2(tBase*moraleTemp/100), temporaneo=r2(tBase+tMor);
+    return {pct,eta,anno,Y,cm,R,punto,cellaBio,cmMor,puntoMor,cellaTot,moraleImp,pers,persImp,permanente,g,tBase,moraleTemp,tMor,temporaneo,totale:r2(permanente+temporaneo)};
+  },
   dannoParentale(cat, etaV, etaS, conv, superstiti, rel){
     const T=PARENTALE[cat]; if(!T) return null;
     const pt=(tab,e)=>{ e=Math.max(0,Math.min(100,Math.round(e||0))); return (tab.find(r=>e<=r[0])||tab[tab.length-1])[1]; };
@@ -395,7 +441,8 @@ const LIC = {
   save(k){ try{ localStorage.setItem("cf_license",k); }catch(e){} this.key=k; this.valid=true; },
   clear(){ try{ localStorage.removeItem("cf_license"); }catch(e){} this.key=null; this.valid=false; },
   async validate(k){
-    // Verifica online (Lemon Squeezy License API). In anteprima, senza rete, accetta il formato per test locale.
+    if(CONFIG.testKey && k.trim().toUpperCase()===CONFIG.testKey) return {ok:true,msg:"Chiave di collaudo attiva: tutte le funzioni Pro sbloccate."};
+    // Verifica online (Lemon Squeezy License API).
     const looksOk=/^[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}$/i.test(k.trim());
     if(!looksOk) return {ok:false,msg:"Formato chiave non valido."};
     try{
@@ -413,6 +460,7 @@ const LIC = {
 const CATALOG = [
   {group:"Danno alla persona", items:[
     {id:"danno-micro", title:"Danno biologico — micropermanenti", desc:"Lesioni 1–9% (art. 139 CdA): permanente, temporanea, personalizzazione.", refs:"Art. 139 D.Lgs. 209/2005 — valori DM 18/07/2025", status:"free"},
+    {id:"danno-tun", title:"Danno biologico — Tabella Unica Nazionale (art. 138)", desc:"Macropermanenti 10–100%: DPR 12/2025, danno morale min/medio/max, personalizzazione fino al 30%, temporanea.", refs:"Art. 138 D.Lgs. 209/2005 — DPR 13/01/2025 n. 12 (GU 18/02/2025, S.O. 4) — Cass. 8630/2026", status:"free"},
     {id:"danno-milano", title:"Danno non patrimoniale — Tabelle di Milano", desc:"Lesioni 1–100% con tabella milanese 2024: componente biologica e sofferenza, demoltiplicatore età, personalizzazione, temporanea.", refs:"Osservatorio giustizia civile di Milano — Tabelle edizione 2024 (4/6/2024), riv. ISTAT +16,2268%", status:"free"},
     {id:"danno-parentale", title:"Danno da perdita del rapporto parentale", desc:"Tabella integrata a punti Milano 2024: età, convivenza, superstiti, qualità della relazione.", refs:"Tabelle milanesi 2024, tabelle integrate a punti (Cass. 10579/2021)", status:"free"},
   ]},
@@ -475,6 +523,7 @@ function renderHome(){
         <tr><td>Saggio legale 2026</td><td class="r">1,60 %</td></tr>
         <tr><td>BCE 2° sem. 2026 (mora +8)</td><td class="r">10,40 %</td></tr>
         <tr><td>Punto 1% art. 139 CdA (DM 18/07/2025)</td><td class="r">963,40 €</td></tr>
+        <tr><td>TUN art. 138 (DPR 12/2025), punto 10%</td><td class="r">2.656,80 €</td></tr>
         <tr><td>Punto 1% Tabelle Milano 2024</td><td class="r">1.393,28 €</td></tr>
         <tr><td>ITT giornaliera CdA / Milano</td><td class="r">56,18 € / 115,00 €</td></tr>
         <tr><td>Punto danno parentale Milano 2024</td><td class="r">3.911,03 €</td></tr>
@@ -579,6 +628,50 @@ const VIEWS = {
         <tr><td>Personalizzazione ${R.pers}%</td><td class="r">${fmt.format(R.morale)}</td></tr>
         <tr class="sum"><td>Totale</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
         <div class="note">Formula: valore punto = 963,40 € × coefficiente crescente per punto (1,0 → 2,3) × [1 − 0,5% × (età − 10)]. Valori monetari aggiornati con DM 18 luglio 2025 ai sensi dell'art. 139, c. 5, D.Lgs. 209/2005. Il risultato non include rivalutazione e interessi: usa i calcolatori dedicati.</div>`)}
+      </div>${actions()}`;
+    }
+  },
+  "danno-tun":{
+    form:()=>[
+      field("tpct","Invalidità permanente (%)","number",25,{min:10,max:100,step:1,hint:"da 10 a 100 punti (sotto il 10% → art. 139)"}),
+      field("teta","Età al momento del sinistro","number",40,{min:0,max:100,step:1}),
+      field("tanno","Valore del primo punto","select","2025",{options:[["2025","2025 — 963,40 € (DM 18/07/2025)"],["2024","2024 — 947,30 € (tabella pubblicata in GU)"]],hint:"art. 2 DPR 12/2025: pari al valore ex art. 139, aggiornato annualmente"}),
+      field("tmor","Danno morale (Tavola 2)","select","med",{options:[["min","Valore minimo"],["med","Valore medio"],["max","Valore massimo"],["none","Escluso (solo biologico)"]]}),
+      field("tpers","Personalizzazione art. 138, c. 3 (%)","number",0,{min:0,max:30,step:1,full:true,hint:"fino al 30% per aspetti dinamico-relazionali documentati"}),
+      `<div class="fieldset-title">Inabilità temporanea (giorni)</div>`,
+      field("titt","Al 100%","number",0,{min:0,step:1}),
+      field("titp75","Al 75%","number",0,{min:0,step:1}),
+      field("titp50","Al 50%","number",0,{min:0,step:1}),
+      field("titp25","Al 25%","number",0,{min:0,step:1}),
+      field("tmorT","Danno morale sulla temporanea (%)","number",30,{min:0,max:60,step:1,full:true,hint:"art. 3, c. 2 DPR 12/2025: tra il 30% e il 60%"}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.dannoTUN(num("tpct"),num("teta"),val("tanno"),val("tmor"),num("tpers"),num("titt"),num("titp75"),num("titp50"),num("titp25"),num("tmorT"));
+      if(!R) return empty("Inserisci una percentuale tra 10 e 100 e un'età tra 0 e 100.");
+      const morLabel={min:"minimo",med:"medio",max:"massimo",none:"escluso"}[val("tmor")];
+      return `<div class="total"><div class="eyebrow">Danno non patrimoniale — Tabella Unica Nazionale</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">${R.pct}% a ${R.eta} anni · biologico ${fmt.format(R.cellaBio)} · morale ${morLabel} ${fmt.format(R.moraleImp)}${R.pers?` · personalizzazione +${R.pers}%`:""}${R.temporaneo?` · temporanea ${fmt.format(R.temporaneo)}`:""}</div></div>
+      <div class="pb">${gate(`
+        <div class="eyebrow" style="margin-bottom:6px">Danno permanente</div>
+        <table class="rows">
+        <tr><td>Valore primo punto (${R.anno}, ${esc(R.Y.fonte)})</td><td class="r">${fmt.format(R.Y.p1)}</td></tr>
+        <tr><td>Coefficiente moltiplicatore biologico al ${R.pct}% (Tavola 1.A)</td><td class="r">${fmtN(R.cm,5)}</td></tr>
+        <tr><td>Valore del punto danno biologico</td><td class="r">${fmt.format(R.punto)}</td></tr>
+        <tr><td>Coefficiente di riduzione per età ${R.eta} anni (Tavola 1.B)</td><td class="r">${fmtN(R.R,3)}</td></tr>
+        <tr class="muted"><td>Danno biologico = ${fmt.format(R.punto)} × ${R.pct} × ${fmtN(R.R,3)}</td><td class="r">${fmt.format(R.cellaBio)}</td></tr>
+        <tr><td>Danno morale (Tavola 2, ${morLabel}${R.cmMor?`: +${fmtN(R.cmMor*100,1)}% del punto`:""})</td><td class="r">${fmt.format(R.moraleImp)}</td></tr>
+        <tr><td>Biologico + morale (Allegato II, tab. 2)</td><td class="r">${fmt.format(R.cellaTot)}</td></tr>
+        <tr><td>Personalizzazione ${R.pers}% (max 30%)</td><td class="r">${fmt.format(R.persImp)}</td></tr>
+        <tr class="sum"><td>Danno permanente</td><td class="r">${fmt.format(R.permanente)}</td></tr></table>
+        <div class="eyebrow" style="margin:14px 0 6px">Inabilità temporanea (art. 139, c. 1, lett. b)</div>
+        <div class="tblwrap"><table class="rows"><tr><th>Voce</th><th class="r">Giorni</th><th class="r">Importo</th></tr>
+        <tr><td>100% (${fmt.format(R.Y.itt)}/g)</td><td class="r">${R.g.itt}</td><td class="r">${fmt.format(r2(R.g.itt*R.Y.itt))}</td></tr>
+        <tr><td>75% (${fmt.format(r2(R.Y.itt*0.75))}/g)</td><td class="r">${R.g.itp75}</td><td class="r">${fmt.format(r2(R.g.itp75*R.Y.itt*0.75))}</td></tr>
+        <tr><td>50% (${fmt.format(r2(R.Y.itt*0.5))}/g)</td><td class="r">${R.g.itp50}</td><td class="r">${fmt.format(r2(R.g.itp50*R.Y.itt*0.5))}</td></tr>
+        <tr><td>25% (${fmt.format(r2(R.Y.itt*0.25))}/g)</td><td class="r">${R.g.itp25}</td><td class="r">${fmt.format(r2(R.g.itp25*R.Y.itt*0.25))}</td></tr>
+        <tr><td>Danno morale temporaneo ${R.moraleTemp}%</td><td></td><td class="r">${fmt.format(R.tMor)}</td></tr>
+        <tr class="sum"><td colspan="2">Danno temporaneo</td><td class="r">${fmt.format(R.temporaneo)}</td></tr></table></div>
+        <table class="rows" style="margin-top:12px"><tr class="sum"><td>Totale danno non patrimoniale</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
+        <div class="note">DPR 13 gennaio 2025 n. 12, in vigore dal 5 marzo 2025, per sinistri da circolazione di veicoli e natanti e da responsabilità sanitaria (art. 138 CdA). Cass. civ. sez. III, 7 aprile 2026 n. 8630: la TUN è parametro generale di equità anche per i sinistri anteriori al 5 marzo 2025 e per gli illeciti diversi; il giudice può discostarsene solo con motivazione specifica. L'importo è esaustivo del danno da lesione (art. 138, c. 4). Il valore del primo punto segue l'aggiornamento annuale ex art. 139, c. 5.</div>`)}
       </div>${actions()}`;
     }
   },
@@ -730,7 +823,7 @@ function route(){
   window.scrollTo({top:0});
 }
 window.addEventListener("hashchange",route);
-LIC.load(); refreshBadge(); $("#footVersion").textContent="Versione "+CONFIG.version+" · tabelle: saggio legale 2026, BCE 2° sem. 2026, DM 18/07/2025, Tabelle milanesi ed. 2024, DPR 115/2002.";
+LIC.load(); refreshBadge(); $("#footVersion").textContent="Versione "+CONFIG.version+" · tabelle: saggio legale 2026, BCE 2° sem. 2026, DM 18/07/2025, DPR 12/2025 (TUN), Tabelle milanesi ed. 2024, DPR 115/2002.";
 route();
 
 /* ===================== AUTOVERIFICA (#/verifica) ===================== */
@@ -744,6 +837,9 @@ const TESTS = [
   ["legali 5k 2015→2020",()=>ENGINES.interessiLegali(5000,"2015-06-01","2020-06-01").totale,85.66],
   ["mora 25k 2024→2026",()=>ENGINES.interessiMora(25000,"2024-01-10","2026-09-17").totale,7498.97],
   ["mora giorni 1° sem.",()=>ENGINES.interessiMora(25000,"2024-01-10","2026-09-17").periodi[0].giorni,172],
+  ["TUN 40%/20a (GU: 222.226)",()=>ENGINES.dannoTUN(40,20,"2024","none",0,0,0,0,0,0).cellaBio,222226],
+  ["TUN 100%/90a (GU: 585.921)",()=>ENGINES.dannoTUN(100,90,"2024","none",0,0,0,0,0,0).cellaBio,585921],
+  ["TUN morale min 10% (GU: 548,60)",()=>ENGINES.dannoTUN(10,1,"2024","min",0,0,0,0,0,0).puntoMor,548.6],
   ["Milano 25%/1a (tab. 155.412)",()=>ENGINES.dannoMilano(25,1,0,0,0,0,0,0).cella,155412],
   ["Milano 70%/5a (tab. 928.311)",()=>ENGINES.dannoMilano(70,5,0,0,0,0,0,0).cella,928311],
   ["Milano 100%/100a (tab. 725.594)",()=>ENGINES.dannoMilano(100,100,0,0,0,0,0,0).cella,725594],
