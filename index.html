@@ -224,7 +224,7 @@ const CONFIG = {
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
   licenseApi: "https://api.lemonsqueezy.com/v1/licenses/validate",
-  testKey: "PROVA-CALCOLI-FORENSI-2026"   // chiave di collaudo: da rimuovere all'attivazione dei pagamenti
+  testKeys: ["PROVA-CALCOLI-FORENSI-2026","COLLAUDO-OMETTO-2026"]   // chiavi di collaudo: da rimuovere all'attivazione dei pagamenti
 };
 
 /* ===================== DATI NORMATIVI ===================== */
@@ -441,7 +441,7 @@ const LIC = {
   save(k){ try{ localStorage.setItem("cf_license",k); }catch(e){} this.key=k; this.valid=true; },
   clear(){ try{ localStorage.removeItem("cf_license"); }catch(e){} this.key=null; this.valid=false; },
   async validate(k){
-    if(CONFIG.testKey && k.trim().toUpperCase()===CONFIG.testKey) return {ok:true,msg:"Chiave di collaudo attiva: tutte le funzioni Pro sbloccate."};
+    if((CONFIG.testKeys||[]).includes(k.trim().toUpperCase())) return {ok:true,msg:"Chiave di collaudo attiva: tutte le funzioni Pro sbloccate."};
     // Verifica online (Lemon Squeezy License API).
     const looksOk=/^[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}$/i.test(k.trim());
     if(!looksOk) return {ok:false,msg:"Formato chiave non valido."};
