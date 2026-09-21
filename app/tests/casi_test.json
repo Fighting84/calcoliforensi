@@ -1,0 +1,26 @@
+{
+  "_nota": "Output reali degli MCP Legal IT (17/09/2026). Ogni calcolatore del front-end deve riprodurli al centesimo.",
+  "danno_micro": [
+    {"in": {"pct": 5, "eta": 35, "itt": 10, "itp75": 0, "itp50": 20, "itp25": 0, "pers": 10}, "out": {"punto_base": 963.4, "riduzione_eta": 0.875, "danno_permanente": 5142.15, "temporaneo": 1123.6, "danno_base": 6265.75, "morale": 626.57, "totale": 6892.32}},
+    {"in": {"pct": 1, "eta": 70, "itt": 0, "itp75": 0, "itp50": 0, "itp25": 0, "pers": 0}, "out": {"riduzione_eta": 0.7, "danno_permanente": 674.38, "temporaneo": 0, "totale": 674.38}},
+    {"in": {"pct": 9, "eta": 20, "itt": 30, "itp75": 15, "itp50": 0, "itp25": 40, "pers": 0}, "out": {"riduzione_eta": 0.95, "danno_permanente": 12904.74, "itt": 1685.4, "itp75": 632.1, "itp25": 562, "temporaneo": 2879.5, "totale": 15784.24}},
+    {"in": {"pct": 3, "eta": 50, "itt": 5, "itp75": 0, "itp50": 0, "itp25": 0, "pers": 20}, "out": {"riduzione_eta": 0.8, "danno_permanente": 2543.38, "temporaneo": 280.9, "morale": 564.86, "totale": 3389.13}}
+  ],
+  "interessi_legali": [
+    {"in": {"capitale": 10000, "da": "2021-03-15", "a": "2026-09-17"}, "out": {"totale": 1190.45, "periodi": [[2021, 291, 0.01, 0.8], [2022, 365, 1.25, 125], [2023, 365, 5, 500], [2024, 366, 2.5, 250.68], [2025, 365, 2, 200], [2026, 260, 1.6, 113.97]]}},
+    {"in": {"capitale": 5000, "da": "2015-06-01", "a": "2020-06-01"}, "out": {"totale": 85.66, "periodi": [[2015, 213, 0.5, 14.59], [2016, 366, 0.2, 10.03], [2017, 365, 0.1, 5], [2018, 365, 0.3, 15], [2019, 365, 0.8, 40], [2020, 153, 0.05, 1.05]]}}
+  ],
+  "interessi_mora": [
+    {"in": {"capitale": 25000, "da": "2024-01-10", "a": "2026-09-17"}, "out": {"totale": 7498.97, "periodi": [["2024-01-10", "2024-06-30", 172, 12.5, 1472.6], ["2024-07-01", "2024-12-31", 184, 12.25, 1543.84], ["2025-01-01", "2025-06-30", 181, 11.15, 1382.29], ["2025-07-01", "2025-12-31", 184, 10.15, 1279.18], ["2026-01-01", "2026-06-30", 181, 10.15, 1258.32], ["2026-07-01", "2026-09-17", 79, 10.4, 562.74]]}}
+  ],
+  "contributo_unificato": [
+    {"in": {"valore": 15000, "tipo": "cognizione", "grado": "primo"}, "out": {"base": 237, "molt": 1, "dovuto": 237}},
+    {"in": {"valore": 80000, "tipo": "monitorio", "grado": "primo"}, "out": {"base": 379.5, "molt": 1, "dovuto": 379.5}},
+    {"in": {"valore": 300000, "tipo": "cognizione", "grado": "appello"}, "out": {"base": 1214, "molt": 1.5, "dovuto": 1821}},
+    {"in": {"valore": 3000, "tipo": "cognizione", "grado": "cassazione"}, "out": {"base": 98, "molt": 2, "dovuto": 196}},
+    {"in": {"valore": 1000000, "tipo": "esecuzione_immobiliare", "grado": "primo"}, "out": {"base": 278, "molt": 1, "dovuto": 278}}
+  ],
+  "rivalutazione_monetaria": [
+    {"in": {"capitale": 10000, "da": "2020-01-15", "a": "2026-06-15"}, "out": {"foi_inizio": 102.7, "foi_fine": 124.8, "rivalutato": 12151.9, "interessi": 1347.79, "totale": 13499.69}}
+  ]
+}

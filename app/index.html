@@ -1,29 +1,5 @@
-<!doctype html>
-<html lang="it">
-<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Calcoli Forensi — calcolatori legali e fiscali per professionisti</title>
-<meta name="description" content="Danno biologico (art. 139 CdA e Tabelle di Milano 2024), danno parentale, interessi legali e di mora, contributo unificato. Formula, norma e tabella accanto a ogni risultato.">
-<link rel="canonical" href="https://calcoliforensi.it/">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Calcoli Forensi — calcolatori legali e fiscali per professionisti">
-<meta property="og:description" content="Danno biologico (art. 139 CdA e Tabelle di Milano 2024), danno parentale, interessi legali e di mora, contributo unificato. Formula, norma e tabella accanto a ogni risultato.">
-<meta property="og:url" content="https://calcoliforensi.it/">
-<meta property="og:locale" content="it_IT">
-<meta name="robots" content="index,follow">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230E5A48'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='34' font-weight='700' text-anchor='middle' fill='white'%3ECF%3C/text%3E%3C/svg%3E">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Calcoli Forensi","url":"https://calcoliforensi.it/","applicationCategory":"BusinessApplication","operatingSystem":"Web","inLanguage":"it","description":"Danno biologico (art. 139 CdA e Tabelle di Milano 2024), danno parentale, interessi legali e di mora, contributo unificato. Formula, norma e tabella accanto a ogni risultato.","offers":[{"@type":"Offer","price":"0","priceCurrency":"EUR","name":"Gratis"},{"@type":"Offer","price":"19","priceCurrency":"EUR","name":"Pro mensile"},{"@type":"Offer","price":"149","priceCurrency":"EUR","name":"Pro annuale"}]}
-</script>
-<style>
-html{color-scheme:light dark}
-body{margin:0;font-family:system-ui,sans-serif;font-size:14px}
-img{max-width:100%}
-[hidden]{display:none!important}
-</style>
-</head>
-<body>
+<title>Calcoli Forensi</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
@@ -228,7 +204,7 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 <script>
 /* ===================== CONFIG ===================== */
 const CONFIG = {
-  version: "0.5.1 — 21 settembre 2026",
+  version: "0.6.0 — 21 settembre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -236,6 +212,8 @@ const CONFIG = {
   testKeys: ["PROVA-CALCOLI-FORENSI-2026","COLLAUDO-OMETTO-2026"]   // chiavi di collaudo: da rimuovere all'attivazione dei pagamenti
 };
 
+// Registro delle verifiche (aggiornato dagli script di monitoraggio: vedi app/scripts e monitoraggio/README.md)
+const MONITOR = { fonti:"21/09/2026", dati:"21/09/2026" };   // fonti = verifica normativa/giurisprudenziale; dati = verifica automatica serie ISTAT e test
 /* ===================== DATI NORMATIVI ===================== */
 // Art. 1284 c.c. — saggio legale per anno (DM MEF). Dal 1991 in poi.
 const TASSI_LEGALI = {
@@ -775,7 +753,7 @@ function renderCalc(id){
   renderNav(id);
   const V=VIEWS[id];
   $("#main").innerHTML=`<div class="head"><div class="eyebrow">${esc(CATALOG.find(g=>g.items.includes(c)).group)}</div><h1>${esc(c.title)}</h1><p>${esc(c.desc)}</p><div class="refs">${esc(c.refs||"")}</div></div>
-  <div class="print-head"><b>Calcoli Forensi</b> — ${esc(c.title)} — relazione del ${fmtD(todayISO())}</div>
+  <div class="print-head"><b>Calcoli Forensi</b> — ${esc(c.title)} — relazione del ${fmtD(todayISO())} · fonti verificate al ${MONITOR.fonti} · ${esc(c.refs||"")}</div>
   <div class="calc">
     <div class="panel"><div class="ph"><h2>Dati</h2><span class="pill free">calcolo immediato</span></div><div class="pb"><div class="form">${V.form()}</div></div></div>
     <div class="panel" id="result"></div>
@@ -1150,7 +1128,7 @@ function route(){
 }
 window.addEventListener("hashchange",route);
 document.documentElement.lang="it";   // necessario per la sillabazione automatica
-LIC.load(); refreshBadge(); $("#footVersion").textContent="Versione "+CONFIG.version+" · tabelle: saggio legale 2026, BCE 2° sem. 2026, DM 18/07/2025, DPR 12/2025 (TUN), Tabelle milanesi ed. 2024, DPR 115/2002.";
+LIC.load(); refreshBadge(); $("#footVersion").textContent="Versione "+CONFIG.version+" · Ultima verifica delle fonti normative e giurisprudenziali: "+MONITOR.fonti+" · Ultimo controllo automatico dei dati (ISTAT, test di calcolo): "+MONITOR.dati+" · Tabelle: saggio legale 2026, BCE 2° sem. 2026, DM 18/07/2025, DPR 12/2025 (TUN), Tabelle milanesi ed. 2024, DM 147/2022, DPR 115/2002.";
 route();
 
 /* ===================== AUTOVERIFICA (#/verifica) ===================== */
@@ -1185,6 +1163,3 @@ function renderTests(){
   $("#main").innerHTML=`<div class="head"><h1>Verifica motori di calcolo</h1><p>${pass}/${rows.length} casi coincidono con gli output MCP Legal IT.</p></div><div class="panel"><div class="pb"><table class="rows"><tr><th>Caso</th><th class="r">Atteso</th><th class="r">Ottenuto</th><th>Esito</th></tr>${rows.map(r=>`<tr><td>${esc(r.n)}</td><td class="r">${r.exp}</td><td class="r">${typeof r.got==="number"?r.got:esc(r.got)}</td><td style="color:${r.ok?"var(--ok)":"var(--warn)"}">${r.ok?"OK":"DIFF"}</td></tr>`).join("")}</table></div></div>`;
 }
 </script>
-
-</body>
-</html>
