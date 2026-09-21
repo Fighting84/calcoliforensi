@@ -112,5 +112,33 @@ const SC = [
   ["2026-08-10",30,"giorni","avanti",false,false,"2026-09-09"],          // senza sospensione
   ["2026-01-31",1,"mesi","avanti",true,false,"2026-03-02"]];             // 31/1 + 1 mese = 28/2 (sab) → lun 2/3
 for (const [ini, n, u, d, f, l, exp] of SC) { const R = ENGINES.scadenza(ini, n, u, d, f, l); const ok = R.scadenza === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} scadenza ${ini} +${n} ${u} ${d}${f ? " feriale" : ""}${l ? " liberi" : ""}: atteso ${exp}, ottenuto ${R.scadenza}`); }
+// Immobili, locazioni, fisco, esecuzione, prescrizione
+ck("usufrutto 45 anni", ENGINES.usufrutto(100000, 45).pct, 80); ck("usufrutto 75 anni", ENGINES.usufrutto(100000, 75).pct, 35);
+ck("usufrutto 20 anni", ENGINES.usufrutto(100000, 20).pct, 95); ck("usufrutto 21 anni", ENGINES.usufrutto(100000, 21).pct, 90); ck("usufrutto 100 anni", ENGINES.usufrutto(100000, 100).pct, 5);
+ck("val. catastale A/2 registro", ENGINES.valoreCatastale(800, "A/2", "registro", false).valore, 100800);
+ck("val. catastale A/2 prima casa", ENGINES.valoreCatastale(800, "A/2", "registro", true).valore, 92400);
+ck("val. catastale C/1 successione (34)", ENGINES.valoreCatastale(2000, "C/1", "successione", false).valore, 71400);
+ck("val. catastale B registro (168)", ENGINES.valoreCatastale(1000, "B/2", "registro", false).valore, 176400);
+ck("IMU A/2 10,6‰", ENGINES.imu(800, "A/2", 10.6, 12, 100, false, 200).imu, 1424.64);
+ck("IMU 6 mesi 50%", ENGINES.imu(800, "A/2", 10.6, 6, 50, false, 200).imu, 356.16);
+ck("IMU abitazione principale esente", ENGINES.imu(800, "A/2", 10.6, 12, 100, true, 200).imu, 0);
+ck("IMU A/1 abitazione principale con detrazione", ENGINES.imu(2000, "A/1", 6, 12, 100, true, 200).imu, r2(2100 * 160 * 0.006) - 200);
+ck("compravendita prima casa prezzo-valore", ENGINES.compravendita(250000, 800, "abitazione", true, false, false).totale, 1948);
+ck("compravendita non prima casa", ENGINES.compravendita(250000, 800, "abitazione", false, false, false).totale, 9172);
+ck("compravendita impresa IVA 4%", ENGINES.compravendita(250000, 0, "abitazione", true, true, false).totale, 10600);
+ck("compravendita registro minimo 1000", ENGINES.compravendita(20000, 0, "altro", false, false, false).totale, 1900);
+ck("successione coniuge 1,5M con immobili", ENGINES.successione(1500000, 1500000, "retta", false, false).totale, 65000);
+ck("successione fratello 150k", ENGINES.successione(150000, 0, "fratelli", false, false).imposta, 3000);
+ck("successione disabile 1,4M", ENGINES.successione(1400000, 0, "retta", true, false).imposta, 0);
+ck("successione estraneo 50k", ENGINES.successione(50000, 0, "altri", false, false).imposta, 4000);
+ck("canone 75% stesso mese", ENGINES.adeguamentoCanone(9600, "2024-09-01", "2025-09-01", 75, "stesso").nuovo, 9702);
+ck("canone 100% mese precedente", ENGINES.adeguamentoCanone(9600, "2024-09-01", "2025-09-01", 100, "precedente").nuovo, r2(9600 * (121.8 / 120.1)));
+ck("cedolare 21%", ENGINES.cedolare(9600, "libero", 35, 2.5, 4).ced, 2016);
+ck("ordinaria 35%+2,5%", ENGINES.cedolare(9600, "libero", 35, 2.5, 4).totIrpef, 3420 + 96 + 16);
+ck("pignoramento fiscale 1800", ENGINES.pignoramento(1800, "fiscale", false, 538.69, 0).pign, 180);
+ck("pignoramento pensione ordinario", ENGINES.pignoramento(1800, "ordinario", true, 538.69, 0).pign, r2((1800 - 1077.38) / 5));
+ck("pignoramento pensione minimo 1000", ENGINES.pignoramento(1300, "ordinario", true, 400, 0).impign, 1000);
+{ const P = ENGINES.prescrizione("rca", "2024-03-10"); const ok = P.scadenza === "2026-03-10" && P.prescritto; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} prescrizione RCA 2 anni: ${P.scadenza} prescritto=${P.prescritto}`); }
+{ const P = ENGINES.prescrizione("ordinaria", "2024-02-29"); const ok = P.scadenza === "2034-02-28"; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} prescrizione da 29/2: ${P.scadenza}`); }
 console.log(`\n${pass} OK, ${fail} DIFF`);
 process.exit(fail ? 1 : 0);

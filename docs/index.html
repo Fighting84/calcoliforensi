@@ -228,7 +228,7 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 <script>
 /* ===================== CONFIG ===================== */
 const CONFIG = {
-  version: "0.6.0 — 21 settembre 2026",
+  version: "0.7.0 — 21 settembre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -371,6 +371,36 @@ const SCAD_PRESET = {
   citaz:{label:"Termine a comparire — 120 giorni liberi tra notifica e udienza (art. 163-bis)",n:120,unita:"giorni",dir:"avanti",feriale:true,liberi:true},
   lav_app:{label:"Appello nel rito del lavoro — 30 giorni dalla notifica (art. 434)",n:30,unita:"giorni",dir:"avanti",feriale:false,liberi:false,nota:"Controversie di lavoro: sospensione feriale non applicabile."}
 };
+// Usufrutto — prospetto allegato al DPR 131/1986 (aggiornato con DM MEF al saggio legale): quota per fascia d'età, costante rispetto al saggio
+const USUFRUTTO = [[20,95],[30,90],[40,85],[45,80],[50,75],[53,70],[56,65],[60,60],[63,55],[66,50],[69,45],[72,40],[75,35],[78,30],[82,25],[86,20],[92,15],[99,10],[200,5]];
+// Moltiplicatori catastali (rendita rivalutata del 5%): registro = DPR 131/86 art. 52 + DL 168/2004 (+20%) + DL 262/2006 (B +40%); successione = senza +20%; IMU = L. 160/2019 c. 745
+const CAT_MOLT = {
+  registro:{A:120,A10:60,B:168,C:120,C1:40.8,D:60,E:40.8}, primaCasa:110,
+  successione:{A:100,A10:50,B:140,C:100,C1:34,D:50,E:34},
+  imu:{A:160,A10:80,B:140,C:160,C1:55,C345:140,D:65,D5:80,E:0}
+};
+const catClasse=(cat,fin)=>{ cat=(cat||"").toUpperCase().replace(/\s/g,""); const g=cat[0], n=cat.slice(2);
+  if(g==="A") return cat==="A/10"?"A10":"A"; if(g==="B") return "B"; if(g==="C"){ if(cat==="C/1") return "C1"; if(fin==="imu"&&["3","4","5"].includes(n)) return "C345"; return "C"; }
+  if(g==="D") return fin==="imu"&&cat==="D/5"?"D5":"D"; if(g==="E") return "E"; return null; };
+// Prescrizione — termini del codice civile
+const PRESCR = {
+  ordinaria:{label:"Ordinaria decennale (art. 2946 c.c.)",anni:10},
+  extracontr:{label:"Risarcimento da fatto illecito (art. 2947, c. 1)",anni:5},
+  rca:{label:"Danni da circolazione di veicoli (art. 2947, c. 2)",anni:2},
+  periodiche:{label:"Canoni, interessi, annualità, pigioni (art. 2948, n. 3-4)",anni:5},
+  retribuzioni:{label:"Retribuzioni periodiche e differenze retributive (art. 2948, n. 4)",anni:5},
+  tfr:{label:"Trattamento di fine rapporto (art. 2948, n. 5)",anni:5},
+  condominio:{label:"Contributi condominiali (art. 2948, n. 4)",anni:5},
+  professionisti:{label:"Compensi di avvocati e professionisti (art. 2956, n. 2)",anni:3},
+  appalto:{label:"Garanzia per difformità e vizi dell'opera (art. 1667)",anni:2},
+  vizi:{label:"Garanzia per vizi della cosa venduta (art. 1495)",anni:1},
+  trasporto:{label:"Contratto di trasporto e spedizione (art. 2951)",anni:1},
+  assicurazione:{label:"Diritti dal contratto di assicurazione (art. 2952)",anni:2},
+  cambiale:{label:"Azione cambiaria contro l'accettante (art. 94 L. camb.)",anni:3},
+  contributi:{label:"Contributi previdenziali (art. 3 L. 335/1995)",anni:5},
+  indebito:{label:"Ripetizione di indebito (art. 2033, termine ordinario)",anni:10},
+  giudicato:{label:"Actio iudicati — diritti accertati con sentenza (art. 2953)",anni:10}
+};
 // DPR 115/2002 art. 13 — scaglioni cognizione ordinaria
 const CU_SCAGLIONI = [[1100,43],[5200,98],[26000,237],[52000,518],[260000,759],[520000,1214],[Infinity,1686]];
 
@@ -509,6 +539,97 @@ const ENGINES = {
     const lordo=r2(punti*punto);
     const importo=Math.min(lordo,T.cap);
     return {cat,pA,pB,pC,pD,pE,punti,punto,lordo,importo,cap:T.cap,capped:lordo>T.cap,puntiMax:T.puntiMax};
+  },
+  usufrutto(valore, eta, vitalizioSu){
+    if(!(valore>0)||!(eta>=0)) return null;
+    const pct=(USUFRUTTO.find(r=>eta<=r[0])||USUFRUTTO[USUFRUTTO.length-1])[1];
+    const tasso=TASSI_LEGALI[new Date().getUTCFullYear()]??TASSI_LEGALI[2026];
+    return {valore,eta,pct,tasso,coeff:r2(pct/tasso),usufrutto:r2(valore*pct/100),nuda:r2(valore*(100-pct)/100)};
+  },
+  valoreCatastale(rendita, cat, fin, primaCasa){
+    if(!(rendita>0)) return null; const cl=catClasse(cat,fin); if(!cl) return null;
+    const riv=r2(rendita*1.05);
+    let molt=CAT_MOLT[fin][cl]; let nota="";
+    if(fin==="registro"&&primaCasa&&(cl==="A"||cl==="C")){ molt=CAT_MOLT.primaCasa; nota="Prima casa: moltiplicatore 110 (DL 168/2004, art. 1-bis: +10% anziché +20%)."; }
+    if(fin==="imu"&&cl==="E") return {rendita,cat,cl,riv,molt:0,valore:0,nota:"Categoria E: esente IMU (art. 1, c. 759, L. 160/2019)."};
+    return {rendita,cat,cl,riv,molt,valore:r2(riv*molt),nota};
+  },
+  imu(rendita, cat, aliq, mesi, quota, abitPrinc, detr){
+    const V=ENGINES.valoreCatastale(rendita,cat,"imu",false); if(!V) return null;
+    const lusso=/^A\/(1|8|9)$/i.test((cat||"").replace(/\s/g,""));
+    if(abitPrinc&&!lusso) return {...V,esente:true,imu:0,lordo:0,mesi,quota,nota:"Abitazione principale non di lusso: esente IMU (art. 1, c. 740, L. 160/2019)."};
+    const lordo=r2(V.valore*aliq/1000*(mesi/12)*(quota/100));
+    const d=abitPrinc&&lusso? Math.min(lordo,r2((detr??200)*(mesi/12)*(quota/100))):0;
+    return {...V,esente:false,lordo,detrazione:d,imu:r2(lordo-d),mesi,quota,aliq,nota:abitPrinc&&lusso?"Abitazione principale A/1, A/8, A/9: IMU dovuta con aliquota ridotta e detrazione di 200 € (c. 748-749).":""};
+  },
+  compravendita(prezzo, rendita, tipo, primaCasa, daImpresa, lusso){
+    if(!(prezzo>0)) return null;
+    const voci=[]; let tot=0; const add=(l,v)=>{voci.push([l,r2(v)]);tot+=v;};
+    if(daImpresa){ // cessione soggetta a IVA (art. 10, n. 8-bis DPR 633/72: impresa costruttrice entro 5 anni o con opzione)
+      const al=lusso?22:(primaCasa?4:10); add(`IVA ${al}% sul prezzo`,prezzo*al/100);
+      add("Imposta di registro (fissa)",200); add("Imposta ipotecaria (fissa)",200); add("Imposta catastale (fissa)",200);
+      return {voci,totale:r2(tot),base:prezzo,regime:"IVA",nota:"Acquisto da impresa con IVA: registro, ipotecaria e catastale in misura fissa (200 € ciascuna)."};
+    }
+    let base=prezzo, notaBase="Base imponibile = prezzo dichiarato.";
+    if(rendita>0&&tipo==="abitazione"){ const V=ENGINES.valoreCatastale(rendita,"A/2","registro",primaCasa&&!lusso); base=V.valore; notaBase=`Prezzo-valore (art. 1, c. 497, L. 266/2005): base = rendita ${fmtN(rendita)} × 1,05 × ${V.molt} = ${fmt.format(base)}, a prescindere dal prezzo (${fmt.format(prezzo)}).`; }
+    if(tipo==="terreno"){ add("Imposta di registro 15% (terreno agricolo, acquirente non coltivatore/IAP)",Math.max(1000,base*0.15)); add("Imposta ipotecaria (fissa)",50); add("Imposta catastale (fissa)",50); return {voci,totale:r2(tot),base,regime:"registro",nota:notaBase+" Per coltivatori diretti e IAP: registro e ipotecaria fisse 200 €, catastale 1%."}; }
+    const al=(primaCasa&&!lusso)?2:9;
+    add(`Imposta di registro ${al}% (minimo 1.000 €)`,Math.max(1000,base*al/100));
+    add("Imposta ipotecaria (fissa)",50); add("Imposta catastale (fissa)",50);
+    return {voci,totale:r2(tot),base,regime:"registro",nota:notaBase+(lusso?" Immobile di lusso (A/1, A/8, A/9): nessuna agevolazione prima casa.":"")};
+  },
+  successione(quotaBene, immobili, parentela, handicap, primaCasa){
+    if(!(quotaBene>=0)) return null;
+    const P={retta:{al:4,fr:1000000,label:"coniuge e parenti in linea retta"},fratelli:{al:6,fr:100000,label:"fratelli e sorelle"},parenti4:{al:6,fr:0,label:"altri parenti fino al 4° grado, affini in linea retta, affini in linea collaterale fino al 3°"},altri:{al:8,fr:0,label:"altri soggetti"}}[parentela]||null;
+    if(!P) return null;
+    const fr=handicap?Math.max(P.fr,1500000):P.fr;
+    const imponibile=Math.max(0,quotaBene-fr);
+    const imposta=r2(imponibile*P.al/100);
+    const imm=Math.max(0,immobili||0);
+    const ipo=primaCasa?200:r2(imm*0.02), cat=primaCasa?200:r2(imm*0.01);
+    return {quotaBene,imm,parentela:P.label,al:P.al,fr,handicap,imponibile,imposta,ipo,cat,totale:r2(imposta+ipo+cat),primaCasa};
+  },
+  adeguamentoCanone(canone, stipula, adeg, pct, criterio){
+    if(!(canone>0)||!stipula||!adeg||pd(adeg)<=pd(stipula)) return null;
+    const prevMonth=s=>{ const y=+s.slice(0,4), m=+s.slice(5,7); const d=new Date(Date.UTC(y,m-2,1)); return d.toISOString().slice(0,7); };
+    let k0=criterio==="precedente"?prevMonth(stipula):stipula.slice(0,7), k1=criterio==="precedente"?prevMonth(adeg):adeg.slice(0,7);
+    let over=false; if(k1>FOI_META.ultimo){k1=FOI_META.ultimo;over=true;} if(!FOI[k0]||!FOI[k1]) return null;
+    const idx=k=>FOI[k]*FOI_META.to2015[FOI_META.baseOf(k)];
+    const varPiena=idx(k1)/idx(k0)-1; const varApp=Math.max(0,varPiena)*pct/100;
+    const nuovo=r2(canone*(1+varApp));
+    return {canone,k0,k1,foi0:FOI[k0],foi1:FOI[k1],base0:FOI_META.baseOf(k0),base1:FOI_META.baseOf(k1),varPiena,pct,varApp,nuovo,aumento:r2(nuovo-canone),over};
+  },
+  cedolare(canone, tipo, aliqIrpef, addiz, anni){
+    if(!(canone>0)) return null;
+    const alC=tipo==="concordato"?10:21;
+    const ced=r2(canone*alC/100);
+    const baseIrpef=r2(canone*0.95);
+    const irpef=r2(baseIrpef*(aliqIrpef+(addiz||0))/100);
+    const registroAnnuo=Math.max(67,r2(canone*0.02)); const registroLoc=r2(registroAnnuo/2);   // 2% del canone annuo, metà a carico del locatore (art. 8 L. 392/78), minimo 67 €
+    const bollo=16*4;   // 16 € ogni 4 facciate/100 righe, per copia: stima 4 marche in registrazione
+    const totIrpef=r2(irpef+registroLoc+(anni?bollo/anni:0));
+    return {canone,alC,ced,baseIrpef,aliqIrpef,addiz,irpef,registroAnnuo,registroLoc,bollo,totIrpef,risparmio:r2(totIrpef-ced),conviene:totIrpef>ced?"cedolare":"irpef"};
+  },
+  pignoramento(netto, tipo, pensione, assegnoSociale, quotaAlim){
+    if(!(netto>0)) return null; const AS=assegnoSociale||538.69;
+    let impign=0, notaP="";
+    if(pensione){ impign=Math.max(2*AS,1000); notaP=`Pensione: impignorabile la parte fino al doppio dell'assegno sociale, comunque non inferiore a 1.000 € (art. 545, c. 7): ${fmt.format(impign)}.`; }
+    const base=Math.max(0,netto-impign);
+    let frazione, descr;
+    if(tipo==="fiscale"){ if(netto<=2500){frazione=1/10;descr="1/10 (netto fino a 2.500 €)";} else if(netto<=5000){frazione=1/7;descr="1/7 (netto tra 2.500 e 5.000 €)";} else {frazione=1/5;descr="1/5 (netto oltre 5.000 €)";} descr+=" — art. 72-ter DPR 602/1973 (riscossione)"; }
+    else if(tipo==="alimentare"){ frazione=(quotaAlim||33.33)/100; descr=`misura stabilita dal giudice (qui ${fmtN(frazione*100,1)}%) — art. 545, c. 3`; }
+    else if(tipo==="concorso"){ frazione=1/2; descr="fino alla metà in caso di concorso di cause (art. 545, c. 5)"; }
+    else { frazione=1/5; descr="1/5 — crediti ordinari (art. 545, c. 4)"; }
+    const pign=r2(base*frazione);
+    return {netto,tipo,pensione,AS,impign,base,frazione,descr,pign,residuo:r2(netto-pign),notaP,conto:r2(3*AS)};
+  },
+  prescrizione(tipo, evento){
+    const P=PRESCR[tipo]; if(!P||!evento) return null;
+    const d=new Date(pd(evento)); const t=new Date(Date.UTC(d.getUTCFullYear()+P.anni,d.getUTCMonth(),d.getUTCDate()));
+    if(t.getUTCDate()!==d.getUTCDate()) t.setUTCDate(0);
+    const scad=t.toISOString().slice(0,10); const oggi=todayISO();
+    const giorni=Math.round((pd(scad)-pd(oggi))/86400000);
+    return {tipo:P.label,anni:P.anni,evento,scadenza:scad,giorni,prescritto:giorni<0};
   },
   scadenza(inizio, n, unita, direzione, feriale, liberi){
     if(!inizio||!(n>0)) return null;
@@ -673,11 +794,20 @@ const CATALOG = [
     {id:"scadenze", title:"Scadenze processuali civili", desc:"Computo ex art. 155 c.p.c.: termini in giorni o mesi, in avanti o a ritroso, giorni liberi, sospensione feriale, festivi e sabato. Termini della riforma Cartabia preimpostati.", refs:"Art. 155 c.p.c. — L. 742/1969 (sospensione feriale 1–31 agosto) — artt. 166, 171-ter, 189, 325, 327, 641, 669-terdecies c.p.c.", status:"free"},
     {id:"contributo-unificato", title:"Contributo unificato", desc:"Scaglioni DPR 115/2002 per rito e grado.", refs:"DPR 115/2002, art. 13", status:"free"},
     {id:"parcella", title:"Parcella avvocato — parametri forensi", desc:"DM 55/2014 (tabelle DM 147/2022): 27 tabelle civili, amministrative, tributarie e stragiudiziali, per fase e scaglione, con aumenti, spese generali, CPA, IVA e ritenuta.", refs:"DM 10/03/2014 n. 55, artt. 2, 4, 6, 19, 22 — tabelle sostituite dal DM 13/08/2022 n. 147 (GU n. 236 del 8/10/2022), in vigore dal 23/10/2022", status:"free"},
-    {id:"preventivo", title:"Preventivo ex art. 13 L. 247/2012", desc:"Preventivo scritto obbligatorio, pronto da inviare.", status:"soon"},
+    {id:"preventivo", title:"Preventivo ex art. 13 L. 247/2012", desc:"Preventivo scritto obbligatorio: compensi per fase, spese generali, contributo unificato, anticipazioni, CPA e IVA, con le avvertenze di legge. Pronto da stampare.", refs:"Art. 13, c. 5, L. 247/2012 — DM 55/2014 — DPR 115/2002", status:"free"},
+    {id:"prescrizione", title:"Prescrizione dei diritti", desc:"Termini del codice civile (ordinaria, illecito, RC auto, canoni, retribuzioni, professionisti, vizi, appalto…): data di prescrizione e giorni residui.", refs:"Artt. 2946-2956, 1495, 1667 c.c. — L. 335/1995", status:"free"},
+    {id:"pignoramento", title:"Pignoramento di stipendio e pensione", desc:"Quote pignorabili ex art. 545 c.p.c.: crediti ordinari, alimentari, fiscali, concorso; minimo impignorabile delle pensioni e somme sul conto.", refs:"Art. 545 c.p.c. (DL 83/2015, DL 115/2022) — art. 72-ter DPR 602/1973", status:"free"},
   ]},
-  {group:"Lavoro e fisco", items:[
+  {group:"Lavoro", items:[
     {id:"tfr", title:"TFR — trattamento di fine rapporto", desc:"Art. 2120 c.c.: quote annue, rivalutazione con indici FOI reali (1,5% + 75% ISTAT), imposta sostitutiva 17%, netto in tassazione separata.", refs:"Art. 2120 c.c. — L. 297/1982 — art. 19 TUIR — indici FOI ISTAT (serie reale)", status:"free"},
-    {id:"imu", title:"IMU e valore catastale", desc:"Rendita, coefficienti, aliquote comunali.", status:"soon"},
+  ]},
+  {group:"Immobili, locazioni e fisco", items:[
+    {id:"imu", title:"IMU e valore catastale", desc:"Rendita rivalutata e moltiplicatori per IMU, registro e successione; IMU annua per aliquota, mesi e quota di possesso.", refs:"L. 160/2019, art. 1, c. 740-749 — DPR 131/1986, art. 52 — DL 168/2004 — DL 262/2006", status:"free"},
+    {id:"compravendita", title:"Imposte sull'acquisto di un immobile", desc:"Registro 2%/9% con prezzo-valore, ipotecaria e catastale, oppure IVA 4%/10%/22% da impresa; terreni.", refs:"DPR 131/1986 — L. 266/2005, art. 1, c. 497 — DPR 633/1972, art. 10, n. 8-bis", status:"free"},
+    {id:"successione", title:"Imposta di successione e donazione", desc:"Aliquote 4/6/8%, franchigie per parentela e disabilità, imposte ipotecaria e catastale sugli immobili.", refs:"D.Lgs. 346/1990 (TUS), come modificato dal D.Lgs. 139/2024 — DL 262/2006, art. 2, c. 48-49", status:"free"},
+    {id:"usufrutto", title:"Usufrutto e nuda proprietà", desc:"Valore dell'usufrutto vitalizio per età dell'usufruttuario (prospetto DPR 131/1986) e della nuda proprietà.", refs:"DPR 131/1986, art. 46 e prospetto allegato — DM MEF sul saggio legale", status:"free"},
+    {id:"canone", title:"Adeguamento ISTAT del canone", desc:"Aggiornamento annuale del canone di locazione al 75% o 100% della variazione FOI, con indici reali.", refs:"Art. 32 L. 392/1978 — L. 431/1998 — indici FOI ISTAT", status:"free"},
+    {id:"cedolare", title:"Cedolare secca o IRPEF?", desc:"Confronto tra cedolare 21%/10% e tassazione ordinaria (IRPEF su 95% del canone, addizionali, registro e bollo).", refs:"Art. 3 D.Lgs. 23/2011 — art. 37 TUIR — art. 8 L. 392/1978", status:"free"},
   ]},
 ];
 const findCalc = id=>CATALOG.flatMap(g=>g.items).find(i=>i.id===id);
@@ -944,6 +1074,219 @@ const VIEWS = {
         <tr><td>Tetto di regola (cap)</td><td class="r">${fmt.format(R.cap)}</td></tr>
         <tr class="sum"><td>Importo liquidabile</td><td class="r">${fmt.format(R.importo)}</td></tr></table>
         <div class="note">Tabella integrata a punti — ${esc(T.label)} (Milano 2024). Il tetto può essere superato solo in circostanze eccezionali con adeguata motivazione; contrasti, violenze o reati del superstite verso la vittima possono ridurre fino ad azzerare l'importo. Con 4 o più superstiti il parametro D vale 0 punti, come negli esempi ufficiali dell'Osservatorio. Importi all'1.1.2024.</div>`)}</div>${actions()}`;
+    }
+  },
+  "imu":{
+    form:()=>[
+      field("irend","Rendita catastale (non rivalutata) €","number",800,{min:0,step:0.01}),
+      field("icat","Categoria catastale","select","A/2",{options:["A/1","A/2","A/3","A/4","A/5","A/6","A/7","A/8","A/9","A/10","A/11","B/1","B/2","B/3","B/4","B/5","B/6","B/7","B/8","C/1","C/2","C/3","C/4","C/5","C/6","C/7","D/1","D/2","D/3","D/4","D/5","D/6","D/7","D/8","E/1","E/9"].map(c=>[c,c])}),
+      field("ialiq","Aliquota IMU del Comune (‰)","number",10.6,{min:0,max:11.4,step:0.01,hint:"da delibera comunale: base 8,6‰, massimo 10,6‰ (11,4‰ con maggiorazione TASI)"}),
+      field("imesi","Mesi di possesso","number",12,{min:1,max:12,step:1}),
+      field("iquota","Quota di possesso (%)","number",100,{min:1,max:100,step:0.01}),
+      field("iabit","Abitazione principale","select","no",{options:[["no","No"],["si","Sì"]]}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.imu(num("irend"),val("icat"),num("ialiq"),num("imesi"),num("iquota"),val("iabit")==="si",200);
+      if(!R) return empty("Inserisci rendita e categoria.");
+      const VR=ENGINES.valoreCatastale(num("irend"),val("icat"),"registro",false), VP=ENGINES.valoreCatastale(num("irend"),val("icat"),"registro",true), VS=ENGINES.valoreCatastale(num("irend"),val("icat"),"successione",false);
+      return `<div class="total"><div class="eyebrow">IMU annua dovuta</div><div class="big">${fmt.format(R.imu)}</div><div class="sub">${R.esente?"esente":`base imponibile ${fmt.format(R.valore)} × ${fmtN(R.aliq,2)}‰${R.mesi<12?` × ${R.mesi}/12`:""}${R.quota<100?` × ${fmtN(R.quota,2)}%`:""}`}</div></div>
+      <div class="pb">${gate(`<table class="rows">
+        <tr><td>Rendita catastale</td><td class="r">${fmt.format(R.rendita)}</td></tr>
+        <tr><td>Rendita rivalutata del 5%</td><td class="r">${fmt.format(R.riv)}</td></tr>
+        <tr><td>Moltiplicatore IMU (${esc(R.cat)})</td><td class="r">${R.molt}</td></tr>
+        <tr><td>Base imponibile IMU</td><td class="r">${fmt.format(R.valore)}</td></tr>
+        ${R.esente?"":`<tr><td>IMU lorda (${fmtN(R.aliq,2)}‰, ${R.mesi} mesi, ${fmtN(R.quota,2)}%)</td><td class="r">${fmt.format(R.lordo)}</td></tr>${R.detrazione?`<tr><td>Detrazione abitazione principale</td><td class="r">− ${fmt.format(R.detrazione)}</td></tr>`:""}`}
+        <tr class="sum"><td>IMU annua</td><td class="r">${fmt.format(R.imu)}</td></tr>
+        <tr class="muted"><td>Acconto (16 giugno) e saldo (16 dicembre)</td><td class="r">${fmt.format(r2(R.imu/2))} + ${fmt.format(r2(R.imu-r2(R.imu/2)))}</td></tr></table>
+        ${R.nota?`<div class="warn">${esc(R.nota)}</div>`:""}
+        <div class="eyebrow" style="margin:14px 0 6px">Valore catastale per altre finalità</div>
+        <table class="rows"><tr><th>Finalità</th><th class="r">Moltiplicatore</th><th class="r">Valore</th></tr>
+        ${VR?`<tr><td>Imposta di registro — compravendita (non prima casa)</td><td class="r">${VR.molt}</td><td class="r">${fmt.format(VR.valore)}</td></tr>`:""}
+        ${VP&&VP.molt!==VR.molt?`<tr><td>Imposta di registro — prima casa</td><td class="r">${VP.molt}</td><td class="r">${fmt.format(VP.valore)}</td></tr>`:""}
+        ${VS?`<tr><td>Successioni e donazioni</td><td class="r">${VS.molt}</td><td class="r">${fmt.format(VS.valore)}</td></tr>`:""}</table>
+        <div class="note">Base imponibile IMU = rendita rivalutata del 5% × moltiplicatore (art. 1, c. 745, L. 160/2019: 160 per A e C/2-C/6-C/7; 140 per B e C/3-C/4-C/5; 80 per A/10 e D/5; 65 per D; 55 per C/1). Il mese si computa se il possesso dura più di 15 giorni (c. 761). Per il registro i moltiplicatori dell'art. 52 DPR 131/1986 sono aumentati del 20% (10% prima casa) dal DL 168/2004 e del 40% per la categoria B (DL 262/2006). Aliquota e riduzioni (comodato, canone concordato, inagibilità) dipendono dalla delibera comunale.</div>`)}</div>${actions()}`;
+    }
+  },
+  "compravendita":{
+    form:()=>[
+      field("cprezzo","Prezzo di acquisto (€)","number",250000,{min:0,step:100}),
+      field("crend","Rendita catastale (€, per prezzo-valore)","number",800,{min:0,step:0.01,hint:"solo abitazioni acquistate da privati da persone fisiche"}),
+      field("ctipo","Tipo di immobile","select","abitazione",{options:[["abitazione","Abitazione e pertinenze"],["altro","Altro fabbricato (ufficio, negozio, capannone)"],["terreno","Terreno agricolo"]]}),
+      field("cvend","Venditore","select","privato",{options:[["privato","Privato (imposta di registro)"],["impresa","Impresa con IVA (costruttore entro 5 anni o con opzione)"]]}),
+      field("cprima","Agevolazione prima casa","select","si",{options:[["si","Sì"],["no","No"]]}),
+      field("clusso","Categoria di lusso (A/1, A/8, A/9)","select","no",{options:[["no","No"],["si","Sì"]]}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.compravendita(num("cprezzo"),val("ctipo")==="abitazione"&&val("cvend")==="privato"?num("crend"):0,val("ctipo"),val("cprima")==="si",val("cvend")==="impresa",val("clusso")==="si");
+      if(!R) return empty("Inserisci il prezzo.");
+      return `<div class="total"><div class="eyebrow">Imposte sull'acquisto</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">regime ${R.regime} · base imponibile ${fmt.format(R.base)}</div></div>
+      <div class="pb">${gate(`<table class="rows">${R.voci.map(([l,v])=>`<tr><td>${esc(l)}</td><td class="r">${fmt.format(v)}</td></tr>`).join("")}<tr class="sum"><td>Totale imposte</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
+        <div class="note">${esc(R.nota)} Prima casa (nota II-bis all'art. 1 Tariffa DPR 131/1986): immobile non di lusso nel Comune di residenza, nessun'altra abitazione acquistata con l'agevolazione. Oltre alle imposte: onorario notarile, imposta di bollo 230 € e tassa ipotecaria 90 € (registro) ovvero bollo e tasse ipotecarie 320 € (IVA). Dal 2025 il termine per rivendere la precedente prima casa è di 2 anni (L. 207/2024).</div>`)}</div>${actions()}`;
+    }
+  },
+  "successione":{
+    form:()=>[
+      field("sval","Quota ereditaria (o donazione) di questo beneficiario (€)","number",1200000,{min:0,step:1000,full:true}),
+      field("simm","di cui immobili (€)","number",500000,{min:0,step:1000}),
+      field("spar","Rapporto con il defunto / donante","select","retta",{options:[["retta","Coniuge, figli, genitori (linea retta)"],["fratelli","Fratelli e sorelle"],["parenti4","Altri parenti fino al 4°, affini in linea retta e collaterali fino al 3°"],["altri","Altri soggetti"]]}),
+      field("shand","Beneficiario con disabilità grave (L. 104/92)","select","no",{options:[["no","No"],["si","Sì: franchigia 1.500.000 €"]]}),
+      field("sprima","Agevolazione prima casa sugli immobili","select","no",{options:[["no","No"],["si","Sì: ipotecaria e catastale fisse (200 € ciascuna)"]]}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.successione(num("sval"),num("simm"),val("spar"),val("shand")==="si",val("sprima")==="si");
+      if(!R) return empty("Inserisci la quota.");
+      return `<div class="total"><div class="eyebrow">Imposte a carico del beneficiario</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">successione ${fmt.format(R.imposta)} (${R.al}% oltre franchigia ${fmt.format(R.fr)}) · ipotecaria ${fmt.format(R.ipo)} · catastale ${fmt.format(R.cat)}</div></div>
+      <div class="pb">${gate(`<table class="rows">
+        <tr><td>Quota ereditaria (${esc(R.parentela)})</td><td class="r">${fmt.format(R.quotaBene)}</td></tr>
+        <tr><td>Franchigia${R.handicap?" (disabilità grave)":""}</td><td class="r">− ${fmt.format(R.fr)}</td></tr>
+        <tr><td>Base imponibile</td><td class="r">${fmt.format(R.imponibile)}</td></tr>
+        <tr><td>Imposta di successione ${R.al}%</td><td class="r">${fmt.format(R.imposta)}</td></tr>
+        <tr><td>Imposta ipotecaria ${R.primaCasa?"(fissa)":"2% sugli immobili"}</td><td class="r">${fmt.format(R.ipo)}</td></tr>
+        <tr><td>Imposta catastale ${R.primaCasa?"(fissa)":"1% sugli immobili"}</td><td class="r">${fmt.format(R.cat)}</td></tr>
+        <tr class="sum"><td>Totale</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
+        <div class="note">Aliquote e franchigie dell'art. 2, c. 48-49, DL 262/2006, ora artt. 7 e 56 TUS (D.Lgs. 346/1990) come riscritti dal D.Lgs. 139/2024, in vigore per le successioni aperte dal 1° gennaio 2025: 4% oltre 1.000.000 € per coniuge e linea retta; 6% oltre 100.000 € per fratelli e sorelle; 6% senza franchigia per gli altri parenti fino al 4° grado e affini; 8% per gli altri. La franchigia si applica per ciascun beneficiario ed è ridotta delle donazioni precedenti (coacervo). Gli immobili si valutano al valore catastale (rendita × 1,05 × moltiplicatore senza il +20%); l'imposta è autoliquidata dagli eredi con la dichiarazione telematica entro 12 mesi.</div>`)}</div>${actions()}`;
+    }
+  },
+  "usufrutto":{
+    form:()=>[
+      field("uval","Valore della piena proprietà (€)","number",200000,{min:0,step:1000}),
+      field("ueta","Età dell'usufruttuario (anni compiuti)","number",70,{min:0,max:120,step:1}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.usufrutto(num("uval"),num("ueta"));
+      if(!R) return empty("Inserisci valore ed età.");
+      return `<div class="total"><div class="eyebrow">Valore dell'usufrutto</div><div class="big">${fmt.format(R.usufrutto)}</div><div class="sub">${R.pct}% della piena proprietà · nuda proprietà ${fmt.format(R.nuda)} (${100-R.pct}%)</div></div>
+      <div class="pb">${gate(`<table class="rows">
+        <tr><td>Piena proprietà</td><td class="r">${fmt.format(R.valore)}</td></tr>
+        <tr><td>Età dell'usufruttuario</td><td class="r">${R.eta} anni</td></tr>
+        <tr><td>Saggio legale ${new Date().getUTCFullYear()}</td><td class="r">${fmtN(R.tasso,2)} %</td></tr>
+        <tr><td>Coefficiente del prospetto (quota / saggio)</td><td class="r">${fmtN(R.coeff,2)}</td></tr>
+        <tr><td>Quota usufrutto</td><td class="r">${R.pct} %</td></tr>
+        <tr class="sum"><td>Usufrutto</td><td class="r">${fmt.format(R.usufrutto)}</td></tr>
+        <tr class="sum"><td>Nuda proprietà</td><td class="r">${fmt.format(R.nuda)}</td></tr></table>
+        <div class="note">Prospetto dei coefficienti allegato al DPR 131/1986 (art. 46 e art. 48): l'usufrutto vitalizio vale la rendita (valore × saggio legale) moltiplicata per il coefficiente della fascia d'età; poiché i coefficienti sono aggiornati con decreto MEF a ogni variazione del saggio legale, la quota per fascia d'età resta costante (95% fino a 20 anni … 10% da 93 a 99 anni). Per l'usufrutto a tempo determinato: valore = rendita annua × anni, entro il limite del vitalizio. Per l'usufrutto congiuntivo si considera l'età del più giovane.</div>`)}</div>${actions()}`;
+    }
+  },
+  "canone":{
+    form:()=>[
+      field("kcan","Canone annuo attuale (€)","number",9600,{min:0,step:0.01}),
+      field("kpct","Percentuale di variazione FOI applicabile","select","75",{options:[["75","75% (uso abitativo, art. 32 L. 392/1978)"],["100","100% (uso diverso o clausola contrattuale)"]]}),
+      field("kst","Data di stipula o ultimo adeguamento","date","2025-09-01"),
+      field("kad","Data dell'adeguamento","date",todayISO()),
+      field("kcrit","Indici da confrontare","select","precedente",{full:true,options:[["precedente","Mese precedente a ciascuna data (prassi: l'indice del mese corrente non è ancora pubblicato)"],["stesso","Stesso mese di ciascuna data"]]}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.adeguamentoCanone(num("kcan"),val("kst"),val("kad"),num("kpct"),val("kcrit"));
+      if(!R) return empty("Inserisci canone e date (dal 1996).");
+      return `<div class="total"><div class="eyebrow">Canone annuo aggiornato</div><div class="big">${fmt.format(R.nuovo)}</div><div class="sub">${fmt.format(r2(R.nuovo/12))} al mese · +${fmtN(R.varApp*100,2)}% (${R.pct}% di ${fmtN(R.varPiena*100,2)}%) · aumento ${fmt.format(R.aumento)}/anno</div>${R.over?`<div class="warn">Indice del mese richiesto non ancora pubblicato: usato ${R.k1.slice(5)}/${R.k1.slice(0,4)}.</div>`:""}</div>
+      <div class="pb">${gate(`<table class="rows">
+        <tr><td>Indice FOI ${R.k0.slice(5)}/${R.k0.slice(0,4)} (base ${R.base0}=100)</td><td class="r">${fmtN(R.foi0,1)}</td></tr>
+        <tr><td>Indice FOI ${R.k1.slice(5)}/${R.k1.slice(0,4)} (base ${R.base1}=100)</td><td class="r">${fmtN(R.foi1,1)}</td></tr>
+        <tr><td>Variazione ISTAT${R.base0!==R.base1?" (con raccordo tra basi)":""}</td><td class="r">${fmtN(R.varPiena*100,2)} %</td></tr>
+        <tr><td>Variazione applicata (${R.pct}%)</td><td class="r">${fmtN(R.varApp*100,2)} %</td></tr>
+        <tr><td>Canone attuale</td><td class="r">${fmt.format(R.canone)}</td></tr>
+        <tr class="sum"><td>Canone aggiornato</td><td class="r">${fmt.format(R.nuovo)}</td></tr></table>
+        <div class="note">Art. 32 L. 392/1978: per le locazioni abitative l'aggiornamento non può superare il 75% della variazione FOI; per le locazioni a canone concordato l'aggiornamento è escluso se il locatore ha optato per la cedolare secca (art. 3, c. 11, D.Lgs. 23/2011: la rinuncia vale per tutto il periodo dell'opzione). L'aggiornamento va richiesto per iscritto e decorre dalla richiesta (art. 32, c. 2). Le variazioni negative non riducono il canone.</div>`)}</div>${actions()}`;
+    }
+  },
+  "cedolare":{
+    form:()=>[
+      field("ccan","Canone annuo (€)","number",9600,{min:0,step:0.01}),
+      field("ctip","Tipo di contratto","select","libero",{options:[["libero","Libero 4+4, transitorio, studenti (cedolare 21%)"],["concordato","Canone concordato 3+2 in comune ad alta tensione abitativa (cedolare 10%)"]]}),
+      field("cirpef","Aliquota IRPEF marginale del locatore (%)","select","35",{options:[["23","23% (reddito fino a 28.000 €)"],["35","35% (28.000–50.000 €)"],["43","43% (oltre 50.000 €)"]]}),
+      field("cadd","Addizionali regionale e comunale (%)","number",2.5,{min:0,max:5,step:0.1}),
+      field("canni","Durata del contratto (anni, per ripartire il bollo)","number",4,{min:1,max:10,step:1}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.cedolare(num("ccan"),val("ctip"),num("cirpef"),num("cadd"),num("canni"));
+      if(!R) return empty("Inserisci il canone.");
+      return `<div class="total"><div class="eyebrow">Conviene: ${R.conviene==="cedolare"?"cedolare secca":"tassazione ordinaria"}</div><div class="big">${fmt.format(Math.abs(R.risparmio))}<span style="font-size:16px"> /anno di risparmio</span></div><div class="sub">cedolare ${fmt.format(R.ced)} · ordinaria ${fmt.format(R.totIrpef)} (IRPEF+addizionali ${fmt.format(R.irpef)}, registro ${fmt.format(R.registroLoc)}, bollo)</div></div>
+      <div class="pb">${gate(`<table class="rows"><tr><th></th><th class="r">Cedolare secca</th><th class="r">Ordinaria</th></tr>
+        <tr><td>Base imponibile</td><td class="r">${fmt.format(R.canone)} (100%)</td><td class="r">${fmt.format(R.baseIrpef)} (95%)</td></tr>
+        <tr><td>Imposta sul reddito</td><td class="r">${R.alC}% = ${fmt.format(R.ced)}</td><td class="r">${R.aliqIrpef}% + ${fmtN(R.addiz,1)}% = ${fmt.format(R.irpef)}</td></tr>
+        <tr><td>Imposta di registro annua (2%, metà a carico del locatore)</td><td class="r">esente</td><td class="r">${fmt.format(R.registroLoc)}</td></tr>
+        <tr><td>Bollo (${fmt.format(R.bollo)} una tantum, ripartito)</td><td class="r">esente</td><td class="r">${fmt.format(r2(R.bollo/Math.max(1,num("canni"))))}</td></tr>
+        <tr class="sum"><td>Totale annuo</td><td class="r">${fmt.format(R.ced)}</td><td class="r">${fmt.format(R.totIrpef)}</td></tr></table>
+        <div class="note">Cedolare secca (art. 3 D.Lgs. 23/2011): imposta sostitutiva di IRPEF, addizionali, registro e bollo; il reddito resta rilevante per ISEE e detrazioni. Aliquota 10% per i contratti a canone concordato nei comuni ad alta tensione abitativa (art. 9 DL 47/2014). Con l'opzione il locatore rinuncia all'aggiornamento ISTAT del canone. Nella tassazione ordinaria il reddito fondiario è il maggiore tra rendita rivalutata e canone ridotto del 5% (art. 37 TUIR); qui si assume il canone. Il confronto non considera la progressività su più scaglioni né le detrazioni perse.</div>`)}</div>${actions()}`;
+    }
+  },
+  "pignoramento":{
+    form:()=>[
+      field("pnet","Stipendio o pensione netta mensile (€)","number",1800,{min:0,step:0.01}),
+      field("ptip","Tipo di credito","select","ordinario",{options:[["ordinario","Ordinario (1/5)"],["alimentare","Alimentare (misura del giudice)"],["fiscale","Fiscale — agente della riscossione (1/10, 1/7, 1/5)"],["concorso","Concorso di più cause (fino a 1/2)"]]}),
+      field("ppens","Si tratta di pensione","select","no",{options:[["no","No: stipendio"],["si","Sì: pensione"]]}),
+      field("pas","Assegno sociale mensile (€)","number",538.69,{min:0,step:0.01,hint:"importo 2025: 538,69 €; aggiornato ogni gennaio"}),
+      field("palim","Quota per crediti alimentari (%)","number",33.33,{min:0,max:50,step:0.01,hint:"solo per crediti alimentari"}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.pignoramento(num("pnet"),val("ptip"),val("ppens")==="si",num("pas"),num("palim"));
+      if(!R) return empty("Inserisci l'importo netto.");
+      return `<div class="total"><div class="eyebrow">Quota pignorabile mensile</div><div class="big">${fmt.format(R.pign)}</div><div class="sub">${esc(R.descr)} · resta al debitore ${fmt.format(R.residuo)}</div></div>
+      <div class="pb">${gate(`<table class="rows">
+        <tr><td>Netto mensile</td><td class="r">${fmt.format(R.netto)}</td></tr>
+        ${R.pensione?`<tr><td>Minimo vitale impignorabile (2 × assegno sociale, min. 1.000 €)</td><td class="r">− ${fmt.format(R.impign)}</td></tr><tr><td>Parte pignorabile</td><td class="r">${fmt.format(R.base)}</td></tr>`:""}
+        <tr><td>Frazione applicata</td><td class="r">${fmtN(R.frazione*100,2)} %</td></tr>
+        <tr class="sum"><td>Quota pignorabile</td><td class="r">${fmt.format(R.pign)}</td></tr>
+        <tr><td>Somme già accreditate sul conto: impignorabili fino a 3 × assegno sociale (c. 8)</td><td class="r">${fmt.format(R.conto)}</td></tr></table>
+        ${R.notaP?`<div class="warn">${esc(R.notaP)}</div>`:""}
+        <div class="note">Art. 545 c.p.c.: crediti alimentari nella misura autorizzata dal presidente del tribunale (c. 3); crediti ordinari fino a un quinto (c. 4); in caso di concorso di cause il pignoramento non può superare la metà (c. 5); pensioni impignorabili fino al doppio dell'assegno sociale e comunque non meno di 1.000 € (c. 7, DL 115/2022); somme accreditate su conto prima del pignoramento impignorabili fino al triplo dell'assegno sociale, dopo il pignoramento si applicano le quote ordinarie (c. 8). Per la riscossione coattiva l'art. 72-ter DPR 602/1973 fissa 1/10 fino a 2.500 €, 1/7 fino a 5.000 €, 1/5 oltre. Il TFR è pignorabile nel limite di un quinto.</div>`)}</div>${actions()}`;
+    }
+  },
+  "prescrizione":{
+    form:()=>[
+      field("prtipo","Diritto","select","ordinaria",{full:true,options:Object.entries(PRESCR).map(([k,p])=>[k,p.label])}),
+      field("prev","Data da cui il diritto può essere fatto valere","date","2021-06-15",{full:true,hint:"art. 2935 c.c.: la prescrizione decorre dal giorno in cui il diritto può essere esercitato"}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.prescrizione(val("prtipo"),val("prev"));
+      if(!R) return empty("Seleziona il diritto e la data.");
+      return `<div class="total" ${R.prescritto?'style="background:var(--pro-soft)"':""}><div class="eyebrow">${R.prescritto?"Termine decorso":"Prescrizione"}</div><div class="big" style="font-size:28px">${fmtD(R.scadenza)}</div><div class="sub">${R.anni} anni dal ${fmtD(R.evento)} · ${R.prescritto?`prescritto da ${-R.giorni} giorni, salvo atti interruttivi`:`mancano ${R.giorni} giorni`}</div></div>
+      <div class="pb">${gate(`<table class="rows"><tr><td>Diritto</td><td class="r">${esc(R.tipo)}</td></tr><tr><td>Termine</td><td class="r">${R.anni} anni</td></tr><tr><td>Decorrenza</td><td class="r">${fmtD(R.evento)}</td></tr><tr class="sum"><td>Compimento della prescrizione</td><td class="r">${fmtD(R.scadenza)}</td></tr></table>
+        <div class="note">Il termine si computa secondo il calendario comune e non si conta il giorno iniziale (art. 2963 c.c.); se scade in giorno festivo è prorogato al giorno seguente non festivo. La prescrizione è interrotta dalla domanda giudiziale, dalla costituzione in mora (art. 2943) e dal riconoscimento del debito (art. 2944): dall'interruzione decorre un nuovo termine. È sospesa nei casi degli artt. 2941-2942. I diritti accertati con sentenza passata in giudicato si prescrivono in dieci anni (art. 2953). Il calcolo non considera interruzioni e sospensioni.</div>`)}</div>${actions()}`;
+    }
+  },
+  "preventivo":{
+    form:()=>{
+      const tab=state.inputs.qtab||"2"; const T=PF[tab];
+      return [
+        field("qtab","Procedimento","select",tab,{full:true,rerender:true,options:PF_ORDER.map(k=>[k,PF[k].label])}),
+        field("qval","Valore della controversia (€)","number",30000,{min:0,step:0.01}),
+        field("qliv","Livello dei compensi","select","0",{options:[["-50","Minimi (−50%)"],["-25","−25%"],["0","Medi tabellari"],["25","+25%"],["50","Massimi (+50%)"]]}),
+        field("qcli","Cliente","text","",{full:true}),
+        field("qogg","Oggetto dell'incarico","text","",{full:true}),
+        field("qcu","Contributo unificato","select","auto",{options:[["auto","Calcola per il valore (cognizione)"],["no","Non dovuto / a carico di altri"]]}),
+        field("qspese","Altre anticipazioni stimate (notifiche, copie, CTU…) €","number",150,{min:0,step:0.01}),
+        `<div class="field full"><div class="hint">Fasi incluse: ${esc(T.fasi.map(f=>f[1]).join(", "))}. Per selezionare le singole fasi usa il calcolatore Parcella.</div></div>`
+      ].join("");
+    },
+    result:()=>{
+      const tab=val("qtab")||"2"; const T=PF[tab]; const liv=num("qliv"); const fv={}; for(const [s] of T.fasi) fv[s]=liv;
+      const P=ENGINES.parcella(tab,num("qval"),fv,{}); if(!P) return empty("Inserisci il valore.");
+      const CU=val("qcu")==="auto"?ENGINES.contributoUnificato(num("qval"),"cognizione","primo"):null;
+      const marca=CU?27:0; const antic=r2((CU?CU.dovuto:0)+marca+num("qspese"));
+      const totale=r2(P.totale+antic);
+      return `<div class="total"><div class="eyebrow">Costo complessivo presumibile</div><div class="big">${fmt.format(totale)}</div><div class="sub">compenso ${fmt.format(P.compenso)} · spese generali e Cassa ${fmt.format(r2(P.speseGen+P.cpa))} · IVA ${fmt.format(P.iva)} · anticipazioni ${fmt.format(antic)}</div></div>
+      <div class="pb">${gate(`
+        <div class="print-only" style="margin-bottom:10px"></div>
+        <h3 style="font-family:var(--serif);font-size:17px;margin-bottom:6px">Preventivo di massima ex art. 13, c. 5, L. 31 dicembre 2012, n. 247</h3>
+        <table class="rows">
+        ${val("qcli")?`<tr><td>Cliente</td><td class="r">${esc(val("qcli"))}</td></tr>`:""}
+        ${val("qogg")?`<tr><td>Oggetto</td><td class="r">${esc(val("qogg"))}</td></tr>`:""}
+        <tr><td>Procedimento</td><td class="r">${esc(T.label)}</td></tr>
+        <tr><td>Valore della controversia</td><td class="r">${fmt.format(num("qval"))}</td></tr>
+        <tr><td>Data</td><td class="r">${fmtD(todayISO())}</td></tr></table>
+        <div class="eyebrow" style="margin:14px 0 6px">Compensi (DM 55/2014, tabelle DM 147/2022, livello ${liv===0?"medio":(liv>0?"+":"")+liv+"%"})</div>
+        <table class="rows">${P.fasi.map(f=>`<tr><td>${esc(f.label)}</td><td class="r">${fmt.format(f.imp)}</td></tr>`).join("")}${P.oltreDett.map(d=>`<tr><td>Art. 22: ${d.pct}% su ${fmt.format(d.da)}–${fmt.format(d.a)}</td><td class="r">${fmt.format(d.imp)}</td></tr>`).join("")}
+        <tr class="sum"><td>Compenso professionale</td><td class="r">${fmt.format(P.compenso)}</td></tr>
+        <tr><td>Rimborso forfettario spese generali 15%</td><td class="r">${fmt.format(P.speseGen)}</td></tr>
+        <tr><td>Contributo previdenziale Cassa Forense 4%</td><td class="r">${fmt.format(P.cpa)}</td></tr>
+        <tr><td>IVA 22%</td><td class="r">${fmt.format(P.iva)}</td></tr>
+        <tr class="sum"><td>Totale compensi e oneri</td><td class="r">${fmt.format(P.totale)}</td></tr></table>
+        <div class="eyebrow" style="margin:14px 0 6px">Anticipazioni e spese esenti (art. 15 DPR 633/1972)</div>
+        <table class="rows">${CU?`<tr><td>Contributo unificato (DPR 115/2002)</td><td class="r">${fmt.format(CU.dovuto)}</td></tr><tr><td>Marca per notifiche d'ufficio (art. 30 DPR 115/2002)</td><td class="r">${fmt.format(marca)}</td></tr>`:""}<tr><td>Altre anticipazioni stimate</td><td class="r">${fmt.format(num("qspese"))}</td></tr><tr class="sum"><td>Totale anticipazioni</td><td class="r">${fmt.format(antic)}</td></tr></table>
+        <table class="rows" style="margin-top:12px"><tr class="sum"><td>Costo complessivo presumibile della prestazione</td><td class="r">${fmt.format(totale)}</td></tr></table>
+        <div class="note"><b>Avvertenze.</b> Il presente preventivo è redatto ai sensi dell'art. 13, c. 5, L. 247/2012 e indica la misura del compenso e la prevedibile misura del costo della prestazione, distinguendo oneri, spese anche forfettarie e compenso professionale. Gli importi sono determinati sui parametri del DM 55/2014 (tabelle DM 147/2022) per le fasi indicate e potranno variare in relazione alle attività effettivamente svolte, alla complessità della controversia e ai risultati conseguiti, nonché per fasi ulteriori (cautelari, incidentali, esecutive) e gradi successivi, oggetto di separato preventivo. Le anticipazioni sono stimate. In caso di soccombenza il giudice può porre a carico del cliente le spese di lite della controparte. Il cliente dichiara di aver ricevuto le informazioni sul grado di complessità dell'incarico e sugli oneri ipotizzabili.</div>
+        <div style="display:flex;justify-content:space-between;margin-top:22px;font-size:13px"><div>L'avvocato<br><br>__________________________</div><div>Per accettazione, il cliente<br><br>__________________________</div></div>`)}</div>${actions()}`;
     }
   },
   "scadenze":{
