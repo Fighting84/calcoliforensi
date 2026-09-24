@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   monitor:
@@ -29,8 +30,23 @@ jobs:
           if [ "$code" = "1" ]; then echo "::warning::update_foi in errore (API ISTAT non raggiungibile?)"; fi
           exit 0
 
+      - name: Controlla la Gazzetta Ufficiale
+        id: gu
+        run: |
+          set +e
+          node app/scripts/check_gazzetta.js | tee gu.log
+          code=${PIPESTATUS[0]}
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          if [ "$code" = "1" ]; then echo "::warning::check_gazzetta in errore"; fi
+          exit 0
+
       - name: Test dei motori di calcolo
         run: node app/tests/run_tests.js
+
+      - name: Test di rendering dell'interfaccia
+        run: |
+          npm install --no-save --silent jsdom@24
+          node app/tests/run_dom_tests.js
 
       - name: Timbro verifica automatica e build
         run: |
@@ -41,12 +57,35 @@ jobs:
         run: |
           git config user.name "calcoliforensi-monitor"
           git config user.email "monitor@calcoliforensi.it"
-          git add -A app docs
+          git add -A app docs monitoraggio
           if git diff --cached --quiet; then echo "nessuna modifica"; exit 0; fi
           msg="monitor: verifica automatica $(TZ=Europe/Rome date +%d/%m/%Y)"
-          if [ "${{ steps.foi.outputs.code }}" = "10" ]; then msg="monitor: nuovo indice FOI ISTAT — $(cat foi.log | tail -n 1)"; fi
+          if [ "${{ steps.foi.outputs.code }}" = "10" ]; then msg="monitor: nuovo indice FOI ISTAT — $(tail -n 1 foi.log)"; fi
           git commit -m "$msg"
+          git pull --rebase --autostash origin main || true
           git push
+
+      - name: Segnala le novità della Gazzetta
+        if: steps.gu.outputs.code == '10'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Il controllo automatico della Gazzetta Ufficiale ha intercettato atti che potrebbero incidere sui calcolatori."
+            echo
+            node -e '
+              const n=require("./monitoraggio/novita.json");
+              for(const x of n){
+                console.log(`### ${x.tema} → calcolatore \`${x.calcolatore}\``);
+                console.log(`GU Serie Generale del ${x.data}, n. ${x.gazzetta} — ${x.url}`);
+                console.log("");
+                console.log("> " + x.contesto.replace(/\n/g," "));
+                console.log("");
+              }'
+            echo "---"
+            echo "Da verificare a mano: se l'atto modifica valori o norme applicate, aggiornare \`app/index.html\`, i test e le note, poi ripubblicare."
+          } > issue.md
+          gh issue create --title "Gazzetta Ufficiale: novità da verificare ($(TZ=Europe/Rome date +%d/%m/%Y))" --body-file issue.md --label "" || gh issue create --title "Gazzetta Ufficiale: novità da verificare ($(TZ=Europe/Rome date +%d/%m/%Y))" --body-file issue.md
 
       - name: Verifica che il sito risponda
         run: sleep 90 && node app/scripts/check_site.js

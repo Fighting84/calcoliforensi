@@ -18,3 +18,9 @@ Eseguito da Claude sul PC quando l'app è aperta (altrimenti al primo avvio). Pe
 5. Il lunedì: report settimanale all'utente (visite da `gh api repos/Fighting84/calcoliforensi/traffic/views`, novità, KPI vs patto).
 
 Regola: mai pubblicare una modifica ai motori senza test verdi; mai citare una pronuncia senza averla verificata con `leggi_sentenza`.
+
+## Collaudo automatico
+
+- `node app/tests/run_tests.js` — 188 casi sui motori di calcolo contro fonti ufficiali.
+- `npm i --no-save jsdom && node app/tests/run_dom_tests.js` — 35 controlli sull'interfaccia: ogni calcolatore produce un risultato, paywall, valori limite, errori JavaScript, dati aggiornati.
+- Entrambi girano a ogni esecuzione del workflow: se falliscono, il sito non viene ripubblicato.

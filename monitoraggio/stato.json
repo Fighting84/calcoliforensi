@@ -1,16 +1,136 @@
 {
   "ultima_verifica_fonti": "2026-09-21",
   "temi": [
-    {"id": "tun", "calcolatore": "danno-tun", "keywords": ["tabella unica nazionale", "art. 138 codice assicurazioni", "macropermanenti"], "gu": ["tabella unica nazionale", "articolo 138"], "note": "Cass. 8630/2026 già recepita. Attendere DM di aggiornamento annuale valori."},
-    {"id": "micro", "calcolatore": "danno-micro", "keywords": ["art. 139 codice assicurazioni", "micropermanenti"], "gu": ["lesioni di lieve entità", "articolo 139"], "note": "DM MIMIT di aggiornamento annuale (di solito giugno-luglio): valore primo punto e ITT."},
-    {"id": "milano", "calcolatore": "danno-milano", "keywords": ["tabelle milanesi", "tabelle di Milano", "danno non patrimoniale"], "gu": [], "note": "Osservatorio Milano pubblica aggiornamenti (ultimo giugno 2024); controllare anche tribunale-milano.giustizia.it."},
-    {"id": "parentale", "calcolatore": "danno-parentale", "keywords": ["perdita del rapporto parentale", "tabella a punti"], "gu": [], "note": ""},
-    {"id": "interessi", "calcolatore": "interessi-legali", "keywords": ["saggio degli interessi legali", "art. 1284"], "gu": ["saggio degli interessi legali"], "note": "DM MEF entro il 15 dicembre per l'anno successivo."},
-    {"id": "mora", "calcolatore": "interessi-mora", "keywords": ["interessi di mora transazioni commerciali", "d.lgs. 231/2002"], "gu": ["tasso di riferimento", "231"], "note": "Comunicato MEF a gennaio e luglio (tasso BCE semestrale)."},
-    {"id": "parcella", "calcolatore": "parcella", "keywords": ["parametri forensi", "DM 55/2014", "liquidazione compensi avvocato"], "gu": ["parametri", "professione forense"], "note": "Aggiornamento biennale previsto dall'art. 13 L. 247/2012."},
-    {"id": "cu", "calcolatore": "contributo-unificato", "keywords": ["contributo unificato"], "gu": ["contributo unificato", "spese di giustizia"], "note": ""},
-    {"id": "scadenze", "calcolatore": "scadenze", "keywords": ["termine a ritroso", "sospensione feriale", "art. 155 c.p.c."], "gu": [], "note": "Verificare orientamenti su sabato/festivi nei termini a ritroso."},
-    {"id": "tfr", "calcolatore": "tfr", "keywords": ["trattamento di fine rapporto rivalutazione"], "gu": ["tassazione separata"], "note": "Scaglioni IRPEF (legge di bilancio)."},
-    {"id": "rivalutazione", "calcolatore": "rivalutazione", "keywords": ["rivalutazione monetaria debiti di valore"], "gu": [], "note": "Serie FOI aggiornata automaticamente dal workflow."}
-  ]
+    {
+      "id": "tun",
+      "calcolatore": "danno-tun",
+      "keywords": [
+        "tabella unica nazionale",
+        "art. 138 codice assicurazioni",
+        "macropermanenti"
+      ],
+      "gu": [
+        "tabella unica nazionale",
+        "articolo 138"
+      ],
+      "note": "Cass. 8630/2026 già recepita. Attendere DM di aggiornamento annuale valori."
+    },
+    {
+      "id": "micro",
+      "calcolatore": "danno-micro",
+      "keywords": [
+        "art. 139 codice assicurazioni",
+        "micropermanenti"
+      ],
+      "gu": [
+        "lesioni di lieve entità",
+        "articolo 139"
+      ],
+      "note": "DM MIMIT di aggiornamento annuale (di solito giugno-luglio): valore primo punto e ITT."
+    },
+    {
+      "id": "milano",
+      "calcolatore": "danno-milano",
+      "keywords": [
+        "tabelle milanesi",
+        "tabelle di Milano",
+        "danno non patrimoniale"
+      ],
+      "gu": [],
+      "note": "Osservatorio Milano pubblica aggiornamenti (ultimo giugno 2024); controllare anche tribunale-milano.giustizia.it."
+    },
+    {
+      "id": "parentale",
+      "calcolatore": "danno-parentale",
+      "keywords": [
+        "perdita del rapporto parentale",
+        "tabella a punti"
+      ],
+      "gu": [],
+      "note": ""
+    },
+    {
+      "id": "interessi",
+      "calcolatore": "interessi-legali",
+      "keywords": [
+        "saggio degli interessi legali",
+        "art. 1284"
+      ],
+      "gu": [
+        "saggio degli interessi legali"
+      ],
+      "note": "DM MEF entro il 15 dicembre per l'anno successivo."
+    },
+    {
+      "id": "mora",
+      "calcolatore": "interessi-mora",
+      "keywords": [
+        "interessi di mora transazioni commerciali",
+        "d.lgs. 231/2002"
+      ],
+      "gu": [
+        "tasso di riferimento",
+        "231"
+      ],
+      "note": "Comunicato MEF a gennaio e luglio (tasso BCE semestrale)."
+    },
+    {
+      "id": "parcella",
+      "calcolatore": "parcella",
+      "keywords": [
+        "parametri forensi",
+        "DM 55/2014",
+        "liquidazione compensi avvocato"
+      ],
+      "gu": [
+        "parametri",
+        "professione forense"
+      ],
+      "note": "Aggiornamento biennale previsto dall'art. 13 L. 247/2012."
+    },
+    {
+      "id": "cu",
+      "calcolatore": "contributo-unificato",
+      "keywords": [
+        "contributo unificato"
+      ],
+      "gu": [
+        "contributo unificato",
+        "spese di giustizia"
+      ],
+      "note": ""
+    },
+    {
+      "id": "scadenze",
+      "calcolatore": "scadenze",
+      "keywords": [
+        "termine a ritroso",
+        "sospensione feriale",
+        "art. 155 c.p.c."
+      ],
+      "gu": [],
+      "note": "Verificare orientamenti su sabato/festivi nei termini a ritroso."
+    },
+    {
+      "id": "tfr",
+      "calcolatore": "tfr",
+      "keywords": [
+        "trattamento di fine rapporto rivalutazione"
+      ],
+      "gu": [
+        "tassazione separata"
+      ],
+      "note": "Scaglioni IRPEF (legge di bilancio)."
+    },
+    {
+      "id": "rivalutazione",
+      "calcolatore": "rivalutazione",
+      "keywords": [
+        "rivalutazione monetaria debiti di valore"
+      ],
+      "gu": [],
+      "note": "Serie FOI aggiornata automaticamente dal workflow."
+    }
+  ],
+  "ultima_verifica_gu": "2026-09-24"
 }

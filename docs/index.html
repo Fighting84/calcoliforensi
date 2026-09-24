@@ -228,13 +228,15 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 <script>
 /* ===================== CONFIG ===================== */
 const CONFIG = {
-  version: "0.7.0 — 21 settembre 2026",
+  version: "0.7.1 — 24 settembre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
   licenseApi: "https://api.lemonsqueezy.com/v1/licenses/validate",
-  testKeys: ["PROVA-CALCOLI-FORENSI-2026","COLLAUDO-OMETTO-2026"]   // chiavi di collaudo: da rimuovere all'attivazione dei pagamenti
+  // impronte delle chiavi di collaudo (non in chiaro); da rimuovere all'attivazione dei pagamenti
+  testKeyHashes: [1544807965, 520782228]
 };
+const impronta = s=>{ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h; };
 
 // Registro delle verifiche (aggiornato dagli script di monitoraggio: vedi app/scripts e monitoraggio/README.md)
 const MONITOR = { fonti:"21/09/2026", dati:"24/09/2026" };   // fonti = verifica normativa/giurisprudenziale; dati = verifica automatica serie ISTAT e test
@@ -624,7 +626,7 @@ const ENGINES = {
     return {netto,tipo,pensione,AS,impign,base,frazione,descr,pign,residuo:r2(netto-pign),notaP,conto:r2(3*AS)};
   },
   prescrizione(tipo, evento){
-    const P=PRESCR[tipo]; if(!P||!evento) return null;
+    const P=PRESCR[tipo]; if(!P||!evento||isNaN(pd(evento))) return null;
     const d=new Date(pd(evento)); const t=new Date(Date.UTC(d.getUTCFullYear()+P.anni,d.getUTCMonth(),d.getUTCDate()));
     if(t.getUTCDate()!==d.getUTCDate()) t.setUTCDate(0);
     const scad=t.toISOString().slice(0,10); const oggi=todayISO();
@@ -632,7 +634,10 @@ const ENGINES = {
     return {tipo:P.label,anni:P.anni,evento,scadenza:scad,giorni,prescritto:giorni<0};
   },
   scadenza(inizio, n, unita, direzione, feriale, liberi){
-    if(!inizio||!(n>0)) return null;
+    n=Math.floor(n);
+    if(!inizio||!(n>0)||isNaN(pd(inizio))) return null;
+    if(unita==="giorni"&&n>3650) return null;      // oltre 10 anni: fuori dall'uso processuale
+    if(unita==="mesi"&&n>120) return null;
     const toS=t=>new Date(t).toISOString().slice(0,10);
     const D=86400000;
     const pasqua=y=>{const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return Date.UTC(y,mo-1,da);};
@@ -762,7 +767,7 @@ const LIC = {
   save(k){ try{ localStorage.setItem("cf_license",k); }catch(e){} this.key=k; this.valid=true; },
   clear(){ try{ localStorage.removeItem("cf_license"); }catch(e){} this.key=null; this.valid=false; },
   async validate(k){
-    if((CONFIG.testKeys||[]).includes(k.trim().toUpperCase())) return {ok:true,msg:"Chiave di collaudo attiva: tutte le funzioni Pro sbloccate."};
+    if((CONFIG.testKeyHashes||[]).includes(impronta(k.trim().toUpperCase()))) return {ok:true,msg:"Chiave di collaudo attiva: tutte le funzioni Pro sbloccate."};
     // Verifica online (Lemon Squeezy License API).
     const looksOk=/^[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}$/i.test(k.trim());
     if(!looksOk) return {ok:false,msg:"Formato chiave non valido."};
@@ -898,7 +903,9 @@ function val(id){ return ($("#"+id)||{}).value; }
 
 function gate(inner){
   if(LIC.valid) return inner;
-  return `<div class="gate"><div class="locked">${inner}</div><div class="cta"><div class="cta-card"><h3>Prospetto analitico e relazione</h3><p>Con Pro vedi ogni passaggio del calcolo, le fonti applicate e stampi la relazione da allegare.</p><a class="btn pro" href="${CONFIG.checkoutPro}">Attiva Pro — 19 €/mese</a><div style="margin-top:8px"><a href="#" id="gateHasKey" style="font-size:13px">Ho già una chiave</a></div></div></div></div>`;
+  // senza licenza il prospetto non viene inviato al browser: si mostra un'anteprima muta e la proposta
+  const finta=`<table class="rows">${Array.from({length:7},()=>'<tr><td>&nbsp;</td><td class="r">&nbsp;</td></tr>').join("")}</table>`;
+  return `<div class="gate"><div class="locked" aria-hidden="true">${finta}</div><div class="cta"><div class="cta-card"><h3>Prospetto analitico e relazione</h3><p>Con Pro vedi ogni passaggio del calcolo, le fonti applicate e stampi la relazione da allegare.</p><a class="btn pro" href="${CONFIG.checkoutPro}">Attiva Pro — 19 €/mese</a><div style="margin-top:8px"><a href="#" id="gateHasKey" style="font-size:13px">Ho già una chiave</a></div></div></div></div>`;
 }
 function actions(){ return `<div class="actions"><button class="btn" id="btnPrint">${LIC.valid?"Stampa relazione / PDF":"Stampa relazione (Pro)"}</button><button class="btn" id="btnCopy">Copia risultato</button></div>`; }
 
@@ -1306,7 +1313,7 @@ const VIEWS = {
     },
     result:()=>{
       const R=ENGINES.scadenza(val("sini"),num("sn"),val("sun"),val("sdir"),val("sfer")==="si",val("slib")==="si");
-      if(!R) return empty("Inserisci data e durata.");
+      if(!R) return empty("Inserisci una data valida e una durata compresa tra 1 e 3.650 giorni (o 120 mesi).");
       return `<div class="total"><div class="eyebrow">${R.direzione==="ritroso"?"Termine ultimo (a ritroso)":"Scadenza"}</div><div class="big" style="font-size:28px">${R.giornoSettimana} ${fmtD(R.scadenza)}</div><div class="sub">${R.n} ${R.unita} ${R.direzione==="ritroso"?"prima del":"dal"} ${fmtD(R.inizio)} · ${R.giorniTot} giorni di calendario${R.giorniFeriali?` (di cui ${R.giorniFeriali} di sospensione feriale)`:""}</div></div>
       <div class="pb">${gate(`<table class="rows">
         <tr><td>Data iniziale</td><td class="r">${fmtD(R.inizio)}</td></tr>

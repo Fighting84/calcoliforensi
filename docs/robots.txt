@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://calcoliforensi.it/sitemap.xml
