@@ -179,6 +179,9 @@ dialog p{font-size:14px;color:var(--ink-2);margin:0 0 12px}
 dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);font:inherit;font-family:var(--mono)}
 .foot{max-width:1180px;margin:0 auto;padding:16px;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line)}
 .foot p{margin:4px 0;max-width:90ch}
+.foot-links{display:flex;flex-wrap:wrap;gap:6px 4px}
+.foot a{color:var(--ink-2);text-decoration:underline}
+.foot a:hover{color:var(--accent)}
 
 @media print{
   .top,.nav,.actions,.foot,.gate .cta,.no-print{display:none!important}
@@ -188,8 +191,14 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
   .gate .locked{filter:none;opacity:1}
   body{background:#fff;color:#000}
   .print-head{display:block!important;margin-bottom:16px;border-bottom:1px solid #000;padding-bottom:8px}
+  .print-foot{display:block!important;margin-top:18px;padding-top:8px;border-top:1px solid #999;font-size:10.5px;color:#333}
+  .print-studio{font-weight:600;font-size:15px;margin-bottom:8px;line-height:1.35}
+  .rows th,.rows td{padding:4px 0}
+  .panel .ph{padding-left:0;padding-right:0}
+  h1{font-size:19px}
+  a[href]:after{content:""}
 }
-.print-head{display:none;font-family:var(--serif)}
+.print-head,.print-foot{display:none;font-family:var(--serif)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -211,6 +220,8 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 
 <footer class="foot">
   <p><strong>Calcoli Forensi</strong> — strumenti di calcolo per professionisti del diritto. I risultati sono elaborazioni automatiche su dati normativi e tabellari pubblici e non costituiscono consulenza legale; la verifica finale spetta al professionista.</p>
+  <p class="foot-links"><a href="#/informazioni">Informazioni, condizioni e privacy</a> · <a href="#/impostazioni">Impostazioni</a> · <a href="#/storico">Storico</a> · <a href="#/piani">Piani</a> · <a id="footMail" href="#">Assistenza</a></p>
+  <p id="footTitolare"></p>
   <p id="footVersion"></p>
 </footer>
 
@@ -219,6 +230,7 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
   <p>Incolla la chiave ricevuta via email dopo l'acquisto.</p>
   <input id="licenseKey" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" autocomplete="off">
   <p id="licenseMsg" style="margin-top:8px"></p>
+  <p style="font-size:12.5px;margin:4px 0 0">Hai perso la chiave? Scrivi a <a id="dlgMail" href="#">assistenza</a> indicando l'email usata per l'acquisto.</p>
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
     <button class="btn" id="licenseCancel">Annulla</button>
     <button class="btn primary" id="licenseOk">Attiva</button>
@@ -227,8 +239,13 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 
 <script>
 /* ===================== CONFIG ===================== */
+const TITOLARE = {
+  nome:"Studio Legale Ometto", titolare:"avv. Pier Giorgio Ometto",
+  indirizzo:"Via Carducci 2, 30030 Pianiga (VE)", piva:"02844040275",
+  email:"studiolegaleometto@gmail.com", ordine:"Ordine degli Avvocati di Venezia"
+};
 const CONFIG = {
-  version: "0.7.1 — 24 settembre 2026",
+  version: "0.8.0 — 24 settembre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -416,6 +433,7 @@ const daysBetween=(a,b)=>Math.round((pd(b)-pd(a))/86400000); // dies a quo non c
 const fmtD = s=>{const [y,m,d]=s.split("-");return `${d}/${m}/${y}`;};
 const todayISO=()=>new Date().toISOString().slice(0,10);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const testoDi=el=>!el?"":((el.innerText!=null?el.innerText:el.textContent)||"");
 
 /* ===================== MOTORI DI CALCOLO ===================== */
 const ENGINES = {
@@ -760,6 +778,21 @@ const ENGINES = {
   }
 };
 
+/* ===================== STUDIO, PRATICA, STORICO ===================== */
+// Impostazioni dello studio (intestazione sulle relazioni) e storico dei calcoli: restano su questo dispositivo.
+const STUDIO = {
+  dati:{intestazione:"",riga2:"",riga3:""},
+  load(){ try{ const s=localStorage.getItem("cf_studio"); if(s) this.dati={...this.dati,...JSON.parse(s)}; }catch(e){} },
+  save(d){ this.dati={...this.dati,...d}; try{ localStorage.setItem("cf_studio",JSON.stringify(this.dati)); }catch(e){} },
+  attiva(){ return !!(this.dati.intestazione||"").trim(); }
+};
+const STORICO = {
+  MAX:60,
+  lista(){ try{ return JSON.parse(localStorage.getItem("cf_storico")||"[]"); }catch(e){ return []; } },
+  salva(v){ try{ const l=this.lista(); l.unshift(v); localStorage.setItem("cf_storico",JSON.stringify(l.slice(0,this.MAX))); return true; }catch(e){ return false; } },
+  elimina(id){ try{ localStorage.setItem("cf_storico",JSON.stringify(this.lista().filter(x=>x.id!==id))); }catch(e){} },
+  svuota(){ try{ localStorage.removeItem("cf_storico"); }catch(e){} }
+};
 /* ===================== LICENZA ===================== */
 const LIC = {
   key:null, valid:false,
@@ -881,15 +914,94 @@ function renderPlansInto(el){
       <ul><li>Risultato finale di ogni calcolatore</li><li>Riferimenti normativi</li><li>Nessuna registrazione</li></ul>
       <a class="btn" href="#/">Usa gratis</a></div>
     <div class="plan hl"><div class="eyebrow" style="color:var(--pro)">Pro</div><div class="price">19 € <small>/ mese · o 149 €/anno</small></div>
-      <ul><li>Prospetto analitico per ogni calcolo</li><li>Relazione stampabile / PDF con fonti</li><li>Tutti i nuovi calcolatori inclusi</li><li>Aggiornamenti tabellari automatici</li></ul>
+      <ul><li>Prospetto analitico di ogni calcolo</li><li>Relazione stampabile e PDF con le fonti</li><li>Riferimento della pratica sulla relazione</li><li>Intestazione dello studio sulle relazioni</li><li>Storico dei calcoli sul dispositivo</li><li>Copia del prospetto da incollare negli atti</li><li>Tutti i nuovi calcolatori inclusi</li><li>Aggiornamenti tabellari automatici</li></ul>
       <a class="btn pro" href="${CONFIG.checkoutPro}">Attiva Pro</a></div>
-    <div class="plan"><div class="eyebrow">Studio</div><div class="price">39 € <small>/ mese</small></div>
-      <ul><li>Tutto Pro, per 5 professionisti</li><li>Intestazione dello studio sulle relazioni</li><li>Supporto prioritario</li></ul>
+    <div class="plan"><div class="eyebrow">Studio</div><div class="price">39 € <small>/ mese · o 390 €/anno</small></div>
+      <ul><li>Tutto quanto è compreso in Pro</li><li>Una chiave valida su 5 postazioni</li><li>Assistenza con priorità di risposta</li><li>Segnalazioni di errore esaminate per prime</li></ul>
       <a class="btn" href="${CONFIG.checkoutStudio}">Attiva Studio</a></div>
   </div>
-  <div class="note plans-note">Serve una sola relazione? È disponibile il report singolo a 9 €, senza abbonamento. Fatturazione e IVA sono gestite dalla piattaforma di pagamento; la disdetta si fa in un click, senza vincoli di durata.</div>`;
+  <div class="note plans-note">La chiave di licenza si attiva dal pulsante «Ho una licenza» e resta memorizzata nel browser di ciascuna postazione. Fatturazione e imposte sono gestite dalla piattaforma di pagamento; la disdetta si fa in ogni momento e ha effetto a fine periodo, senza penali. Condizioni complete, trattamento dei dati e contatti nella pagina <a href="#/informazioni">Informazioni</a>.</div>`;
 }
 
+function renderInfo(){
+  renderNav("info");
+  const T=TITOLARE;
+  $("#main").innerHTML=`<div class="head"><h1>Informazioni, condizioni e contatti</h1><p>Chi eroga il servizio, come funzionano gli abbonamenti, come vengono trattati i dati e come ottenere assistenza.</p></div>
+  <div class="panel"><div class="pb">
+    <div class="eyebrow" style="margin-bottom:6px">Titolare del servizio</div>
+    <table class="rows"><tr><td>Denominazione</td><td class="r">${esc(T.nome)}</td></tr>
+    <tr><td>Titolare</td><td class="r">${esc(T.titolare)} — ${esc(T.ordine)}</td></tr>
+    <tr><td>Sede</td><td class="r">${esc(T.indirizzo)}</td></tr>
+    <tr><td>Partita IVA</td><td class="r">${esc(T.piva)}</td></tr>
+    <tr><td>Contatti</td><td class="r"><a href="mailto:${esc(T.email)}">${esc(T.email)}</a></td></tr></table>
+
+    <div class="eyebrow" style="margin:18px 0 6px">Che cosa è Calcoli Forensi</div>
+    <p class="just">Calcoli Forensi è uno strumento di calcolo per professionisti del diritto. Elabora valori tabellari e parametri normativi pubblici (tabelle ministeriali, decreti, indici ISTAT, criteri degli osservatori sulla giustizia civile) e ne restituisce l'applicazione al caso inserito dall'utente, con l'indicazione delle formule e delle fonti. Non è un servizio di consulenza legale, non instaura alcun rapporto professionale e non sostituisce la valutazione dell'avvocato o del consulente: ogni risultato va verificato prima dell'uso. Il servizio è rivolto a soggetti che operano nell'esercizio di attività professionale.</p>
+
+    <div class="eyebrow" style="margin:18px 0 6px">Abbonamenti, pagamenti e disdetta</div>
+    <p class="just">Il risultato di ogni calcolatore è gratuito e non richiede registrazione. Le funzioni Pro (prospetto analitico, relazione stampabile, storico, intestazione dello studio) si attivano con una chiave di licenza inviata per email dopo l'acquisto. L'abbonamento si rinnova automaticamente alla scadenza del periodo scelto e può essere disdetto in qualsiasi momento dall'area di gestione indicata nell'email di acquisto o scrivendo all'indirizzo di contatto: la disdetta ha effetto alla scadenza del periodo già pagato, senza penali. I prezzi indicati sono comprensivi delle imposte applicabili. I pagamenti e la fatturazione sono gestiti dal fornitore di pagamento indicato in fase di acquisto, che emette il documento fiscale.</p>
+    <p class="just">Trattandosi di contenuto digitale fornito immediatamente, l'acquirente che agisca come consumatore, chiedendo l'attivazione immediata, riconosce la perdita del diritto di recesso ai sensi dell'art. 59, lett. o), del Codice del consumo. Resta ferma la possibilità di chiedere il rimborso entro quattordici giorni dall'acquisto se il servizio non ha funzionato come descritto: in tal caso scrivere all'indirizzo di contatto.</p>
+
+    <div class="eyebrow" style="margin:18px 0 6px">Dati personali e cookie</div>
+    <p class="just">Il sito non utilizza cookie di profilazione né strumenti di analisi o tracciamento di terze parti. I dati inseriti nei calcolatori (importi, date, percentuali, riferimenti di pratica) restano nel browser dell'utente e non vengono trasmessi ad alcun server: il calcolo avviene interamente sul dispositivo. La chiave di licenza, le impostazioni dello studio e lo storico dei calcoli sono conservati nella memoria locale del browser e possono essere cancellati in ogni momento dalle impostazioni del browser o dalla pagina Impostazioni. Il solo trattamento effettuato dal titolare riguarda i dati di contatto e di acquisto comunicati dall'utente (nome, email, dati di fatturazione), trattati per eseguire il contratto e adempiere agli obblighi fiscali, ai sensi dell'art. 6, par. 1, lett. b) e c), del Regolamento UE 2016/679, e conservati per i termini di legge. Il fornitore di pagamento tratta i dati necessari alla transazione in qualità di autonomo titolare. La pubblicazione del sito comporta la registrazione tecnica degli accessi da parte del fornitore di hosting per finalità di sicurezza. L'interessato può esercitare i diritti previsti dagli artt. 15-22 del Regolamento scrivendo all'indirizzo di contatto e proporre reclamo al Garante per la protezione dei dati personali.</p>
+
+    <div class="eyebrow" style="margin:18px 0 6px">Aggiornamento delle fonti e responsabilità</div>
+    <p class="just">I valori applicati sono aggiornati con verifiche automatiche quotidiane sulle fonti ufficiali (indici ISTAT e Gazzetta Ufficiale) e con controlli periodici sulla giurisprudenza; le date dell'ultima verifica sono riportate in fondo a ogni pagina e nelle relazioni stampate. Nonostante la cura impiegata, il titolare non garantisce l'assenza di errori o l'aggiornamento istantaneo rispetto a ogni modifica normativa, e non risponde delle decisioni assunte sulla base dei risultati, che l'utente professionale è tenuto a verificare. Eventuali errori segnalati all'indirizzo di contatto vengono esaminati con priorità.</p>
+
+    <div class="eyebrow" style="margin:18px 0 6px">Assistenza</div>
+    <p class="just">Per assistenza, segnalazioni di errore, recupero della chiave di licenza o richieste di fatturazione: <a href="mailto:${esc(T.email)}?subject=Calcoli%20Forensi%20—%20assistenza">${esc(T.email)}</a>. Gli abbonati Studio hanno priorità nelle risposte. Indicare sempre l'indirizzo email usato per l'acquisto.</p>
+
+    <div class="eyebrow" style="margin:18px 0 6px">Legge applicabile</div>
+    <p class="just">Il rapporto è regolato dalla legge italiana. Per le controversie con utenti professionali è competente il foro della sede del titolare; per gli utenti consumatori resta fermo il foro del luogo di residenza o domicilio.</p>
+    <div class="note">Documento aggiornato al ${fmtD(todayISO())}.</div>
+  </div></div>`;
+}
+function renderImpostazioni(){
+  renderNav("impostazioni");
+  const d=STUDIO.dati;
+  $("#main").innerHTML=`<div class="head"><h1>Impostazioni</h1><p>Intestazione dello studio da riportare sulle relazioni stampate e gestione dei dati conservati su questo dispositivo.</p></div>
+  <div class="calc">
+   <div class="panel"><div class="ph"><h2>Intestazione dello studio</h2><span class="pill ${LIC.valid?"pro":"soon"}">${LIC.valid?"Pro":"riservato agli abbonati"}</span></div><div class="pb">
+    <div class="form">
+      <div class="field full"><label for="stInt">Denominazione</label><input id="stInt" type="text" value="${esc(d.intestazione)}" placeholder="Studio Legale Rossi" ${LIC.valid?"":"disabled"}></div>
+      <div class="field full"><label for="stR2">Seconda riga</label><input id="stR2" type="text" value="${esc(d.riga2)}" placeholder="Via Roma 1 — 30100 Venezia" ${LIC.valid?"":"disabled"}></div>
+      <div class="field full"><label for="stR3">Terza riga</label><input id="stR3" type="text" value="${esc(d.riga3)}" placeholder="tel. 041 000000 — studio@esempio.it" ${LIC.valid?"":"disabled"}></div>
+    </div>
+    <div class="actions" style="border-top:none;padding-left:0;padding-right:0">
+      <button class="btn primary" id="stSave" ${LIC.valid?"":"disabled"}>Salva intestazione</button>
+      <button class="btn" id="stClear" ${LIC.valid?"":"disabled"}>Rimuovi</button>
+    </div>
+    <div class="note">L'intestazione compare in alto su ogni relazione stampata o salvata in PDF, insieme al riferimento della pratica. Resta su questo dispositivo: va impostata una volta per ciascuna postazione dello studio.</div>
+   </div></div>
+   <div class="panel"><div class="ph"><h2>Dati su questo dispositivo</h2></div><div class="pb">
+    <table class="rows">
+      <tr><td>Licenza</td><td class="r">${LIC.valid?"attiva":"non attiva"}</td></tr>
+      <tr><td>Calcoli nello storico</td><td class="r">${STORICO.lista().length}</td></tr>
+      <tr><td>Intestazione salvata</td><td class="r">${STUDIO.attiva()?"sì":"no"}</td></tr>
+    </table>
+    <div class="actions" style="border-top:none;padding-left:0;padding-right:0">
+      <button class="btn" id="stStorico">Vai allo storico</button>
+      <button class="btn" id="stReset">Cancella tutti i dati locali</button>
+    </div>
+    <div class="note">Nessuno di questi dati lascia il dispositivo: non sono trasmessi né al titolare né a terzi. Cancellando i dati locali si perdono chiave, storico e intestazione (la chiave può essere reinserita).</div>
+   </div></div>
+  </div>`;
+  $("#stSave").onclick=()=>{ STUDIO.save({intestazione:$("#stInt").value,riga2:$("#stR2").value,riga3:$("#stR3").value}); toast("Intestazione salvata"); };
+  $("#stClear").onclick=()=>{ STUDIO.save({intestazione:"",riga2:"",riga3:""}); renderImpostazioni(); toast("Intestazione rimossa"); };
+  $("#stStorico").onclick=()=>location.hash="#/storico";
+  $("#stReset").onclick=()=>{ if(!window.confirm("Cancellare licenza, storico e intestazione da questo dispositivo?")) return; STORICO.svuota(); STUDIO.save({intestazione:"",riga2:"",riga3:""}); LIC.clear(); refreshBadge(); renderImpostazioni(); toast("Dati locali cancellati"); };
+}
+function renderStorico(){
+  renderNav("storico");
+  const l=STORICO.lista();
+  $("#main").innerHTML=`<div class="head"><h1>Storico dei calcoli</h1><p>Gli ultimi ${STORICO.MAX} calcoli salvati su questo dispositivo, con il riferimento della pratica. Riaprendone uno si ricaricano tutti i dati inseriti.</p></div>
+  <div class="panel"><div class="pb">${l.length?`<div class="tblwrap"><table class="rows"><tr><th>Data</th><th>Calcolatore</th><th>Pratica</th><th class="r">Risultato</th><th></th></tr>
+    ${l.map(v=>`<tr><td>${fmtD(v.data.slice(0,10))}</td><td>${esc(v.titolo||v.calc)}</td><td>${esc(v.pratica||"—")}</td><td class="r">${esc(v.risultato)}</td><td class="r"><button class="btn" data-open="${v.id}" style="padding:3px 8px">Riapri</button> <button class="btn" data-del="${v.id}" style="padding:3px 8px">Elimina</button></td></tr>`).join("")}</table></div>`
+    :`<div class="note">Nessun calcolo salvato. Dalla pagina di un calcolatore, con licenza attiva, usa «Salva nello storico».</div>`}
+  </div></div>`;
+  document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ const v=STORICO.lista().find(x=>x.id===b.dataset.open); if(!v) return; state.inputs={...state.inputs,...v.inputs}; location.hash="#/"+v.calc; });
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ STORICO.elimina(b.dataset.del); renderStorico(); });
+}
 function renderPlans(){ renderNav("piani"); $("#main").innerHTML=`<div class="head"><h1>Piani e prezzi</h1><p>Il risultato di ogni calcolatore è sempre gratuito e senza registrazione. Il piano Pro sblocca il prospetto analitico con tutti i passaggi, la relazione stampabile con le fonti applicate e gli aggiornamenti tabellari automatici; il piano Studio estende le stesse funzioni a cinque professionisti.</p></div><div id="piani"></div>`; renderPlansInto($("#piani")); }
 
 /* ---- generico: form + risultato ---- */
@@ -907,25 +1019,62 @@ function gate(inner){
   const finta=`<table class="rows">${Array.from({length:7},()=>'<tr><td>&nbsp;</td><td class="r">&nbsp;</td></tr>').join("")}</table>`;
   return `<div class="gate"><div class="locked" aria-hidden="true">${finta}</div><div class="cta"><div class="cta-card"><h3>Prospetto analitico e relazione</h3><p>Con Pro vedi ogni passaggio del calcolo, le fonti applicate e stampi la relazione da allegare.</p><a class="btn pro" href="${CONFIG.checkoutPro}">Attiva Pro — 19 €/mese</a><div style="margin-top:8px"><a href="#" id="gateHasKey" style="font-size:13px">Ho già una chiave</a></div></div></div></div>`;
 }
-function actions(){ return `<div class="actions"><button class="btn" id="btnPrint">${LIC.valid?"Stampa relazione / PDF":"Stampa relazione (Pro)"}</button><button class="btn" id="btnCopy">Copia risultato</button></div>`; }
+function actions(next){
+  const pro=LIC.valid;
+  return `<div class="actions">
+    <button class="btn primary" id="btnPrint">${pro?"Stampa relazione / PDF":"Stampa relazione (Pro)"}</button>
+    <button class="btn" id="btnCopy">Copia risultato</button>
+    ${pro?`<button class="btn" id="btnCopyFull">Copia prospetto</button><button class="btn" id="btnSave">Salva nello storico</button>`:""}
+    ${(next||[]).map(n=>`<button class="btn" data-next="${n.to}" data-val="${n.val}" data-label="${esc(n.label)}">${esc(n.testo)}</button>`).join("")}
+  </div>`;
+}
+// passaggio di un importo a un altro calcolatore (catena di calcolo)
+const PASSA = {dato:null};
 
 function renderCalc(id){
   const c=findCalc(id); if(!c||c.status==="soon"){ location.hash="#/"; return; }
-  renderNav(id);
+  renderNav(id); state.calc=id;
   const V=VIEWS[id];
+  const testata = STUDIO.attiva()
+    ? `<div class="print-studio">${[STUDIO.dati.intestazione,STUDIO.dati.riga2,STUDIO.dati.riga3].filter(x=>(x||"").trim()).map(esc).join("<br>")}</div>`
+    : "";
+  const prat=(state.inputs.rifPratica||"").trim();
   $("#main").innerHTML=`<div class="head"><div class="eyebrow">${esc(CATALOG.find(g=>g.items.includes(c)).group)}</div><h1>${esc(c.title)}</h1><p>${esc(c.desc)}</p><div class="refs">${esc(c.refs||"")}</div></div>
-  <div class="print-head"><b>Calcoli Forensi</b> — ${esc(c.title)} — relazione del ${fmtD(todayISO())} · fonti verificate al ${MONITOR.fonti} · ${esc(c.refs||"")}</div>
+  <div class="print-head">${testata}<b>${esc(c.title)}</b> — relazione del ${fmtD(todayISO())}${prat?` — pratica: ${esc(prat)}`:""}<div style="font-size:11px;font-family:var(--sans);margin-top:3px">${esc(c.refs||"")} · fonti verificate al ${MONITOR.fonti} · elaborazione con calcoliforensi.it</div></div>
   <div class="calc">
-    <div class="panel"><div class="ph"><h2>Dati</h2><span class="pill free">calcolo immediato</span></div><div class="pb"><div class="form">${V.form()}</div></div></div>
+    <div class="panel"><div class="ph"><h2>Dati</h2><span class="pill free">calcolo immediato</span></div><div class="pb">
+      ${LIC.valid?`<div class="field full" style="margin-bottom:12px"><label for="rifPratica">Riferimento della pratica (compare sulla relazione)</label><input id="rifPratica" data-in type="text" value="${esc(state.inputs.rifPratica||"")}" placeholder="es. Rossi / Assicurazioni Generali — sinistro 12.05.2023"></div>`:""}
+      <div class="form">${V.form()}</div></div></div>
     <div class="panel" id="result"></div>
-  </div>`;
-  const update=(e)=>{ document.querySelectorAll("[data-in]").forEach(el=>state.inputs[el.id]=el.value); if(e&&e.target&&e.target.dataset.rerender!=null){ renderCalc(id); return; } $("#result").innerHTML=V.result(); bindResult(); };
+  </div>
+  <div class="print-foot">Elaborazione automatica su dati normativi e tabellari pubblici, verificati alla data indicata; non costituisce consulenza legale e non sostituisce la valutazione del professionista.</div>`;
+  const aggiornaTestata=()=>{ const ph=$(".print-head b"); if(!ph) return; const p=(state.inputs.rifPratica||"").trim();
+    const el=$(".print-head"); const base=`<b>${esc(c.title)}</b> — relazione del ${fmtD(todayISO())}${p?` — pratica: ${esc(p)}`:""}`;
+    el.innerHTML=(STUDIO.attiva()?`<div class="print-studio">${[STUDIO.dati.intestazione,STUDIO.dati.riga2,STUDIO.dati.riga3].filter(x=>(x||"").trim()).map(esc).join("<br>")}</div>`:"")+base+`<div style="font-size:11px;font-family:var(--sans);margin-top:3px">${esc(c.refs||"")} · fonti verificate al ${MONITOR.fonti} · elaborazione con calcoliforensi.it</div>`; };
+  const update=(e)=>{ document.querySelectorAll("[data-in]").forEach(el=>state.inputs[el.id]=el.value); if(e&&e.target&&e.target.dataset.rerender!=null){ renderCalc(id); return; } aggiornaTestata(); $("#result").innerHTML=V.result(); bindResult(); };
   document.querySelectorAll("[data-in]").forEach(el=>el.addEventListener("input",update));
   update();
 }
 function bindResult(){
   const p=$("#btnPrint"); if(p) p.onclick=()=>{ if(!LIC.valid){ location.hash="#/piani"; return; } window.print(); };
-  const cpy=$("#btnCopy"); if(cpy) cpy.onclick=()=>{ const t=$("#result .total"); if(!t) return; const txt=t.innerText.replace(/\s+/g," ").trim(); navigator.clipboard?.writeText(txt).then(()=>toast("Risultato copiato")).catch(()=>toast("Copia non disponibile")); };
+  const copia=(txt,msg)=>navigator.clipboard?.writeText(txt).then(()=>toast(msg)).catch(()=>toast("Copia non disponibile"));
+  const cpy=$("#btnCopy"); if(cpy) cpy.onclick=()=>{ const t=$("#result .total"); if(t) copia(testoDi(t).replace(/\s+/g," ").trim(),"Risultato copiato"); };
+  const cpf=$("#btnCopyFull"); if(cpf) cpf.onclick=()=>{
+    const c=findCalc(state.calc)||{}; const prat=(state.inputs.rifPratica||"").trim();
+    const righe=[...document.querySelectorAll("#result .rows tr")].map(r=>[...r.children].map(td=>testoDi(td).trim()).filter(Boolean).join("\t")).filter(Boolean);
+    const txt=[c.title, prat?"Pratica: "+prat:"", "Calcolo del "+fmtD(todayISO()), "", testoDi($("#result .total")).replace(/\s+/g," ").trim(), "", ...righe, "", c.refs||""].filter(x=>x!==null).join("\n");
+    copia(txt,"Prospetto copiato: puoi incollarlo nell'atto");
+  };
+  const sv=$("#btnSave"); if(sv) sv.onclick=()=>{
+    const c=findCalc(state.calc)||{};
+    const ok=STORICO.salva({id:Date.now()+"", calc:state.calc, titolo:c.title, pratica:(state.inputs.rifPratica||"").trim(), data:new Date().toISOString(),
+      risultato:testoDi($("#result .total .big")).trim(), dettaglio:testoDi($("#result .total .sub")).trim(), inputs:{...state.inputs}});
+    toast(ok?"Calcolo salvato nello storico":"Salvataggio non disponibile in questo browser");
+  };
+  document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>{
+    PASSA.dato={importo:+b.dataset.val, da:b.dataset.label};
+    location.hash="#/"+b.dataset.next;
+  });
   const g=$("#gateHasKey"); if(g) g.onclick=e=>{e.preventDefault();openLicense();};
 }
 const empty = msg=>`<div class="pb"><div class="note">${msg}</div></div>`;
@@ -965,7 +1114,7 @@ const VIEWS = {
         <tr><td>Personalizzazione ${R.pers}%</td><td class="r">${fmt.format(R.morale)}</td></tr>
         <tr class="sum"><td>Totale</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
         <div class="note">Formula: valore punto = 963,40 € × coefficiente crescente per punto (1,0 → 2,3) × [1 − 0,5% × (età − 10)]. Valori monetari aggiornati con DM 18 luglio 2025 ai sensi dell'art. 139, c. 5, D.Lgs. 209/2005. Il risultato non include rivalutazione e interessi: usa i calcolatori dedicati.</div>`)}
-      </div>${actions()}`;
+      </div>${actions([{to:"rivalutazione",val:R.totale,label:"Danno art. 139",testo:"Rivaluta e aggiungi interessi →"}])}`;
     }
   },
   "danno-tun":{
@@ -1009,7 +1158,7 @@ const VIEWS = {
         <tr class="sum"><td colspan="2">Danno temporaneo</td><td class="r">${fmt.format(R.temporaneo)}</td></tr></table></div>
         <table class="rows" style="margin-top:12px"><tr class="sum"><td>Totale danno non patrimoniale</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
         <div class="note">DPR 13 gennaio 2025 n. 12, in vigore dal 5 marzo 2025, per sinistri da circolazione di veicoli e natanti e da responsabilità sanitaria (art. 138 CdA). Cass. civ. sez. III, 7 aprile 2026 n. 8630: la TUN è parametro generale di equità anche per i sinistri anteriori al 5 marzo 2025 e per gli illeciti diversi; il giudice può discostarsene solo con motivazione specifica. L'importo è esaustivo del danno da lesione (art. 138, c. 4). Il valore del primo punto segue l'aggiornamento annuale ex art. 139, c. 5.</div>`)}
-      </div>${actions()}`;
+      </div>${actions([{to:"rivalutazione",val:R.totale,label:"Danno TUN al "+R.pct+"%",testo:"Rivaluta e aggiungi interessi →"}])}`;
     }
   },
   "danno-milano":{
@@ -1051,7 +1200,7 @@ const VIEWS = {
         <tr class="sum"><td colspan="2">Danno temporaneo</td><td class="r">${fmt.format(R.temporaneo)}</td></tr></table></div>
         <table class="rows" style="margin-top:12px"><tr class="sum"><td>Totale danno non patrimoniale</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
         <div class="note">Tabelle milanesi edizione 2024: valori 2021 rivalutati del 16,2268% (ISTAT 1.1.2021→1.1.2024) e arrotondati all'euro; il demoltiplicatore per età scende di 0,005 per anno da 1 (1 anno) a 0,505 (100 anni). Per lesioni da RC auto e sanitaria con invalidità 1–9% si applica invece l'art. 139 CdA (calcolatore dedicato). Importi all'1.1.2024: per la liquidazione attuale aggiungi rivalutazione e interessi.</div>`)}
-      </div>${actions()}`;
+      </div>${actions([{to:"rivalutazione",val:R.totale,label:"Danno Milano",testo:"Rivaluta e aggiungi interessi →"}])}`;
     }
   },
   "danno-parentale":{
@@ -1080,7 +1229,7 @@ const VIEWS = {
         <tr><td>Importo da punti</td><td class="r">${fmt.format(R.lordo)}</td></tr>
         <tr><td>Tetto di regola (cap)</td><td class="r">${fmt.format(R.cap)}</td></tr>
         <tr class="sum"><td>Importo liquidabile</td><td class="r">${fmt.format(R.importo)}</td></tr></table>
-        <div class="note">Tabella integrata a punti — ${esc(T.label)} (Milano 2024). Il tetto può essere superato solo in circostanze eccezionali con adeguata motivazione; contrasti, violenze o reati del superstite verso la vittima possono ridurre fino ad azzerare l'importo. Con 4 o più superstiti il parametro D vale 0 punti, come negli esempi ufficiali dell'Osservatorio. Importi all'1.1.2024.</div>`)}</div>${actions()}`;
+        <div class="note">Tabella integrata a punti — ${esc(T.label)} (Milano 2024). Il tetto può essere superato solo in circostanze eccezionali con adeguata motivazione; contrasti, violenze o reati del superstite verso la vittima possono ridurre fino ad azzerare l'importo. Con 4 o più superstiti il parametro D vale 0 punti, come negli esempi ufficiali dell'Osservatorio. Importi all'1.1.2024.</div>`)}</div>${actions([{to:"rivalutazione",val:R.importo,label:"Danno parentale",testo:"Rivaluta e aggiungi interessi →"}])}`;
     }
   },
   "imu":{
@@ -1394,7 +1543,7 @@ const VIEWS = {
         <tr class="sum"><td>Totale fattura</td><td class="r">${fmt.format(R.totale)}</td></tr>
         ${R.ritenuta?`<tr><td>Ritenuta d'acconto 20% su compenso e spese generali</td><td class="r">− ${fmt.format(R.ritenuta)}</td></tr><tr class="sum"><td>Netto a pagare</td><td class="r">${fmt.format(R.netto)}</td></tr>`:""}
         </table>
-        <div class="note">Valori medi delle tabelle allegate al DM 147/2022, applicabili alle prestazioni esaurite dal 23/10/2022; il giudice o le parti possono aumentarli fino al 50% o ridurli non oltre il 50% (art. 4, c. 1). Per le cause oltre 520.000 € l'art. 6 consente fino al 30% in più per ogni fascia (1, 2, 4, 8 milioni e raddoppi successivi); per lo stragiudiziale oltre 520.000 € si applica la percentuale decrescente dell'art. 22. Spese generali nella misura del 15% del compenso (art. 2, c. 2). Il preventivo scritto è obbligatorio (art. 13, c. 5, L. 247/2012).</div>`)}</div>${actions()}`;
+        <div class="note">Valori medi delle tabelle allegate al DM 147/2022, applicabili alle prestazioni esaurite dal 23/10/2022; il giudice o le parti possono aumentarli fino al 50% o ridurli non oltre il 50% (art. 4, c. 1). Per le cause oltre 520.000 € l'art. 6 consente fino al 30% in più per ogni fascia (1, 2, 4, 8 milioni e raddoppi successivi); per lo stragiudiziale oltre 520.000 € si applica la percentuale decrescente dell'art. 22. Spese generali nella misura del 15% del compenso (art. 2, c. 2). Il preventivo scritto è obbligatorio (art. 13, c. 5, L. 247/2012).</div>`)}</div>${actions([{to:"interessi-mora",val:R.totale,label:"Parcella",testo:"Calcola interessi di mora →"}])}`;
     }
   },
   "interessi-legali":{
@@ -1415,6 +1564,7 @@ const VIEWS = {
   },
   "rivalutazione":{
     form:()=>[
+      (()=>{ if(PASSA.dato){ state.inputs.rcap=String(PASSA.dato.importo); const d=PASSA.dato; PASSA.dato=null; return `<div class="field full"><div class="hint" style="color:var(--accent)">Importo ricevuto da: ${esc(d.da)} — ${fmt.format(d.importo)}</div></div>`; } return ""; })(),
       field("rcap","Importo originario (€)","number",10000,{min:0,step:0.01,full:true}),
       field("rda","Data del credito / evento","date","2020-01-15",{hint:"si usa l'indice del mese"}),
       field("ra","Data di liquidazione","date",todayISO(),{hint:"oltre l'ultimo indice pubblicato si usa l'ultimo disponibile"}),
@@ -1442,6 +1592,7 @@ const VIEWS = {
   },
   "interessi-mora":{
     form:()=>[
+      (()=>{ if(PASSA.dato){ state.inputs.capm=String(PASSA.dato.importo); const d=PASSA.dato; PASSA.dato=null; return `<div class="field full"><div class="hint" style="color:var(--accent)">Importo ricevuto da: ${esc(d.da)} — ${fmt.format(d.importo)}</div></div>`; } return ""; })(),
       field("capm","Credito commerciale (€)","number",25000,{min:0,step:0.01,full:true}),
       field("dam","Decorrenza mora","date","2024-01-10",{hint:"giorno successivo alla scadenza (art. 4 D.Lgs. 231/2002)"}),
       field("am","Data di calcolo","date",todayISO()),
@@ -1496,13 +1647,19 @@ function route(){
   const h=(location.hash||"#/").slice(1);
   if(h==="/"||h==="") renderHome();
   else if(h==="/piani") renderPlans();
+  else if(h==="/informazioni") renderInfo();
+  else if(h==="/impostazioni") renderImpostazioni();
+  else if(h==="/storico") renderStorico();
   else if(h==="/verifica") renderTests();
   else renderCalc(h.slice(1));
   window.scrollTo({top:0});
 }
 window.addEventListener("hashchange",route);
 document.documentElement.lang="it";   // necessario per la sillabazione automatica
-LIC.load(); refreshBadge(); $("#footVersion").textContent="Versione "+CONFIG.version+" · Ultima verifica delle fonti normative e giurisprudenziali: "+MONITOR.fonti+" · Ultimo controllo automatico dei dati (ISTAT, test di calcolo): "+MONITOR.dati+" · Tabelle: saggio legale 2026, BCE 2° sem. 2026, DM 18/07/2025, DPR 12/2025 (TUN), Tabelle milanesi ed. 2024, DM 147/2022, DPR 115/2002.";
+LIC.load(); STUDIO.load(); refreshBadge();
+$("#footTitolare").innerHTML=`Servizio erogato da ${esc(TITOLARE.nome)} — ${esc(TITOLARE.indirizzo)} — P. IVA ${esc(TITOLARE.piva)} — <a href="mailto:${esc(TITOLARE.email)}">${esc(TITOLARE.email)}</a>`;
+$("#footMail").href=`mailto:${TITOLARE.email}?subject=${encodeURIComponent("Calcoli Forensi — assistenza")}`;
+$("#dlgMail").href=`mailto:${TITOLARE.email}?subject=${encodeURIComponent("Calcoli Forensi — recupero chiave di licenza")}`; $("#footVersion").textContent="Versione "+CONFIG.version+" · Ultima verifica delle fonti normative e giurisprudenziali: "+MONITOR.fonti+" · Ultimo controllo automatico dei dati (ISTAT, test di calcolo): "+MONITOR.dati+" · Tabelle: saggio legale 2026, BCE 2° sem. 2026, DM 18/07/2025, DPR 12/2025 (TUN), Tabelle milanesi ed. 2024, DM 147/2022, DPR 115/2002.";
 route();
 
 /* ===================== AUTOVERIFICA (#/verifica) ===================== */

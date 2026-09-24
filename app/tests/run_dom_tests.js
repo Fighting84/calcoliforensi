@@ -82,6 +82,65 @@ function apri(licenza) {
   ck("con licenza: badge Pro", /PRO ATTIVO/i.test($2("#licenseBadge").textContent));
   B.dom.window.close();
 
+  // ---- funzioni dell'abbonato ----
+  const C = apri("PROVA-CALCOLI-FORENSI-2026"); await sleep(700);
+  const w3 = C.window, $3 = s => w3.document.querySelector(s);
+  const vai3 = async h => { w3.location.hash = h; w3.dispatchEvent(new w3.HashChangeEvent("hashchange")); await sleep(90); };
+
+  await vai3("#/danno-tun");
+  ck("campo riferimento pratica", !!$3("#rifPratica"));
+  ck("pulsante copia prospetto", !!$3("#btnCopyFull"));
+  ck("pulsante salva nello storico", !!$3("#btnSave"));
+  ck("catena di calcolo verso la rivalutazione", !!$3('[data-next="rivalutazione"]'));
+  ck("intestazione di stampa con fonti", /relazione del/.test($3(".print-head")?.textContent || ""));
+  ck("avvertenza in calce alla relazione", /non costituisce consulenza legale/.test($3(".print-foot")?.textContent || ""));
+
+  // riferimento pratica sulla relazione
+  $3("#rifPratica").value = "Rossi / Generali — sinistro 12.05.2023";
+  $3("#rifPratica").dispatchEvent(new w3.Event("input", { bubbles: true }));
+  await sleep(120);
+  ck("pratica riportata nell'intestazione", /Rossi \/ Generali/.test($3(".print-head").textContent));
+
+  // catena: l'importo passa al calcolatore successivo
+  const totale = $3("#result .total .big").textContent;
+  $3('[data-next="rivalutazione"]').click(); await sleep(150);
+  ck("importo trasferito alla rivalutazione", /Importo ricevuto da/.test($3(".panel")?.textContent || ""));
+  const passato = +($3("#rcap")?.value || 0);
+  ck("importo trasferito corretto", Math.abs(passato - parseFloat(totale.replace(/[^\d,]/g, "").replace(".", "").replace(",", "."))) < 1000, `${passato}`);
+
+  // storico
+  await vai3("#/danno-micro"); $3("#btnSave").click(); await sleep(80);
+  await vai3("#/storico");
+  ck("storico registra il calcolo", /Danno biologico/.test($3("#main").textContent));
+  ck("storico ha il pulsante riapri", !!$3("[data-open]"));
+
+  // impostazioni: intestazione dello studio
+  await vai3("#/impostazioni");
+  ck("impostazioni accessibili", !!$3("#stInt") && !$3("#stInt").disabled);
+  $3("#stInt").value = "Studio Legale Ometto"; $3("#stR2").value = "Via Carducci 2 — Pianiga (VE)";
+  $3("#stSave").click(); await sleep(80);
+  await vai3("#/danno-tun");
+  ck("intestazione dello studio sulla relazione", /Studio Legale Ometto/.test($3(".print-head").textContent));
+
+  // pagine informative e contatti
+  await vai3("#/informazioni");
+  const info = $3("#main").textContent;
+  ck("informazioni: titolare e P.IVA", /Partita IVA/.test(info) && /02844040275/.test(info));
+  ck("informazioni: condizioni e disdetta", /disdett/i.test(info));
+  ck("informazioni: privacy", /Regolamento UE 2016\/679/.test(info));
+  ck("informazioni: recesso", /recesso/i.test(info));
+  ck("informazioni: assistenza", /assistenza/i.test(info));
+  ck("footer con link informativi", !!$3('.foot a[href="#/informazioni"]'));
+  ck("footer con titolare e contatto", /P\. IVA/.test($3("#footTitolare").textContent));
+
+  // senza licenza le impostazioni restano bloccate
+  const D = apri(null); await sleep(600);
+  D.window.location.hash = "#/impostazioni"; D.window.dispatchEvent(new D.window.HashChangeEvent("hashchange")); await sleep(90);
+  ck("senza licenza intestazione bloccata", D.window.document.querySelector("#stInt").disabled);
+  ck("senza licenza niente campo pratica", !D.window.document.querySelector("#rifPratica"));
+  ck("nessun errore nelle nuove pagine", C.errori.length === 0 && D.errori.length === 0, [...C.errori, ...D.errori].join(" | "));
+  C.dom.window.close(); D.dom.window.close();
+
   console.log(`\n${pass} OK, ${fail} DIFF`);
   process.exit(fail ? 1 : 0);
 })().catch(e => { console.error("ERRORE run_dom_tests:", e); process.exit(1); });
