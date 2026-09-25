@@ -232,7 +232,7 @@ const CONFIG = {
 const impronta = s=>{ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h; };
 
 // Registro delle verifiche (aggiornato dagli script di monitoraggio: vedi app/scripts e monitoraggio/README.md)
-const MONITOR = { fonti:"21/09/2026", dati:"24/09/2026" };   // fonti = verifica normativa/giurisprudenziale; dati = verifica automatica serie ISTAT e test
+const MONITOR = { fonti:"21/09/2026", dati:"25/09/2026" };   // fonti = verifica normativa/giurisprudenziale; dati = verifica automatica serie ISTAT e test
 /* ===================== DATI NORMATIVI ===================== */
 // Art. 1284 c.c. — saggio legale per anno (DM MEF). Dal 1991 in poi.
 const TASSI_LEGALI = {
