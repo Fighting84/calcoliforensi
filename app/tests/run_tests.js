@@ -150,5 +150,7 @@ ck("TUN 2026 punto 10%", ENGINES.dannoTUN(10, 1, "2026", "none", 0, 0, 0, 0, 0, 
 ck("TUN senza anno usa il 2026", ENGINES.dannoTUN(10, 1, "", "none", 0, 0, 0, 0, 0, 0).punto, r2(988.45 * 2.75773));
 ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, "ordinario", true, 0, 0).AS, 546.24);
 { const T = ENGINES.tfr(30000, "2016-01-01", "2026-08-31", 0); const x = T.rif, sc = [[28000, .23], [50000, .33], [Infinity, .43]]; let tax = 0, prev = 0; for (const [l, a] of sc) { if (x <= prev) break; tax += (Math.min(x, l) - prev) * a; prev = l; } ck("TFR: scaglioni IRPEF 2026", T.aliq, tax / x); }
+// Citazioni dei testi unici (D.Lgs. 123/2025 registro dal 1/1/2026; D.Lgs. 10/2026 IVA e 117/2026 TUIR dal 1/1/2027): verificate sui testi in monitoraggio/gazzetta
+{ const need = ["TU registro D.Lgs. 123/2025", "artt. 50 e 52 e allegato 4", "artt. 93 e 133 del TU registro", "art. 299", "D.Lgs. 117/2026", "TU IVA D.Lgs. 10/2026"]; const miss = need.filter(n => !html.includes(n)); miss.length ? fail++ : pass++; console.log(`${miss.length ? "DIFF" : "OK  "} citazioni testi unici nelle note ${miss.join("; ")}`); }
 console.log(`\n${pass} OK, ${fail} DIFF`);
 process.exit(fail ? 1 : 0);

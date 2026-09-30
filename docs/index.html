@@ -399,9 +399,9 @@ const SCAD_PRESET = {
   citaz:{label:"Termine a comparire — 120 giorni liberi tra notifica e udienza (art. 163-bis)",n:120,unita:"giorni",dir:"avanti",feriale:true,liberi:true},
   lav_app:{label:"Appello nel rito del lavoro — 30 giorni dalla notifica (art. 434)",n:30,unita:"giorni",dir:"avanti",feriale:false,liberi:false,nota:"Controversie di lavoro: sospensione feriale non applicabile."}
 };
-// Usufrutto — prospetto allegato al DPR 131/1986 (aggiornato con DM MEF al saggio legale): quota per fascia d'età, costante rispetto al saggio
+// Usufrutto — prospetto allegato al DPR 131/1986, ora allegato 4 al TU registro D.Lgs. 123/2025 (aggiornato con DM MEF al saggio legale): quota per fascia d'età, costante rispetto al saggio
 const USUFRUTTO = [[20,95],[30,90],[40,85],[45,80],[50,75],[53,70],[56,65],[60,60],[63,55],[66,50],[69,45],[72,40],[75,35],[78,30],[82,25],[86,20],[92,15],[99,10],[200,5]];
-// Moltiplicatori catastali (rendita rivalutata del 5%): registro = DPR 131/86 art. 52 + DL 168/2004 (+20%) + DL 262/2006 (B +40%); successione = senza +20%; IMU = L. 160/2019 c. 745
+// Moltiplicatori catastali (rendita rivalutata del 5%): registro = DPR 131/86 art. 52 (dal 2027 art. 299 D.Lgs. 141/2026) + DL 168/2004 (+20%) + DL 262/2006 (B +40%); successione = senza +20%; IMU = L. 160/2019 c. 745
 const CAT_MOLT = {
   registro:{A:120,A10:60,B:168,C:120,C1:40.8,D:60,E:40.8}, primaCasa:110,
   successione:{A:100,A10:50,B:140,C:100,C1:34,D:50,E:34},
@@ -863,15 +863,15 @@ const CATALOG = [
     {id:"pignoramento", title:"Pignoramento di stipendio e pensione", desc:"Quote pignorabili ex art. 545 c.p.c.: crediti ordinari, alimentari, fiscali, concorso; minimo impignorabile delle pensioni e somme sul conto.", refs:"Art. 545 c.p.c. (DL 83/2015, DL 115/2022) — art. 72-ter DPR 602/1973", status:"free"},
   ]},
   {group:"Lavoro", items:[
-    {id:"tfr", title:"TFR — trattamento di fine rapporto", desc:"Art. 2120 c.c.: quote annue, rivalutazione con indici FOI reali (1,5% + 75% ISTAT), imposta sostitutiva 17%, netto in tassazione separata.", refs:"Art. 2120 c.c. — L. 297/1982 — art. 19 TUIR — indici FOI ISTAT (serie reale)", status:"free"},
+    {id:"tfr", title:"TFR — trattamento di fine rapporto", desc:"Art. 2120 c.c.: quote annue, rivalutazione con indici FOI reali (1,5% + 75% ISTAT), imposta sostitutiva 17%, netto in tassazione separata.", refs:"Art. 2120 c.c. — L. 297/1982 — art. 19 TUIR (dal 1° gennaio 2027 art. 21 TU imposte sui redditi, D.Lgs. 117/2026) — indici FOI ISTAT (serie reale)", status:"free"},
   ]},
   {group:"Immobili, locazioni e fisco", items:[
-    {id:"imu", title:"IMU e valore catastale", desc:"Rendita rivalutata e moltiplicatori per IMU, registro e successione; IMU annua per aliquota, mesi e quota di possesso.", refs:"L. 160/2019, art. 1, c. 740-749 — DPR 131/1986, art. 52 — DL 168/2004 — DL 262/2006", status:"free"},
-    {id:"compravendita", title:"Imposte sull'acquisto di un immobile", desc:"Registro 2%/9% con prezzo-valore, ipotecaria e catastale, oppure IVA 4%/10%/22% da impresa; terreni.", refs:"DPR 131/1986 — L. 266/2005, art. 1, c. 497 — DPR 633/1972, art. 10, n. 8-bis", status:"free"},
-    {id:"successione", title:"Imposta di successione e donazione", desc:"Aliquote 4/6/8%, franchigie per parentela e disabilità, imposte ipotecaria e catastale sugli immobili.", refs:"D.Lgs. 346/1990 (TUS), come modificato dal D.Lgs. 139/2024 — DL 262/2006, art. 2, c. 48-49", status:"free"},
-    {id:"usufrutto", title:"Usufrutto e nuda proprietà", desc:"Valore dell'usufrutto vitalizio per età dell'usufruttuario (prospetto DPR 131/1986) e della nuda proprietà.", refs:"DPR 131/1986, art. 46 e prospetto allegato — DM MEF sul saggio legale", status:"free"},
+    {id:"imu", title:"IMU e valore catastale", desc:"Rendita rivalutata e moltiplicatori per IMU, registro e successione; IMU annua per aliquota, mesi e quota di possesso.", refs:"L. 160/2019, art. 1, c. 740-749 — DPR 131/1986, art. 52 (dal 1° gennaio 2027 art. 299 TU adempimenti e accertamento, D.Lgs. 141/2026) — DL 168/2004 — DL 262/2006", status:"free"},
+    {id:"compravendita", title:"Imposte sull'acquisto di un immobile", desc:"Registro 2%/9% con prezzo-valore, ipotecaria e catastale, oppure IVA 4%/10%/22% da impresa; terreni.", refs:"TU registro D.Lgs. 123/2025 (già DPR 131/1986, dal 1° gennaio 2026) — L. 266/2005, art. 1, c. 497 — DPR 633/1972, art. 10, n. 8-bis (TU IVA D.Lgs. 10/2026, art. 37, dal 1° gennaio 2027)", status:"free"},
+    {id:"successione", title:"Imposta di successione e donazione", desc:"Aliquote 4/6/8%, franchigie per parentela e disabilità, imposte ipotecaria e catastale sugli immobili.", refs:"TU registro D.Lgs. 123/2025 (già D.Lgs. 346/1990, TUS, come modificato dal D.Lgs. 139/2024, dal 1° gennaio 2026) — DL 262/2006, art. 2, c. 48-49", status:"free"},
+    {id:"usufrutto", title:"Usufrutto e nuda proprietà", desc:"Valore dell'usufrutto vitalizio per età dell'usufruttuario (prospetto allegato 4 al TU registro) e della nuda proprietà.", refs:"TU registro D.Lgs. 123/2025, artt. 50 e 52 e allegato 4 (già DPR 131/1986, artt. 46 e 48, dal 1° gennaio 2026) — DM MEF sul saggio legale", status:"free"},
     {id:"canone", title:"Adeguamento ISTAT del canone", desc:"Aggiornamento annuale del canone di locazione al 75% o 100% della variazione FOI, con indici reali.", refs:"Art. 32 L. 392/1978 — L. 431/1998 — indici FOI ISTAT", status:"free"},
-    {id:"cedolare", title:"Cedolare secca o IRPEF?", desc:"Confronto tra cedolare 21%/10% e tassazione ordinaria (IRPEF su 95% del canone, addizionali, registro e bollo).", refs:"Art. 3 D.Lgs. 23/2011 — art. 37 TUIR — art. 8 L. 392/1978", status:"free"},
+    {id:"cedolare", title:"Cedolare secca o IRPEF?", desc:"Confronto tra cedolare 21%/10% e tassazione ordinaria (IRPEF su 95% del canone, addizionali, registro e bollo).", refs:"Art. 3 D.Lgs. 23/2011 — art. 37 TUIR (dal 1° gennaio 2027 art. 39 D.Lgs. 117/2026) — art. 8 L. 392/1978", status:"free"},
   ]},
 ];
 const findCalc = id=>CATALOG.flatMap(g=>g.items).find(i=>i.id===id);
@@ -1288,7 +1288,7 @@ const VIEWS = {
         ${VR?`<tr><td>Imposta di registro — compravendita (non prima casa)</td><td class="r">${VR.molt}</td><td class="r">${fmt.format(VR.valore)}</td></tr>`:""}
         ${VP&&VP.molt!==VR.molt?`<tr><td>Imposta di registro — prima casa</td><td class="r">${VP.molt}</td><td class="r">${fmt.format(VP.valore)}</td></tr>`:""}
         ${VS?`<tr><td>Successioni e donazioni</td><td class="r">${VS.molt}</td><td class="r">${fmt.format(VS.valore)}</td></tr>`:""}</table>
-        <div class="note">Base imponibile IMU = rendita rivalutata del 5% × moltiplicatore (art. 1, c. 745, L. 160/2019: 160 per A e C/2-C/6-C/7; 140 per B e C/3-C/4-C/5; 80 per A/10 e D/5; 65 per D; 55 per C/1). Il mese si computa se il possesso dura più di 15 giorni (c. 761). Per il registro i moltiplicatori dell'art. 52 DPR 131/1986 sono aumentati del 20% (10% prima casa) dal DL 168/2004 e del 40% per la categoria B (DL 262/2006). Aliquota e riduzioni (comodato, canone concordato, inagibilità) dipendono dalla delibera comunale. Non coperto: per i fabbricati del gruppo D privi di rendita, interamente posseduti da imprese e distintamente contabilizzati, la base è il valore contabile aggiornato con i coefficienti fissati ogni anno con decreto (per il 2026: DM 6 marzo 2026, GU n. 62 del 16/03/2026).</div>`)}</div>${actions()}`;
+        <div class="note">Base imponibile IMU = rendita rivalutata del 5% × moltiplicatore (art. 1, c. 745, L. 160/2019: 160 per A e C/2-C/6-C/7; 140 per B e C/3-C/4-C/5; 80 per A/10 e D/5; 65 per D; 55 per C/1). Il mese si computa se il possesso dura più di 15 giorni (c. 761). Per il registro i moltiplicatori dell'art. 52 DPR 131/1986 (dal 1° gennaio 2027 art. 299 del TU adempimenti e accertamento, D.Lgs. 141/2026, che li conferma) sono aumentati del 20% (10% prima casa) dal DL 168/2004 e del 40% per la categoria B (DL 262/2006). Aliquota e riduzioni (comodato, canone concordato, inagibilità) dipendono dalla delibera comunale. Non coperto: per i fabbricati del gruppo D privi di rendita, interamente posseduti da imprese e distintamente contabilizzati, la base è il valore contabile aggiornato con i coefficienti fissati ogni anno con decreto (per il 2026: DM 6 marzo 2026, GU n. 62 del 16/03/2026).</div>`)}</div>${actions()}`;
     }
   },
   "compravendita":{
@@ -1305,7 +1305,7 @@ const VIEWS = {
       if(!R) return empty("Inserisci il prezzo.");
       return `<div class="total"><div class="eyebrow">Imposte sull'acquisto</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">regime ${R.regime} · base imponibile ${fmt.format(R.base)}</div></div>
       <div class="pb">${gate(`<table class="rows">${R.voci.map(([l,v])=>`<tr><td>${esc(l)}</td><td class="r">${fmt.format(v)}</td></tr>`).join("")}<tr class="sum"><td>Totale imposte</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
-        <div class="note">${esc(R.nota)} Prima casa (nota II-bis all'art. 1 Tariffa DPR 131/1986): immobile non di lusso nel Comune di residenza, nessun'altra abitazione acquistata con l'agevolazione. Oltre alle imposte: onorario notarile, imposta di bollo 230 € e tassa ipotecaria 90 € (registro) ovvero bollo e tasse ipotecarie 320 € (IVA). Dal 2025 il termine per rivendere la precedente prima casa è di 2 anni (L. 207/2024).</div>`)}</div>${actions()}`;
+        <div class="note">${esc(R.nota)} Prima casa (nota I alla tariffa, parte I, art. 1, allegato 1 al TU registro D.Lgs. 123/2025, applicabile dal 1° gennaio 2026; già nota II-bis all'art. 1 Tariffa DPR 131/1986): immobile non di lusso nel Comune di residenza, nessun'altra abitazione acquistata con l'agevolazione. Oltre alle imposte: onorario notarile, imposta di bollo 230 € e tassa ipotecaria 90 € (registro) ovvero bollo e tasse ipotecarie 320 € (IVA). Dal 2025 il termine per rivendere la precedente prima casa è di 2 anni (L. 207/2024).</div>`)}</div>${actions()}`;
     }
   },
   "successione":{
@@ -1328,7 +1328,7 @@ const VIEWS = {
         <tr><td>Imposta ipotecaria ${R.primaCasa?"(fissa)":"2% sugli immobili"}</td><td class="r">${fmt.format(R.ipo)}</td></tr>
         <tr><td>Imposta catastale ${R.primaCasa?"(fissa)":"1% sugli immobili"}</td><td class="r">${fmt.format(R.cat)}</td></tr>
         <tr class="sum"><td>Totale</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
-        <div class="note">Aliquote e franchigie dell'art. 2, c. 48-49, DL 262/2006, ora artt. 7 e 56 TUS (D.Lgs. 346/1990) come riscritti dal D.Lgs. 139/2024, in vigore per le successioni aperte dal 1° gennaio 2025: 4% oltre 1.000.000 € per coniuge e linea retta; 6% oltre 100.000 € per fratelli e sorelle; 6% senza franchigia per gli altri parenti fino al 4° grado e affini; 8% per gli altri. La franchigia si applica per ciascun beneficiario ed è ridotta delle donazioni precedenti (coacervo). Gli immobili si valutano al valore catastale (rendita × 1,05 × moltiplicatore senza il +20%); l'imposta è autoliquidata dagli eredi con la dichiarazione telematica entro 12 mesi.</div>`)}</div>${actions()}`;
+        <div class="note">Aliquote e franchigie dell'art. 2, c. 48-49, DL 262/2006, ora artt. 7 e 56 TUS (D.Lgs. 346/1990) come riscritti dal D.Lgs. 139/2024 e trasfusi dal 1° gennaio 2026 negli artt. 93 e 133 del TU registro (D.Lgs. 123/2025), in vigore per le successioni aperte dal 1° gennaio 2025: 4% oltre 1.000.000 € per coniuge e linea retta; 6% oltre 100.000 € per fratelli e sorelle; 6% senza franchigia per gli altri parenti fino al 4° grado e affini; 8% per gli altri. La franchigia si applica per ciascun beneficiario ed è ridotta delle donazioni precedenti (coacervo). Gli immobili si valutano al valore catastale (rendita × 1,05 × moltiplicatore senza il +20%); l'imposta è autoliquidata dagli eredi con la dichiarazione telematica entro 12 mesi.</div>`)}</div>${actions()}`;
     }
   },
   "usufrutto":{
@@ -1348,7 +1348,7 @@ const VIEWS = {
         <tr><td>Quota usufrutto</td><td class="r">${R.pct} %</td></tr>
         <tr class="sum"><td>Usufrutto</td><td class="r">${fmt.format(R.usufrutto)}</td></tr>
         <tr class="sum"><td>Nuda proprietà</td><td class="r">${fmt.format(R.nuda)}</td></tr></table>
-        <div class="note">Prospetto dei coefficienti allegato al DPR 131/1986 (art. 46 e art. 48): l'usufrutto vitalizio vale la rendita (valore × saggio legale) moltiplicata per il coefficiente della fascia d'età; poiché i coefficienti sono aggiornati con decreto MEF a ogni variazione del saggio legale, la quota per fascia d'età resta costante (95% fino a 20 anni … 10% da 93 a 99 anni). Per l'usufrutto a tempo determinato: valore = rendita annua × anni, entro il limite del vitalizio. Per l'usufrutto congiuntivo si considera l'età del più giovane.</div>`)}</div>${actions()}`;
+        <div class="note">Prospetto dei coefficienti (allegato 4 al TU registro D.Lgs. 123/2025, artt. 50 e 52, applicabile dal 1° gennaio 2026; già allegato al DPR 131/1986, artt. 46 e 48): l'usufrutto vitalizio vale la rendita (valore × saggio legale) moltiplicata per il coefficiente della fascia d'età; poiché i coefficienti sono aggiornati con decreto MEF a ogni variazione del saggio legale, la quota per fascia d'età resta costante (95% fino a 20 anni … 10% da 93 a 99 anni). Per l'usufrutto a tempo determinato: valore = rendita annua × anni, entro il limite del vitalizio. Per l'usufrutto congiuntivo si considera l'età del più giovane.</div>`)}</div>${actions()}`;
     }
   },
   "canone":{
@@ -1391,7 +1391,7 @@ const VIEWS = {
         <tr><td>Imposta di registro annua (2%, metà a carico del locatore)</td><td class="r">esente</td><td class="r">${fmt.format(R.registroLoc)}</td></tr>
         <tr><td>Bollo (${fmt.format(R.bollo)} una tantum, ripartito)</td><td class="r">esente</td><td class="r">${fmt.format(r2(R.bollo/Math.max(1,num("canni"))))}</td></tr>
         <tr class="sum"><td>Totale annuo</td><td class="r">${fmt.format(R.ced)}</td><td class="r">${fmt.format(R.totIrpef)}</td></tr></table>
-        <div class="note">Cedolare secca (art. 3 D.Lgs. 23/2011): imposta sostitutiva di IRPEF, addizionali, registro e bollo; il reddito resta rilevante per ISEE e detrazioni. Aliquota 10% per i contratti a canone concordato nei comuni ad alta tensione abitativa (art. 9 DL 47/2014). Con l'opzione il locatore rinuncia all'aggiornamento ISTAT del canone. Nella tassazione ordinaria il reddito fondiario è il maggiore tra rendita rivalutata e canone ridotto del 5% (art. 37 TUIR); qui si assume il canone. Il confronto non considera la progressività su più scaglioni né le detrazioni perse.</div>`)}</div>${actions()}`;
+        <div class="note">Cedolare secca (art. 3 D.Lgs. 23/2011): imposta sostitutiva di IRPEF, addizionali, registro e bollo; il reddito resta rilevante per ISEE e detrazioni. Aliquota 10% per i contratti a canone concordato nei comuni ad alta tensione abitativa (art. 9 DL 47/2014). Con l'opzione il locatore rinuncia all'aggiornamento ISTAT del canone. Nella tassazione ordinaria il reddito fondiario è il maggiore tra rendita rivalutata e canone ridotto del 5% (art. 37 TUIR, dal 1° gennaio 2027 art. 39 del TU imposte sui redditi, D.Lgs. 117/2026); qui si assume il canone. Il confronto non considera la progressività su più scaglioni né le detrazioni perse.</div>`)}</div>${actions()}`;
     }
   },
   "pignoramento":{
@@ -1466,7 +1466,7 @@ const VIEWS = {
         <tr><td>Contributo previdenziale Cassa Forense 4%</td><td class="r">${fmt.format(P.cpa)}</td></tr>
         <tr><td>IVA 22%</td><td class="r">${fmt.format(P.iva)}</td></tr>
         <tr class="sum"><td>Totale compensi e oneri</td><td class="r">${fmt.format(P.totale)}</td></tr></table>
-        <div class="eyebrow" style="margin:14px 0 6px">Anticipazioni e spese esenti (art. 15 DPR 633/1972)</div>
+        <div class="eyebrow" style="margin:14px 0 6px">Anticipazioni e spese esenti (art. 15 DPR 633/1972; dal 1° gennaio 2027 art. 29 TU IVA, D.Lgs. 10/2026)</div>
         <table class="rows">${CU?`<tr><td>Contributo unificato (DPR 115/2002)</td><td class="r">${fmt.format(CU.dovuto)}</td></tr><tr><td>Marca per notifiche d'ufficio (art. 30 DPR 115/2002)</td><td class="r">${fmt.format(marca)}</td></tr>`:""}<tr><td>Altre anticipazioni stimate</td><td class="r">${fmt.format(num("qspese"))}</td></tr><tr class="sum"><td>Totale anticipazioni</td><td class="r">${fmt.format(antic)}</td></tr></table>
         <table class="rows" style="margin-top:12px"><tr class="sum"><td>Costo complessivo presumibile della prestazione</td><td class="r">${fmt.format(totale)}</td></tr></table>
         <div class="note"><b>Avvertenze.</b> Il presente preventivo è redatto ai sensi dell'art. 13, c. 5, L. 247/2012 e indica la misura del compenso e la prevedibile misura del costo della prestazione, distinguendo oneri, spese anche forfettarie e compenso professionale. Gli importi sono determinati sui parametri del DM 55/2014 (tabelle DM 147/2022) per le fasi indicate e potranno variare in relazione alle attività effettivamente svolte, alla complessità della controversia e ai risultati conseguiti, nonché per fasi ulteriori (cautelari, incidentali, esecutive) e gradi successivi, oggetto di separato preventivo. Le anticipazioni sono stimate. In caso di soccombenza il giudice può porre a carico del cliente le spese di lite della controparte. Il cliente dichiara di aver ricevuto le informazioni sul grado di complessità dell'incarico e sugli oneri ipotizzabili.</div>
@@ -1515,7 +1515,7 @@ const VIEWS = {
       <div class="pb">${gate(`<div class="tblwrap"><table class="rows"><tr><th>Anno</th><th class="r">Mesi</th><th class="r">Quota</th><th class="r">ΔFOI</th><th class="r">Tasso riv.</th><th class="r">Rivalutaz.</th><th class="r">Imp. 17%</th><th class="r">Fondo 31/12</th></tr>
         ${R.anni.map(y=>`<tr><td>${y.anno}</td><td class="r">${y.mesi}</td><td class="r">${fmt.format(y.quota)}</td><td class="r">${y.varFoi==null?"—":fmtN(y.varFoi*100,2)+" %"}</td><td class="r">${y.tasso?fmtN(y.tasso*100,3)+" %":"—"}</td><td class="r">${fmt.format(y.riv)}</td><td class="r">${fmt.format(y.imp)}</td><td class="r">${fmt.format(y.fondo)}</td></tr>`).join("")}
         <tr class="sum"><td colspan="2">Totali</td><td class="r">${fmt.format(R.totQuote)}</td><td></td><td></td><td class="r">${fmt.format(R.totRiv)}</td><td class="r">${fmt.format(R.totImp)}</td><td class="r">${fmt.format(R.lordo)}</td></tr></table></div>
-        <div class="eyebrow" style="margin:14px 0 6px">Tassazione separata (art. 19 TUIR)</div>
+        <div class="eyebrow" style="margin:14px 0 6px">Tassazione separata (art. 19 TUIR; dal 1° gennaio 2027 art. 21 D.Lgs. 117/2026)</div>
         <table class="rows"><tr><td>Anni di servizio</td><td class="r">${fmtN(R.anniServ,2)}</td></tr>
         <tr><td>Reddito di riferimento (TFR × 12 / anni)</td><td class="r">${fmt.format(R.rif)}</td></tr>
         <tr><td>Aliquota media IRPEF (scaglioni ${IRPEF.anno}: ${IRPEF.scaglioni.map(x=>Math.round(x[1]*100)).join("/")}%, ${esc(IRPEF.fonte)})</td><td class="r">${fmtN(R.aliq*100,2)} %</td></tr>
