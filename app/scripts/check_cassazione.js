@@ -48,7 +48,7 @@ async function estratto(id, query) {
     for (const t of stato.temi) {
       for (const q of (t.cass || [])) {
         let docs;
-        try { docs = await cerca(q, dal); } catch (e) { errori++; console.log(`  ! ${t.id} «${q}»: ${e.message}`); continue; }
+        try { docs = await cerca(q, dal); } catch (e) { errori++; console.log(`  ! ${t.id} «${q}»: ${e.message}${e.cause ? " (" + (e.cause.code || "") + " " + (e.cause.message || "") + ")" : ""}`); continue; }
         const primoAvvio = !queryNote.has(q); queryNote.add(q);
         for (const d of docs) {
           if (viste.includes(d.id) || nuoviId.has(d.id)) continue;
