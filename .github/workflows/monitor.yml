@@ -42,13 +42,9 @@ jobs:
         run: |
           set +e; node app/scripts/check_gazzetta.js | tee gu.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
-      - name: Cassazione (Italgiure)
-        id: cass
-        env:
-          # il server di Italgiure non invia il certificato intermedio corretto: lo forniamo noi
-          NODE_EXTRA_CA_CERTS: app/scripts/certs/italgiure-intermedio.pem
-        run: |
-          set +e; node app/scripts/check_cassazione.js | tee cass.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+      # Cassazione (Italgiure): verificato il 30/09/2026 che il server non accetta connessioni dai server
+      # di GitHub (timeout). Il controllo gira sul PC con l'Utilità di pianificazione di Windows
+      # (monitoraggio/cassazione_locale.cmd → app/scripts/locale_cassazione.js) e apre da lì le segnalazioni.
 
       - name: Scadenziario dei dati periodici
         id: scad
@@ -85,7 +81,7 @@ jobs:
 
       # ---- segnalazioni (email al titolare del repository) ----
       - name: Segnala le novità
-        if: steps.gu.outputs.code == '10' || steps.cass.outputs.code == '10' || steps.cass.outputs.code == '1' || steps.cass.outputs.code == '10' || steps.cass.outputs.code == '1' || steps.scad.outputs.code == '10' || steps.bce.outputs.code == '2' || steps.foi.outputs.code == '1' || steps.bce.outputs.code == '1' || steps.saggio.outputs.code == '1'
+        if: steps.gu.outputs.code == '10' || steps.cass.outputs.code == '10' || steps.cass.outputs.code == '1' || steps.scad.outputs.code == '10' || steps.bce.outputs.code == '2' || steps.foi.outputs.code == '1' || steps.bce.outputs.code == '1' || steps.saggio.outputs.code == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
