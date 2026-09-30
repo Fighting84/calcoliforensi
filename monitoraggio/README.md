@@ -1,26 +1,28 @@
 # Monitoraggio — Calcoli Forensi
 
-Due livelli.
+Obiettivo: nessun dato scaduto, nessuna novità normativa o giurisprudenziale persa, senza interventi del titolare.
 
-## 1. Automatico in cloud (GitHub Actions, `.github/workflows/monitor.yml`)
-Ogni giorno alle 06:30 (ora italiana), senza che nessun PC sia acceso:
-- `app/scripts/update_foi.js`: legge la serie FOI senza tabacchi dall'API SDMX ISTAT (flussi 169_748) e la aggiorna in `app/index.html` se esce un nuovo mese o se ISTAT revisiona un valore (segnalato nel log).
-- `app/tests/run_tests.js`: tutti i motori contro i casi ufficiali; se un test fallisce il workflow si ferma e non pubblica.
-- `app/scripts/stamp.js dati`: timbra la data del controllo automatico (compare nel piè di pagina).
-- `app/build.js` + commit + push: il sito si ripubblica da solo. Poi `check_site.js` verifica che risponda.
+## 1. Cloud ogni giorno alle 06:30 (GitHub Actions, `.github/workflows/monitor.yml`) — non richiede il PC
+Aggiornamenti automatici di dati numerici da fonti ufficiali in formato certo:
+- `app/scripts/update_foi.js` — indice FOI dall'API SDMX ISTAT.
+- `app/scripts/update_bce.js` — tasso BCE (interessi di mora) dal portale dati BCE; se un valore storico non coincide, non modifica nulla e segnala la discordanza.
+- `app/scripts/update_saggio.js` — saggio legale letto dal dispositivo del decreto MEF in Gazzetta (da novembre).
 
-## 2. Verifica delle fonti (task programmato locale "calcoli-forensi-monitor", ogni mattina)
-Eseguito da Claude sul PC quando l'app è aperta (altrimenti al primo avvio). Per ogni tema in `stato.json`:
-1. Cassazione (Italgiure via MCP `cerca_giurisprudenza` / `ultime_pronunce`), ultimi 7 giorni, con le parole chiave del tema.
-2. Gazzetta Ufficiale (`cerca_gazzetta_ufficiale` / `ultime_gazzette`) per decreti su saggio legale, tassi BCE (art. 5 D.Lgs. 231/2002), aggiornamento art. 139 CdA, TUN, parametri forensi, contributo unificato.
-3. Se una novità incide su un calcolatore: aggiornare dati/testi in `app/index.html` (con test), oppure registrare un "DA FARE" se richiede lavoro esteso.
-4. Scrivere il log in `monitoraggio/log/AAAA-MM-GG.md`, aggiornare `stato.json`, eseguire `stamp.js fonti`, build, commit, push.
-5. Il lunedì: report settimanale all'utente (visite da `gh api repos/Fighting84/calcoliforensi/traffic/views`, novità, KPI vs patto).
+Rilevamento delle novità da esaminare:
+- `app/scripts/check_gazzetta.js` — sommari della Gazzetta Ufficiale, 14 temi.
+- `app/scripts/check_scadenze.js` — scadenziario dei valori periodici (saggio legale, BCE, FOI, art. 139, assegno sociale, IRPEF): se un aggiornamento atteso manca, avviso sui calcolatori interessati e segnalazione.
 
-Regola: mai pubblicare una modifica ai motori senza test verdi; mai citare una pronuncia senza averla verificata con `leggi_sentenza`.
+Collaudo e pubblicazione: `run_tests.js` e `run_dom_tests.js` (se falliscono il sito non si ripubblica), timbro, build, push, verifica che il sito risponda. Le novità aprono una segnalazione GitHub (email al titolare, per conoscenza).
+
+## 2. PC, ogni giorno (Utilità di pianificazione di Windows) — non richiede Claude aperto
+`monitoraggio/cassazione_locale.cmd` → `app/scripts/locale_cassazione.js`. La banca dati della Cassazione (Italgiure) accetta solo connessioni dall'Italia: il controllo parte dal PC, cerca con 31 ricerche su 20 temi, salva il testo integrale delle pronunce nuove in `monitoraggio/cassazione/`, pubblica e apre la segnalazione. Se il PC resta spento non si perde nulla: ogni giro riesamina 180 giorni di depositi.
+
+## 3. Cloud una volta a settimana (routine Claude) — esame delle segnalazioni
+Procedura in `monitoraggio/ROUTINE.md`: legge le segnalazioni aperte, esamina le fonti, aggiorna dati e note con test, pubblica, chiude le segnalazioni motivando. Il lavoro esteso resta aperto come "DA FARE". Richiede il collegamento di GitHub all'account Claude.
 
 ## Collaudo automatico
+- `node app/tests/run_tests.js` — casi sui motori di calcolo contro fonti ufficiali.
+- `npm i --no-save jsdom@24 && node app/tests/run_dom_tests.js` — interfaccia, funzioni abbonato, paywall, valori limite, scadenziario.
 
-- `node app/tests/run_tests.js` — 188 casi sui motori di calcolo contro fonti ufficiali.
-- `npm i --no-save jsdom && node app/tests/run_dom_tests.js` — 35 controlli sull'interfaccia: ogni calcolatore produce un risultato, paywall, valori limite, errori JavaScript, dati aggiornati.
-- Entrambi girano a ogni esecuzione del workflow: se falliscono, il sito non viene ripubblicato.
+## Regole
+Mai pubblicare una modifica ai calcoli senza aver letto la fonte ufficiale e senza test verdi. Mai citare una pronuncia o un decreto senza averne letto il testo.
