@@ -26,6 +26,7 @@ const TEMI = [
   [/termini\s+processuali|sospensione\s+feriale|codice\s+di\s+procedura\s+civile/i, "scadenze", "Termini processuali"],
 ];
 
+const { testoAtto } = require("./gu_testo");
 const testo = html => html.replace(/<[^>]+>/g, " ").replace(/&#\d+;/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ");
 
 (async () => {
@@ -43,12 +44,22 @@ const testo = html => html.replace(/<[^>]+>/g, " ").replace(/&#\d+;/g, " ").repl
     const novita = [];
     for (const g of gazzette.slice(-(+process.env.GU_MAX || 60))) {      // limite di sicurezza (GU_MAX per le verifiche straordinarie)
       const url = `https://www.gazzettaufficiale.it/gazzetta/serie_generale/caricaDettaglio?dataPubblicazioneGazzetta=${g.iso}&numeroGazzetta=${g.num}`;
-      let t;
-      try { t = testo(await (await fetch(url, { headers: H })).text()); } catch (e) { console.log(`  ! GU n. ${g.num}: ${e.message}`); continue; }
+      let t, grezzo;
+      try { grezzo = await (await fetch(url, { headers: H })).text(); t = testo(grezzo); } catch (e) { console.log(`  ! GU n. ${g.num}: ${e.message}`); continue; }
       for (const [re, calc, tema] of TEMI) {
         const m = t.match(re); if (!m) continue;
         const i = Math.max(0, m.index - 260);
-        novita.push({ gazzetta: g.num, data: g.iso, tema, calcolatore: calc, url, contesto: t.slice(i, m.index + 200).trim() });
+        // codice dell'atto: ultimo link di dettaglio che precede il punto trovato nel sommario
+        const pos = grezzo.search(re); const codice = pos > 0 ? ([...grezzo.slice(Math.max(0, pos - 3000), pos + 400).matchAll(/codiceRedazionale=([A-Z0-9]+)/g)].pop() || [])[1] : null;
+        let fileTesto = null;
+        if (codice && !prova) {
+          try {
+            const dir = path.join(ROOT, "monitoraggio", "gazzetta"); fs.mkdirSync(dir, { recursive: true });
+            fileTesto = `monitoraggio/gazzetta/${g.iso}_${codice}.txt`;
+            if (!fs.existsSync(path.join(ROOT, fileTesto))) fs.writeFileSync(path.join(ROOT, fileTesto), (await testoAtto(g.iso, codice)).slice(0, 400000) + "\n");
+          } catch (e) { fileTesto = null; }
+        }
+        novita.push({ gazzetta: g.num, data: g.iso, tema, calcolatore: calc, url, codice, testo: fileTesto, contesto: t.slice(i, m.index + 200).trim() });
       }
       await new Promise(r => setTimeout(r, 250));   // cortesia verso il server
     }

@@ -19,7 +19,7 @@ Ignora quelle con etichetta `azione-richiesta` (sono per il titolare). Le altre 
   circolari INPS, legge di bilancio, decreti MIMIT/MEF), leggi il testo, aggiorna la costante in `app/index.html`
   (`MICRO_ANNI`, `TUN_P1`, `ASSEGNO_SOCIALE`, `IRPEF`, `TASSI_LEGALI`, `TASSI_BCE`) mantenendo gli anni
   precedenti, aggiungi un caso in `app/tests/run_tests.js` calcolato a mano dalla fonte.
-- **Atto in Gazzetta**: apri l'atto, valuta se cambia un valore, una regola o una nota; se sì, applica con test.
+- **Atto in Gazzetta**: il sito della Gazzetta non è raggiungibile dal cloud; il testo integrale degli atti segnalati è in `monitoraggio/gazzetta/<data>_<codice>.txt` (lo salva il controllo quotidiano; per un atto non ancora salvato puoi chiederlo aggiungendo `{"data":"AAAA-MM-GG","codice":"…"}` a `monitoraggio/gazzetta_richieste.json`). Valuta se cambia un valore, una regola o una nota; se sì, applica con test.
 - **Pronuncia di Cassazione**: il testo integrale è in `monitoraggio/cassazione/<id>.txt` (la banca dati
   della Cassazione non è raggiungibile dal cloud). Se enuncia un principio che incide sul calcolo o sulla
   nota del calcolatore indicato, aggiorna la nota citando estremi esatti; altrimenti annota "non rilevante".

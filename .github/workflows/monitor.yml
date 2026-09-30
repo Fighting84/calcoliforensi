@@ -42,6 +42,9 @@ jobs:
         run: |
           set +e; node app/scripts/check_gazzetta.js | tee gu.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
+      - name: Testi della Gazzetta richiesti dalla routine
+        run: node app/scripts/scarica_richieste.js || true
+
       # Cassazione (Italgiure): verificato il 30/09/2026 che il server non accetta connessioni dai server
       # di GitHub (timeout). Il controllo gira sul PC con l'Utilità di pianificazione di Windows
       # (monitoraggio/cassazione_locale.cmd → app/scripts/locale_cassazione.js) e apre da lì le segnalazioni.
