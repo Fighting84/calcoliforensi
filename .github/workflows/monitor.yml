@@ -89,5 +89,18 @@ jobs:
           node app/scripts/report_issue.js > issue.md
           gh issue create --title "Monitoraggio $oggi: novità da esaminare" --body-file issue.md
 
+      - name: Esiti della routine settimanale sulle segnalazioni
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          node app/scripts/applica_esiti.js
+          git add monitoraggio/esiti.json
+          if ! git diff --cached --quiet; then git commit -m "monitor: esiti applicati" && git pull --rebase --autostash origin main && git push; fi
+
+      - name: Azioni per il titolare
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node app/scripts/check_azioni.js --sincronizza
+
       - name: Verifica che il sito risponda
         run: sleep 90 && node app/scripts/check_site.js

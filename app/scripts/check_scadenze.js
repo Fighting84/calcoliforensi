@@ -9,6 +9,14 @@ try {
   const datiScaduti = new Function(src + "\nreturn datiScaduti;")();
   const oggi = process.env.OGGI ? new Date(process.env.OGGI + "T12:00:00Z") : new Date();
   const r = datiScaduti(oggi);
+  // storico: da quando ciascun ritardo è aperto (serve all'agente "azioni per il titolare")
+  if (!process.env.OGGI) {
+    const fStor = path.join(ROOT, "monitoraggio", "scadenze_storico.json");
+    let stor = []; try { stor = JSON.parse(fs.readFileSync(fStor, "utf8")); } catch (e) {}
+    const iso = oggi.toISOString().slice(0, 10);
+    stor = r.map(x => ({ ...x, dal: (stor.find(y => y.id === x.id) || {}).dal || iso }));
+    fs.writeFileSync(fStor, JSON.stringify(stor, null, 2) + "\n");
+  }
   const out = path.join(ROOT, "monitoraggio", "scadenze.json");
   if (!r.length) { try { fs.unlinkSync(out); } catch (e) {} console.log(`Scadenziario: tutti i valori periodici sono aggiornati (${oggi.toISOString().slice(0, 10)})`); process.exit(0); }
   if (!process.env.OGGI) fs.writeFileSync(out, JSON.stringify(r, null, 2) + "\n");

@@ -18,6 +18,7 @@ const git = (...a) => execFileSync("git", a, { cwd: ROOT, encoding: "utf8" }).tr
     scrivi((r.stdout || "").trim().split("\n")[0] || (r.stderr || "").trim());
     if (r.status !== 10 && r.status !== 0) { scrivi("controllo non riuscito, riprovo al prossimo avvio"); process.exit(1); }
 
+    fs.writeFileSync(path.join(ROOT, "monitoraggio", "heartbeat_cassazione.txt"), new Date().toISOString().slice(0, 10) + "\n");
     const novita = r.status === 10 ? JSON.parse(fs.readFileSync(path.join(ROOT, "monitoraggio", "novita_cass.json"), "utf8")) : [];
     const dir = path.join(ROOT, "monitoraggio", "cassazione"); fs.mkdirSync(dir, { recursive: true });
     for (const n of novita) {
