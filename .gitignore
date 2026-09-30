@@ -2,3 +2,8 @@ fonti/*.pdf
 contabilita.xlsx
 node_modules/
 .claude/
+monitoraggio/locale.log
+monitoraggio/.issue.md
+monitoraggio/novita.json
+monitoraggio/novita_cass.json
+monitoraggio/scadenze.json
