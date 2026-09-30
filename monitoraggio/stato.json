@@ -1,5 +1,5 @@
 {
-  "ultima_verifica_fonti": "2026-09-21",
+  "ultima_verifica_fonti": "2026-09-30",
   "temi": [
     {
       "id": "tun",
@@ -13,7 +13,11 @@
         "tabella unica nazionale",
         "articolo 138"
       ],
-      "note": "Cass. 8630/2026 già recepita. Attendere DM di aggiornamento annuale valori."
+      "note": "Cass. 8630/2026 già recepita. Attendere DM di aggiornamento annuale valori.",
+      "cass": [
+        "\"tabella unica nazionale\"",
+        "\"tabella unica\" AND macropermanent*"
+      ]
     },
     {
       "id": "micro",
@@ -26,7 +30,11 @@
         "lesioni di lieve entità",
         "articolo 139"
       ],
-      "note": "DM MIMIT di aggiornamento annuale (di solito giugno-luglio): valore primo punto e ITT."
+      "note": "DM MIMIT di aggiornamento annuale (di solito giugno-luglio): valore primo punto e ITT.",
+      "cass": [
+        "micropermanenti AND \"139\"",
+        "\"lesioni di lieve entità\" AND \"accertamento clinico strumentale\""
+      ]
     },
     {
       "id": "milano",
@@ -37,7 +45,10 @@
         "danno non patrimoniale"
       ],
       "gu": [],
-      "note": "Osservatorio Milano pubblica aggiornamenti (ultimo giugno 2024); controllare anche tribunale-milano.giustizia.it."
+      "note": "Osservatorio Milano pubblica aggiornamenti (ultimo giugno 2024); controllare anche tribunale-milano.giustizia.it.",
+      "cass": [
+        "\"tabelle milanesi\" OR \"tabelle di Milano\" OR \"tabella milanese\""
+      ]
     },
     {
       "id": "parentale",
@@ -47,7 +58,11 @@
         "tabella a punti"
       ],
       "gu": [],
-      "note": ""
+      "note": "",
+      "cass": [
+        "\"tabella a punti\" OR \"tabelle a punti\" OR \"tabelle integrate a punti\"",
+        "\"perdita del rapporto parentale\" AND liquidazione"
+      ]
     },
     {
       "id": "interessi",
@@ -59,7 +74,11 @@
       "gu": [
         "saggio degli interessi legali"
       ],
-      "note": "DM MEF entro il 15 dicembre per l'anno successivo."
+      "note": "DM MEF entro il 15 dicembre per l'anno successivo.",
+      "cass": [
+        "\"1284\" AND \"quarto comma\"",
+        "anatocismo AND \"interessi legali\""
+      ]
     },
     {
       "id": "mora",
@@ -72,7 +91,11 @@
         "tasso di riferimento",
         "231"
       ],
-      "note": "Comunicato MEF a gennaio e luglio (tasso BCE semestrale)."
+      "note": "Comunicato MEF a gennaio e luglio (tasso BCE semestrale).",
+      "cass": [
+        "\"231 del 2002\" OR \"d.lgs. n. 231/2002\"",
+        "\"interessi moratori\" AND \"transazioni commerciali\""
+      ]
     },
     {
       "id": "parcella",
@@ -86,7 +109,11 @@
         "parametri",
         "professione forense"
       ],
-      "note": "Aggiornamento biennale previsto dall'art. 13 L. 247/2012."
+      "note": "Aggiornamento biennale previsto dall'art. 13 L. 247/2012.",
+      "cass": [
+        "\"147 del 2022\" AND (applicabil* OR intertemporal*)",
+        "\"parametri forensi\" AND (\"valori medi\" OR \"sotto i minimi\")"
+      ]
     },
     {
       "id": "cu",
@@ -98,7 +125,10 @@
         "contributo unificato",
         "spese di giustizia"
       ],
-      "note": ""
+      "note": "",
+      "cass": [
+        "\"contributo unificato\" AND \"valore indeterminabile\""
+      ]
     },
     {
       "id": "scadenze",
@@ -109,7 +139,12 @@
         "art. 155 c.p.c."
       ],
       "gu": [],
-      "note": "Verificare orientamenti su sabato/festivi nei termini a ritroso."
+      "note": "Verificare orientamenti su sabato/festivi nei termini a ritroso.",
+      "cass": [
+        "\"termine a ritroso\" OR \"termini a ritroso\"",
+        "\"sospensione feriale\" AND (sabato OR festivo)",
+        "\"171-ter\" AND termin*"
+      ]
     },
     {
       "id": "tfr",
@@ -120,7 +155,11 @@
       "gu": [
         "tassazione separata"
       ],
-      "note": "Scaglioni IRPEF (legge di bilancio)."
+      "note": "Scaglioni IRPEF (legge di bilancio).",
+      "cass": [
+        "\"rivalutazione del trattamento di fine rapporto\"",
+        "\"2120\" AND rivalutazione AND indice"
+      ]
     },
     {
       "id": "rivalutazione",
@@ -129,7 +168,138 @@
         "rivalutazione monetaria debiti di valore"
       ],
       "gu": [],
-      "note": "Serie FOI aggiornata automaticamente dal workflow."
+      "note": "Serie FOI aggiornata automaticamente dal workflow.",
+      "cass": [
+        "\"debito di valore\" AND \"interessi compensativi\""
+      ]
+    },
+    {
+      "id": "prescrizione",
+      "calcolatore": "prescrizione",
+      "keywords": [
+        "prescrizione",
+        "2946",
+        "2947"
+      ],
+      "gu": [],
+      "cass": [
+        "prescrizione AND \"2947\" AND \"dies a quo\"",
+        "\"prescrizione presuntiva\" AND \"2956\""
+      ],
+      "note": ""
+    },
+    {
+      "id": "pignoramento",
+      "calcolatore": "pignoramento",
+      "keywords": [
+        "pignoramento stipendio",
+        "545 c.p.c."
+      ],
+      "gu": [
+        "assegno sociale"
+      ],
+      "cass": [
+        "\"545\" AND (pensione OR stipendio) AND \"assegno sociale\""
+      ],
+      "note": "Assegno sociale: aggiornamento ogni gennaio (circolare INPS)."
+    },
+    {
+      "id": "imu",
+      "calcolatore": "imu",
+      "keywords": [
+        "IMU"
+      ],
+      "gu": [
+        "imposta municipale propria"
+      ],
+      "cass": [
+        "\"imposta municipale propria\" AND (\"abitazione principale\" OR moltiplicator*)"
+      ],
+      "note": "Le aliquote comunali sono inserite dall'utente."
+    },
+    {
+      "id": "compravendita",
+      "calcolatore": "compravendita",
+      "keywords": [
+        "prezzo-valore",
+        "prima casa"
+      ],
+      "gu": [
+        "imposta di registro"
+      ],
+      "cass": [
+        "\"prezzo-valore\" AND registro",
+        "\"agevolazione prima casa\" AND decadenza"
+      ],
+      "note": ""
+    },
+    {
+      "id": "successione",
+      "calcolatore": "successione",
+      "keywords": [
+        "imposta di successione"
+      ],
+      "gu": [
+        "successioni e donazioni"
+      ],
+      "cass": [
+        "\"imposta di successione\" AND franchigia"
+      ],
+      "note": "D.Lgs. 139/2024 in vigore dal 2025. DA FARE: leggere artt. 13-15 D.Lgs. 7/8/2026 n. 148 (rateazione, interessi)."
+    },
+    {
+      "id": "usufrutto",
+      "calcolatore": "usufrutto",
+      "keywords": [
+        "usufrutto",
+        "coefficienti"
+      ],
+      "gu": [
+        "usufrutto"
+      ],
+      "cass": [
+        "usufrutto AND coefficient* AND \"saggio legale\""
+      ],
+      "note": "Coefficienti aggiornati con DM MEF a ogni variazione del saggio legale."
+    },
+    {
+      "id": "canone",
+      "calcolatore": "canone",
+      "keywords": [
+        "aggiornamento ISTAT canone"
+      ],
+      "gu": [],
+      "cass": [
+        "\"aggiornamento del canone\" AND ISTAT"
+      ],
+      "note": ""
+    },
+    {
+      "id": "cedolare",
+      "calcolatore": "cedolare",
+      "keywords": [
+        "cedolare secca"
+      ],
+      "gu": [
+        "cedolare secca"
+      ],
+      "cass": [
+        "\"cedolare secca\""
+      ],
+      "note": ""
+    },
+    {
+      "id": "preventivo",
+      "calcolatore": "preventivo",
+      "keywords": [
+        "preventivo",
+        "art. 13 L. 247/2012"
+      ],
+      "gu": [],
+      "cass": [
+        "preventivo AND \"247 del 2012\""
+      ],
+      "note": ""
     }
   ],
   "ultima_verifica_gu": "2026-09-29"

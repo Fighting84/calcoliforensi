@@ -9,7 +9,7 @@ const r2 = x=>Math.round(x*100)/100;
 const ck = (name, got, exp) => { const ok = Math.abs(got - exp) < 0.011; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
 
 for (const c of T.danno_micro) {
-  const R = ENGINES.dannoMicro(c.in.pct, c.in.eta, c.in.itt, c.in.itp75, c.in.itp50, c.in.itp25, c.in.pers);
+  const R = ENGINES.dannoMicro(c.in.pct, c.in.eta, c.in.itt, c.in.itp75, c.in.itp50, c.in.itp25, c.in.pers, "2025");
   ck(`micro ${c.in.pct}%/${c.in.eta}a totale`, R.totale, c.out.totale);
   ck(`  permanente`, R.perm, c.out.danno_permanente);
   ck(`  temporaneo`, R.temp, c.out.temporaneo);
@@ -140,5 +140,15 @@ ck("pignoramento pensione ordinario", ENGINES.pignoramento(1800, "ordinario", tr
 ck("pignoramento pensione minimo 1000", ENGINES.pignoramento(1300, "ordinario", true, 400, 0).impign, 1000);
 { const P = ENGINES.prescrizione("rca", "2024-03-10"); const ok = P.scadenza === "2026-03-10" && P.prescritto; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} prescrizione RCA 2 anni: ${P.scadenza} prescritto=${P.prescritto}`); }
 { const P = ENGINES.prescrizione("ordinaria", "2024-02-29"); const ok = P.scadenza === "2034-02-28"; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} prescrizione da 29/2: ${P.scadenza}`); }
+// Importi art. 139 2026 (DM MIMIT 20/07/2026, GU n. 173/2026): calcolo indipendente con la formula di legge
+{ const P = 988.45, ITT = 57.64, rid = 0.875, coeff = [1, 1.1, 1.2, 1.3, 1.5];
+  const perm = r2(coeff.reduce((a, c) => a + P * rid * c, 0)), temp = r2(r2(10 * ITT) + r2(20 * r2(ITT * 0.5)));
+  const R = ENGINES.dannoMicro(5, 35, 10, 0, 20, 0, 10, "2026");
+  ck("micro 2026 permanente", R.perm, perm); ck("micro 2026 temporanea", R.temp, temp); ck("micro 2026 totale", R.totale, r2(r2(perm + temp) * 1.1));
+  ck("micro senza anno usa gli importi più recenti", ENGINES.dannoMicro(5, 35, 10, 0, 20, 0, 10).totale, R.totale); }
+ck("TUN 2026 punto 10%", ENGINES.dannoTUN(10, 1, "2026", "none", 0, 0, 0, 0, 0, 0).punto, r2(988.45 * 2.75773));
+ck("TUN senza anno usa il 2026", ENGINES.dannoTUN(10, 1, "", "none", 0, 0, 0, 0, 0, 0).punto, r2(988.45 * 2.75773));
+ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, "ordinario", true, 0, 0).AS, 546.24);
+{ const T = ENGINES.tfr(30000, "2016-01-01", "2026-08-31", 0); const x = T.rif, sc = [[28000, .23], [50000, .33], [Infinity, .43]]; let tax = 0, prev = 0; for (const [l, a] of sc) { if (x <= prev) break; tax += (Math.min(x, l) - prev) * a; prev = l; } ck("TFR: scaglioni IRPEF 2026", T.aliq, tax / x); }
 console.log(`\n${pass} OK, ${fail} DIFF`);
 process.exit(fail ? 1 : 0);

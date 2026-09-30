@@ -20,35 +20,48 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Aggiorna serie FOI dall'API ISTAT
+      # ---- aggiornamenti automatici dei dati numerici (fonti ufficiali in formato certo) ----
+      - name: Indice FOI dall'API ISTAT
         id: foi
         run: |
-          set +e
-          node app/scripts/update_foi.js | tee foi.log
-          code=${PIPESTATUS[0]}
-          echo "code=$code" >> "$GITHUB_OUTPUT"
-          if [ "$code" = "1" ]; then echo "::warning::update_foi in errore (API ISTAT non raggiungibile?)"; fi
-          exit 0
+          set +e; node app/scripts/update_foi.js | tee foi.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
-      - name: Controlla la Gazzetta Ufficiale
+      - name: Tasso BCE per gli interessi di mora
+        id: bce
+        run: |
+          set +e; node app/scripts/update_bce.js | tee bce.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+
+      - name: Saggio degli interessi legali dal decreto MEF
+        id: saggio
+        run: |
+          set +e; node app/scripts/update_saggio.js | tee saggio.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+
+      # ---- rilevamento delle novità da esaminare ----
+      - name: Gazzetta Ufficiale
         id: gu
         run: |
-          set +e
-          node app/scripts/check_gazzetta.js | tee gu.log
-          code=${PIPESTATUS[0]}
-          echo "code=$code" >> "$GITHUB_OUTPUT"
-          if [ "$code" = "1" ]; then echo "::warning::check_gazzetta in errore"; fi
-          exit 0
+          set +e; node app/scripts/check_gazzetta.js | tee gu.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
+      - name: Cassazione (Italgiure)
+        id: cass
+        run: |
+          set +e; node app/scripts/check_cassazione.js | tee cass.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+
+      - name: Scadenziario dei dati periodici
+        id: scad
+        run: |
+          set +e; node app/scripts/check_scadenze.js | tee scad.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+
+      # ---- collaudo: se fallisce non si pubblica ----
       - name: Test dei motori di calcolo
         run: node app/tests/run_tests.js
 
-      - name: Test di rendering dell'interfaccia
+      - name: Test dell'interfaccia
         run: |
           npm install --no-save --silent jsdom@24
           node app/tests/run_dom_tests.js
 
-      - name: Timbro verifica automatica e build
+      - name: Timbro e build
         run: |
           node app/scripts/stamp.js dati "$(TZ=Europe/Rome date +%d/%m/%Y)"
           node app/build.js
@@ -60,32 +73,22 @@ jobs:
           git add -A app docs monitoraggio
           if git diff --cached --quiet; then echo "nessuna modifica"; exit 0; fi
           msg="monitor: verifica automatica $(TZ=Europe/Rome date +%d/%m/%Y)"
-          if [ "${{ steps.foi.outputs.code }}" = "10" ]; then msg="monitor: nuovo indice FOI ISTAT — $(tail -n 1 foi.log)"; fi
+          [ "${{ steps.foi.outputs.code }}" = "10" ] && msg="$msg — $(tail -n 1 foi.log)"
+          [ "${{ steps.bce.outputs.code }}" = "10" ] && msg="$msg — $(tail -n 1 bce.log)"
+          [ "${{ steps.saggio.outputs.code }}" = "10" ] && msg="$msg — $(tail -n 1 saggio.log)"
           git commit -m "$msg"
           git pull --rebase --autostash origin main || true
           git push
 
-      - name: Segnala le novità della Gazzetta
-        if: steps.gu.outputs.code == '10'
+      # ---- segnalazioni (email al titolare del repository) ----
+      - name: Segnala le novità
+        if: steps.gu.outputs.code == '10' || steps.cass.outputs.code == '10' || steps.scad.outputs.code == '10' || steps.bce.outputs.code == '2' || steps.foi.outputs.code == '1' || steps.bce.outputs.code == '1' || steps.saggio.outputs.code == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          {
-            echo "Il controllo automatico della Gazzetta Ufficiale ha intercettato atti che potrebbero incidere sui calcolatori."
-            echo
-            node -e '
-              const n=require("./monitoraggio/novita.json");
-              for(const x of n){
-                console.log(`### ${x.tema} → calcolatore \`${x.calcolatore}\``);
-                console.log(`GU Serie Generale del ${x.data}, n. ${x.gazzetta} — ${x.url}`);
-                console.log("");
-                console.log("> " + x.contesto.replace(/\n/g," "));
-                console.log("");
-              }'
-            echo "---"
-            echo "Da verificare a mano: se l'atto modifica valori o norme applicate, aggiornare \`app/index.html\`, i test e le note, poi ripubblicare."
-          } > issue.md
-          gh issue create --title "Gazzetta Ufficiale: novità da verificare ($(TZ=Europe/Rome date +%d/%m/%Y))" --body-file issue.md --label "" || gh issue create --title "Gazzetta Ufficiale: novità da verificare ($(TZ=Europe/Rome date +%d/%m/%Y))" --body-file issue.md
+          oggi="$(TZ=Europe/Rome date +%d/%m/%Y)"
+          node app/scripts/report_issue.js > issue.md
+          gh issue create --title "Monitoraggio $oggi: novità da esaminare" --body-file issue.md
 
       - name: Verifica che il sito risponda
         run: sleep 90 && node app/scripts/check_site.js

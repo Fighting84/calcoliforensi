@@ -195,7 +195,7 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 </div>
 
 <footer class="foot">
-  <p><strong>Calcoli Forensi</strong> — strumenti di calcolo per professionisti del diritto. I risultati sono elaborazioni automatiche su dati normativi e tabellari pubblici e non costituiscono consulenza legale; la verifica finale spetta al professionista.</p>
+  <p><strong>Calcoli Forensi</strong> — strumenti di calcolo per professionisti dell'area legale, fiscale, del lavoro e immobiliare. I risultati sono elaborazioni automatiche su dati normativi e tabellari pubblici e non costituiscono consulenza legale; la verifica finale spetta al professionista.</p>
   <p class="foot-links"><a href="#/informazioni">Informazioni, condizioni e privacy</a> · <a href="#/impostazioni">Impostazioni</a> · <a href="#/storico">Storico</a> · <a href="#/piani">Piani</a> · <a id="footMail" href="#">Assistenza</a></p>
   <p id="footTitolare"></p>
   <p id="footVersion"></p>
@@ -221,7 +221,7 @@ const TITOLARE = {
   email:"studiolegaleometto@gmail.com", ordine:"Ordine degli Avvocati di Venezia"
 };
 const CONFIG = {
-  version: "0.8.0 — 24 settembre 2026",
+  version: "0.9.0 — 30 settembre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -232,7 +232,7 @@ const CONFIG = {
 const impronta = s=>{ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h; };
 
 // Registro delle verifiche (aggiornato dagli script di monitoraggio: vedi app/scripts e monitoraggio/README.md)
-const MONITOR = { fonti:"21/09/2026", dati:"29/09/2026" };   // fonti = verifica normativa/giurisprudenziale; dati = verifica automatica serie ISTAT e test
+const MONITOR = { fonti:"30/09/2026", dati:"29/09/2026" };   // fonti = verifica normativa/giurisprudenziale; dati = verifica automatica serie ISTAT e test
 /* ===================== DATI NORMATIVI ===================== */
 // Art. 1284 c.c. — saggio legale per anno (DM MEF). Dal 1991 in poi.
 const TASSI_LEGALI = {
@@ -257,9 +257,18 @@ const FOI_META = { ultimo:"2026-08", aggiornato:"21/09/2026",
   // fattore per riportare ogni base alla base 2015=100
   baseOf: k=> k<"2011"?"1995": k<"2016"?"2010": k<"2026"?"2015":"2025",
   to2015: {"1995":1/(1.373*1.071), "2010":1/1.071, "2015":1, "2025":1.214} };
-// Art. 139 CdA — DM 18/07/2025
-const MICRO = { puntoBase:963.40, itt:56.18, itp75:42.14, itp50:28.09, itp25:14.05,
+// Art. 139 CdA — importi per anno in MICRO_ANNI
+// Importi art. 139, c. 1, per anno di aggiornamento (DM MIMIT ex art. 139, c. 5); si applicano dalla decorrenza indicata
+const MICRO_ANNI = {
+  "2026":{puntoBase:988.45, itt:57.64, fonte:"DM MIMIT 20/07/2026 (GU n. 173 del 28/07/2026), dal mese di aprile 2026"},
+  "2025":{puntoBase:963.40, itt:56.18, fonte:"DM MIMIT 18/07/2025, dal mese di aprile 2025"}
+};
+const MICRO_ULTIMO = Object.keys(MICRO_ANNI).sort().pop();
+const MICRO = { puntoBase:MICRO_ANNI[MICRO_ULTIMO].puntoBase, itt:MICRO_ANNI[MICRO_ULTIMO].itt, anno:MICRO_ULTIMO,
   coeff:[0,1,1.1,1.2,1.3,1.5,1.7,1.9,2.1,2.3] };
+// Valori annuali usati da più calcolatori (aggiornare qui; controllati dallo scadenziario)
+const ASSEGNO_SOCIALE = { anno:2026, importo:546.24, fonte:"circolare INPS n. 153 del 19/12/2025" };
+const IRPEF = { anno:2026, scaglioni:[[28000,0.23],[50000,0.33],[Infinity,0.43]], fonte:"L. 30/12/2025 n. 199 (bilancio 2026)" };
 // Tabelle di Milano 2024 (Osservatorio giustizia civile, 4/6/2024; riv. ISTAT +16,2268%).
 // Colonna (A): punto danno biologico/dinamico-relazionale per invalidità 1..100, età 1 anno.
 const MILANO_A = [0,
@@ -301,7 +310,7 @@ const TUN_MORALE_MIN = {10:.210,11:.241,12:.253,13:.263,14:.271,15:.278,16:.285,
   66:.439,67:.441,68:.443,69:.445,70:.447,71:.449,72:.451,73:.453,74:.455,75:.456,76:.458,77:.460,78:.462,79:.464,80:.466,81:.468,82:.469,83:.471,84:.473,85:.475,
   86:.476,87:.478,88:.480,89:.482,90:.483,91:.485,92:.487,93:.488,94:.490,95:.492,96:.493,97:.495,98:.497,99:.498,100:.500};
 // Valore del primo punto (art. 139 CdA, aggiornato annualmente) e ITT giornaliera, per anno di riferimento
-const TUN_P1 = { "2025":{p1:963.40, itt:56.18, fonte:"DM MIMIT 18/07/2025"}, "2024":{p1:947.30, itt:55.24, fonte:"valori 2024 usati nella tabella pubblicata in GU"} };
+const TUN_P1 = { "2026":{p1:988.45, itt:57.64, fonte:"DM MIMIT 20/07/2026"}, "2025":{p1:963.40, itt:56.18, fonte:"DM MIMIT 18/07/2025"}, "2024":{p1:947.30, itt:55.24, fonte:"valori 2024 usati nella tabella pubblicata in GU"} };
 // Tabelle integrate a punti per la perdita del rapporto parentale — Milano 2024
 const PARENTALE = {
   genitori:{ label:"genitore / figlio / coniuge / unione civile / convivente", cap:391103.18, puntiMax:118,
@@ -475,18 +484,19 @@ const ENGINES = {
     tot=r2(tot);
     return {capitale:cap,totale:tot,montante:r2(cap+tot),periodi};
   },
-  dannoMicro(pct, eta, itt, itp75, itp50, itp25, pers){
+  dannoMicro(pct, eta, itt, itp75, itp50, itp25, pers, anno){
+    const V=MICRO_ANNI[anno]||MICRO_ANNI[MICRO_ULTIMO]; const M={puntoBase:V.puntoBase, itt:V.itt, itp75:r2(V.itt*0.75), itp50:r2(V.itt*0.5), itp25:r2(V.itt*0.25)};
     pct=Math.round(pct); if(!(pct>=1&&pct<=9)||!(eta>=0&&eta<=120)) return null;
     const rid = eta>10? Math.round((1-0.005*(eta-10))*1000)/1000 : 1;
-    const puntoRid = MICRO.puntoBase*rid;
+    const puntoRid = M.puntoBase*rid;
     const punti=[]; let perm=0;
     for(let k=1;k<=pct;k++){const v=puntoRid*MICRO.coeff[k]; perm+=v; punti.push({k,coeff:MICRO.coeff[k],valore:r2(v)});}
     perm=r2(perm);
-    const t = {itt:r2((itt||0)*MICRO.itt), itp75:r2((itp75||0)*MICRO.itp75), itp50:r2((itp50||0)*MICRO.itp50), itp25:r2((itp25||0)*MICRO.itp25)};
+    const t = {itt:r2((itt||0)*M.itt), itp75:r2((itp75||0)*M.itp75), itp50:r2((itp50||0)*M.itp50), itp25:r2((itp25||0)*M.itp25)};
     const temp = r2(t.itt+t.itp75+t.itp50+t.itp25);
     const base = r2(perm+temp);
     const morale = r2(base*(pers||0)/100);
-    return {pct,eta,rid,puntoRid:r2(puntoRid),punti,perm,t,temp,base,pers:pers||0,morale,totale:r2(base+morale)};
+    return {pct,eta,rid,puntoRid:r2(puntoRid),punti,perm,t,temp,base,pers:pers||0,morale,totale:r2(base+morale),M,anno:anno&&MICRO_ANNI[anno]?anno:MICRO_ULTIMO,fonte:V.fonte};
   },
   dannoMilano(pct, eta, pers, itt, itp75, itp50, itp25, persTemp){
     pct=Math.round(pct); eta=Math.round(eta);
@@ -506,7 +516,7 @@ const ENGINES = {
   dannoTUN(pct, eta, anno, morale, pers, itt, itp75, itp50, itp25, moraleTemp){
     pct=Math.round(pct); eta=Math.round(eta);
     if(!(pct>=10&&pct<=100)||!(eta>=0&&eta<=100)) return null;
-    const Y=TUN_P1[anno]||TUN_P1["2025"];
+    const Y=TUN_P1[anno]||TUN_P1[Object.keys(TUN_P1).sort().pop()];
     const cm=TUN_CM[pct], R=TUN_ETA[eta];
     const punto=r2(Y.p1*cm);                       // valore del punto danno biologico
     const cellaBio=Math.round(punto*pct*R);        // Allegato II, tabella 1 (arrotondata all'euro come in GU)
@@ -607,7 +617,7 @@ const ENGINES = {
     return {canone,alC,ced,baseIrpef,aliqIrpef,addiz,irpef,registroAnnuo,registroLoc,bollo,totIrpef,risparmio:r2(totIrpef-ced),conviene:totIrpef>ced?"cedolare":"irpef"};
   },
   pignoramento(netto, tipo, pensione, assegnoSociale, quotaAlim){
-    if(!(netto>0)) return null; const AS=assegnoSociale||538.69;
+    if(!(netto>0)) return null; const AS=assegnoSociale||ASSEGNO_SOCIALE.importo;
     let impign=0, notaP="";
     if(pensione){ impign=Math.max(2*AS,1000); notaP=`Pensione: impignorabile la parte fino al doppio dell'assegno sociale, comunque non inferiore a 1.000 € (art. 545, c. 7): ${fmt.format(impign)}.`; }
     const base=Math.max(0,netto-impign);
@@ -690,9 +700,9 @@ const ENGINES = {
       ralY=r2(ralY*(1+(incrPct||0)/100));
     }
     const lordo=fondo; const anniServ=Math.max(1,(pd(a)-pd(da))/86400000/365.25);
-    // Tassazione separata (art. 19 TUIR): reddito di riferimento = TFR × 12 / anni; aliquota media IRPEF (scaglioni 2025)
+    // Tassazione separata (art. 19 TUIR): reddito di riferimento = TFR × 12 / anni; aliquota media IRPEF (scaglioni 2026, L. 199/2025)
     const rif=lordo*12/anniServ;
-    const irpef=x=>{ let t=0; const sc=[[28000,0.23],[50000,0.35],[Infinity,0.43]]; let prev=0; for(const [l,al] of sc){ if(x<=prev) break; t+=(Math.min(x,l)-prev)*al; prev=l; } return t; };
+    const irpef=x=>{ let t=0; const sc=IRPEF.scaglioni; let prev=0; for(const [l,al] of sc){ if(x<=prev) break; t+=(Math.min(x,l)-prev)*al; prev=l; } return t; };
     const aliq=rif>0? irpef(rif)/rif : 0;
     const imposta=r2(lordo*aliq);
     return {ral,da,a,anni,totQuote:r2(totQuote),totRiv:r2(totRiv),totImp:r2(totImp),lordo,anniServ,rif:r2(rif),aliq,imposta,netto:r2(lordo-imposta)};
@@ -754,6 +764,22 @@ const ENGINES = {
   }
 };
 
+/* ===================== SCADENZIARIO DEI DATI ===================== */
+// Per ogni valore periodico: da quando l'aggiornamento è atteso e come riconoscere che è già presente.
+// Se è in ritardo, i calcolatori interessati mostrano un avviso e il monitoraggio apre una segnalazione.
+function datiScaduti(oggi){
+  oggi=oggi||new Date(); const Y=oggi.getFullYear(), iso=oggi.toISOString().slice(0,10), out=[];
+  const add=(id,calc,msg)=>out.push({id,calc,msg});
+  if(TASSI_LEGALI[Y]==null) add("saggio",["interessi-legali","rivalutazione","usufrutto"],`saggio degli interessi legali ${Y} non ancora inserito`);
+  const sem=oggi.getMonth()<6?1:2;
+  if(TASSI_BCE[Y+"-"+sem]==null) add("bce",["interessi-mora"],`tasso BCE del ${sem}° semestre ${Y} non ancora inserito`);
+  const [fy,fm]=FOI_META.ultimo.split("-").map(Number);
+  if((Y*12+oggi.getMonth()+1)-(fy*12+fm)>3) add("foi",["rivalutazione","tfr","canone"],`indice ISTAT FOI fermo a ${String(fm).padStart(2,"0")}/${fy}`);
+  if(+MICRO_ULTIMO<Y && iso>=Y+"-09-15") add("art139",["danno-micro","danno-tun"],`importi art. 139 CdA ${Y} non ancora inseriti (il decreto ministeriale esce di norma in estate)`);
+  if(ASSEGNO_SOCIALE.anno<Y && iso>=Y+"-02-01") add("assegno",["pignoramento"],`assegno sociale ${Y} non ancora inserito`);
+  if(IRPEF.anno<Y && iso>=Y+"-02-01") add("irpef",["tfr","cedolare"],`scaglioni IRPEF ${Y} da verificare`);
+  return out;
+}
 /* ===================== STUDIO, PRATICA, STORICO ===================== */
 // Impostazioni dello studio (intestazione sulle relazioni) e storico dei calcoli: restano su questo dispositivo.
 const STUDIO = {
@@ -794,7 +820,7 @@ const LIC = {
 /* ===================== CATALOGO ===================== */
 const CATALOG = [
   {group:"Danno alla persona", items:[
-    {id:"danno-micro", title:"Danno biologico — micropermanenti", desc:"Lesioni 1–9% (art. 139 CdA): permanente, temporanea, personalizzazione.", refs:"Art. 139 D.Lgs. 209/2005 — valori DM 18/07/2025", status:"free"},
+    {id:"danno-micro", title:"Danno biologico — micropermanenti", desc:"Lesioni 1–9% (art. 139 CdA): permanente, temporanea, personalizzazione.", refs:"Art. 139 D.Lgs. 209/2005 — importi DM MIMIT 20/07/2026 (GU n. 173 del 28/07/2026)", status:"free"},
     {id:"danno-tun", title:"Danno biologico — Tabella Unica Nazionale (art. 138)", desc:"Macropermanenti 10–100%: DPR 12/2025, danno morale min/medio/max, personalizzazione fino al 30%, temporanea.", refs:"Art. 138 D.Lgs. 209/2005 — DPR 13/01/2025 n. 12 (GU 18/02/2025, S.O. 4) — Cass. 8630/2026", status:"free"},
     {id:"danno-milano", title:"Danno non patrimoniale — Tabelle di Milano", desc:"Lesioni 1–100% con tabella milanese 2024: componente biologica e sofferenza, demoltiplicatore età, personalizzazione, temporanea.", refs:"Osservatorio giustizia civile di Milano — Tabelle edizione 2024 (4/6/2024), riv. ISTAT +16,2268%", status:"free"},
     {id:"danno-parentale", title:"Danno da perdita del rapporto parentale", desc:"Tabella integrata a punti Milano 2024: età, convivenza, superstiti, qualità della relazione.", refs:"Tabelle milanesi 2024, tabelle integrate a punti (Cass. 10579/2021)", status:"free"},
@@ -857,7 +883,7 @@ function renderHome(){
   $("#main").innerHTML=`
   <section class="hero">
     <div>
-      <div class="eyebrow">Per avvocati, praticanti, patronati, periti</div>
+      <div class="eyebrow" style="line-height:1.7">Per avvocati e praticanti · commercialisti e consulenti del lavoro · notai e agenti immobiliari · medici legali e periti · patronati e CAF</div>
       <h1>Il calcolo giusto, con la norma accanto.</h1>
       <p>Danno biologico, interessi, rivalutazione, contributo unificato, parcelle: ogni risultato mostra la formula applicata, il riferimento normativo e la data di aggiornamento delle tabelle. Gratis il risultato; con Pro il prospetto completo e la relazione stampabile.</p>
     </div>
@@ -866,10 +892,10 @@ function renderHome(){
       <table class="rows" style="margin-top:6px">
         <tr><td>Saggio legale 2026</td><td class="r">1,60 %</td></tr>
         <tr><td>BCE 2° sem. 2026 (mora +8)</td><td class="r">10,40 %</td></tr>
-        <tr><td>Punto 1% art. 139 CdA (DM 18/07/2025)</td><td class="r">963,40 €</td></tr>
-        <tr><td>TUN art. 138 (DPR 12/2025), punto 10%</td><td class="r">2.656,80 €</td></tr>
+        <tr><td>Punto 1% art. 139 CdA (DM 20/07/2026)</td><td class="r">${fmtN(MICRO.puntoBase)} €</td></tr>
+        <tr><td>TUN art. 138 (DPR 12/2025), punto 10%</td><td class="r">${fmtN(r2(MICRO.puntoBase*TUN_CM[10]))} €</td></tr>
         <tr><td>Punto 1% Tabelle Milano 2024</td><td class="r">1.393,28 €</td></tr>
-        <tr><td>ITT giornaliera CdA / Milano</td><td class="r">56,18 € / 115,00 €</td></tr>
+        <tr><td>ITT giornaliera CdA / Milano</td><td class="r">${fmtN(MICRO.itt)} € / 115,00 €</td></tr>
         <tr><td>Punto danno parentale Milano 2024</td><td class="r">3.911,03 €</td></tr>
       </table>
       <div class="note">${free} calcolatori attivi, ${soon} in arrivo. Aggiornamento tabelle: automatico, verificato ogni giorno su Gazzetta Ufficiale.</div>
@@ -912,7 +938,7 @@ function renderInfo(){
     <tr><td>Contatti</td><td class="r"><a href="mailto:${esc(T.email)}">${esc(T.email)}</a></td></tr></table>
 
     <div class="eyebrow" style="margin:18px 0 6px">Che cosa è Calcoli Forensi</div>
-    <p class="just">Calcoli Forensi è uno strumento di calcolo per professionisti del diritto. Elabora valori tabellari e parametri normativi pubblici (tabelle ministeriali, decreti, indici ISTAT, criteri degli osservatori sulla giustizia civile) e ne restituisce l'applicazione al caso inserito dall'utente, con l'indicazione delle formule e delle fonti. Non è un servizio di consulenza legale, non instaura alcun rapporto professionale e non sostituisce la valutazione dell'avvocato o del consulente: ogni risultato va verificato prima dell'uso. Il servizio è rivolto a soggetti che operano nell'esercizio di attività professionale.</p>
+    <p class="just">Calcoli Forensi è uno strumento di calcolo per professionisti dell'area legale, fiscale, del lavoro e immobiliare (avvocati, commercialisti, consulenti del lavoro, notai, agenti immobiliari, medici legali, periti, patronati e CAF). Elabora valori tabellari e parametri normativi pubblici (tabelle ministeriali, decreti, indici ISTAT, criteri degli osservatori sulla giustizia civile) e ne restituisce l'applicazione al caso inserito dall'utente, con l'indicazione delle formule e delle fonti. Non è un servizio di consulenza legale, non instaura alcun rapporto professionale e non sostituisce la valutazione dell'avvocato o del consulente: ogni risultato va verificato prima dell'uso. Il servizio è rivolto a soggetti che operano nell'esercizio di attività professionale.</p>
 
     <div class="eyebrow" style="margin:18px 0 6px">Abbonamenti, pagamenti e disdetta</div>
     <p class="just">Il risultato di ogni calcolatore è gratuito e non richiede registrazione. Le funzioni Pro (prospetto analitico, relazione stampabile, storico, intestazione dello studio) si attivano con una chiave di licenza inviata per email dopo l'acquisto. L'abbonamento si rinnova automaticamente alla scadenza del periodo scelto e può essere disdetto in qualsiasi momento dall'area di gestione indicata nell'email di acquisto o scrivendo all'indirizzo di contatto: la disdetta ha effetto alla scadenza del periodo già pagato, senza penali. I prezzi indicati sono comprensivi delle imposte applicabili. I pagamenti e la fatturazione sono gestiti dal fornitore di pagamento indicato in fase di acquisto, che emette il documento fiscale.</p>
@@ -1017,6 +1043,7 @@ function renderCalc(id){
   const prat=(state.inputs.rifPratica||"").trim();
   $("#main").innerHTML=`<div class="head"><div class="eyebrow">${esc(CATALOG.find(g=>g.items.includes(c)).group)}</div><h1>${esc(c.title)}</h1><p>${esc(c.desc)}</p><div class="refs">${esc(c.refs||"")}</div></div>
   <div class="print-head">${testata}<b>${esc(c.title)}</b> — relazione del ${fmtD(todayISO())}${prat?` — pratica: ${esc(prat)}`:""}<div style="font-size:11px;font-family:var(--sans);margin-top:3px">${esc(c.refs||"")} · fonti verificate al ${MONITOR.fonti} · elaborazione con calcoliforensi.it</div></div>
+  ${datiScaduti().filter(x=>x.calc.includes(id)).map(x=>`<div class="warn" style="margin:0 0 12px;padding:8px 12px;border:1px solid var(--warn);border-radius:var(--radius)">Aggiornamento in corso: ${esc(x.msg)}. Il calcolo usa l'ultimo valore disponibile: verificalo prima dell'uso.</div>`).join("")}
   <div class="calc">
     <div class="panel"><div class="ph"><h2>Dati</h2><span class="pill free">calcolo immediato</span></div><div class="pb">
       ${LIC.valid?`<div class="field full" style="margin-bottom:12px"><label for="rifPratica">Riferimento della pratica (compare sulla relazione)</label><input id="rifPratica" data-in type="text" value="${esc(state.inputs.rifPratica||"")}" placeholder="es. Rossi / Assicurazioni Generali — sinistro 12.05.2023"></div>`:""}
@@ -1067,29 +1094,30 @@ const VIEWS = {
       field("itp25","ITP al 25%","number",0,{min:0,step:1}),
       `<div class="fieldset-title">Personalizzazione</div>`,
       field("pers","Aumento per sofferenza morale (%)","number",10,{min:0,max:20,step:1,full:true,hint:"art. 139, c. 3: fino al 20% per particolari condizioni soggettive"}),
+      field("manno","Importi da applicare","select",MICRO_ULTIMO,{full:true,options:Object.keys(MICRO_ANNI).sort().reverse().map(k=>[k,`${k} — primo punto ${fmtN(MICRO_ANNI[k].puntoBase)} €, ITT ${fmtN(MICRO_ANNI[k].itt)} €/g`]),hint:"si applicano gli importi in vigore alla data della liquidazione"}),
     ].join(""),
     result:()=>{
-      const R=ENGINES.dannoMicro(num("pct"),num("eta"),num("itt"),num("itp75"),num("itp50"),num("itp25"),num("pers"));
+      const R=ENGINES.dannoMicro(num("pct"),num("eta"),num("itt"),num("itp75"),num("itp50"),num("itp25"),num("pers"),val("manno"));
       if(!R) return empty("Inserisci una percentuale tra 1 e 9 e un'età valida.");
       return `<div class="total"><div class="eyebrow">Totale risarcimento</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">${R.pct}% a ${R.eta} anni · permanente ${fmt.format(R.perm)} · temporanea ${fmt.format(R.temp)}${R.pers?` · personalizzazione +${R.pers}%`:""}</div></div>
       <div class="pb">${gate(`
         <div class="eyebrow" style="margin-bottom:6px">Danno permanente</div>
         <div class="tblwrap"><table class="rows"><tr><th>Punto</th><th>Coeff.</th><th class="r">Valore punto</th></tr>
         ${R.punti.map(p=>`<tr><td>${p.k}°</td><td class="num">${fmtN(p.coeff,1)}</td><td class="r">${fmt.format(p.valore)}</td></tr>`).join("")}
-        <tr class="muted"><td colspan="2">Punto base ${fmt.format(MICRO.puntoBase)} × riduzione età ${fmtN(R.rid,3)} = ${fmt.format(R.puntoRid)}</td><td></td></tr>
+        <tr class="muted"><td colspan="2">Punto base ${fmt.format(R.M.puntoBase)} × riduzione età ${fmtN(R.rid,3)} = ${fmt.format(R.puntoRid)}</td><td></td></tr>
         <tr class="sum"><td colspan="2">Danno permanente</td><td class="r">${fmt.format(R.perm)}</td></tr></table></div>
         <div class="eyebrow" style="margin:14px 0 6px">Danno temporaneo</div>
         <div class="tblwrap"><table class="rows"><tr><th>Voce</th><th class="r">Giorni</th><th class="r">Importo</th></tr>
-        <tr><td>ITT 100% (${fmt.format(MICRO.itt)}/g)</td><td class="r">${num("itt")}</td><td class="r">${fmt.format(R.t.itt)}</td></tr>
-        <tr><td>ITP 75% (${fmt.format(MICRO.itp75)}/g)</td><td class="r">${num("itp75")}</td><td class="r">${fmt.format(R.t.itp75)}</td></tr>
-        <tr><td>ITP 50% (${fmt.format(MICRO.itp50)}/g)</td><td class="r">${num("itp50")}</td><td class="r">${fmt.format(R.t.itp50)}</td></tr>
-        <tr><td>ITP 25% (${fmt.format(MICRO.itp25)}/g)</td><td class="r">${num("itp25")}</td><td class="r">${fmt.format(R.t.itp25)}</td></tr>
+        <tr><td>ITT 100% (${fmt.format(R.M.itt)}/g)</td><td class="r">${num("itt")}</td><td class="r">${fmt.format(R.t.itt)}</td></tr>
+        <tr><td>ITP 75% (${fmt.format(R.M.itp75)}/g)</td><td class="r">${num("itp75")}</td><td class="r">${fmt.format(R.t.itp75)}</td></tr>
+        <tr><td>ITP 50% (${fmt.format(R.M.itp50)}/g)</td><td class="r">${num("itp50")}</td><td class="r">${fmt.format(R.t.itp50)}</td></tr>
+        <tr><td>ITP 25% (${fmt.format(R.M.itp25)}/g)</td><td class="r">${num("itp25")}</td><td class="r">${fmt.format(R.t.itp25)}</td></tr>
         <tr class="sum"><td colspan="2">Danno temporaneo</td><td class="r">${fmt.format(R.temp)}</td></tr></table></div>
         <div class="eyebrow" style="margin:14px 0 6px">Riepilogo</div>
         <table class="rows"><tr><td>Danno biologico (permanente + temporaneo)</td><td class="r">${fmt.format(R.base)}</td></tr>
         <tr><td>Personalizzazione ${R.pers}%</td><td class="r">${fmt.format(R.morale)}</td></tr>
         <tr class="sum"><td>Totale</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
-        <div class="note">Formula: valore punto = 963,40 € × coefficiente crescente per punto (1,0 → 2,3) × [1 − 0,5% × (età − 10)]. Valori monetari aggiornati con DM 18 luglio 2025 ai sensi dell'art. 139, c. 5, D.Lgs. 209/2005. Il risultato non include rivalutazione e interessi: usa i calcolatori dedicati.</div>`)}
+        <div class="note">Formula: valore punto = ${fmtN(R.M.puntoBase)} € × coefficiente crescente per punto (1,0 → 2,3) × [1 − 0,5% × (età − 10)]. Importi applicati: ${esc(R.fonte)}, ai sensi dell'art. 139, c. 5, D.Lgs. 209/2005. Il risultato non include rivalutazione e interessi: usa i calcolatori dedicati.</div>`)}
       </div>${actions([{to:"rivalutazione",val:R.totale,label:"Danno art. 139",testo:"Rivaluta e aggiungi interessi →"}])}`;
     }
   },
@@ -1097,7 +1125,7 @@ const VIEWS = {
     form:()=>[
       field("tpct","Invalidità permanente (%)","number",25,{min:10,max:100,step:1,hint:"da 10 a 100 punti (sotto il 10% → art. 139)"}),
       field("teta","Età al momento del sinistro","number",40,{min:0,max:100,step:1}),
-      field("tanno","Valore del primo punto","select","2025",{options:[["2025","2025 — 963,40 € (DM 18/07/2025)"],["2024","2024 — 947,30 € (tabella pubblicata in GU)"]],hint:"art. 2 DPR 12/2025: pari al valore ex art. 139, aggiornato annualmente"}),
+      field("tanno","Valore del primo punto","select","2026",{options:[["2026","2026 — 988,45 € (DM 20/07/2026)"],["2025","2025 — 963,40 € (DM 18/07/2025)"],["2024","2024 — 947,30 € (tabella pubblicata in GU)"]],hint:"art. 2 DPR 12/2025: pari al valore ex art. 139, aggiornato annualmente"}),
       field("tmor","Danno morale (Tavola 2)","select","med",{options:[["min","Valore minimo"],["med","Valore medio"],["max","Valore massimo"],["none","Escluso (solo biologico)"]]}),
       field("tpers","Personalizzazione art. 138, c. 3 (%)","number",0,{min:0,max:30,step:1,full:true,hint:"fino al 30% per aspetti dinamico-relazionali documentati"}),
       `<div class="fieldset-title">Inabilità temporanea (giorni)</div>`,
@@ -1236,7 +1264,7 @@ const VIEWS = {
         ${VR?`<tr><td>Imposta di registro — compravendita (non prima casa)</td><td class="r">${VR.molt}</td><td class="r">${fmt.format(VR.valore)}</td></tr>`:""}
         ${VP&&VP.molt!==VR.molt?`<tr><td>Imposta di registro — prima casa</td><td class="r">${VP.molt}</td><td class="r">${fmt.format(VP.valore)}</td></tr>`:""}
         ${VS?`<tr><td>Successioni e donazioni</td><td class="r">${VS.molt}</td><td class="r">${fmt.format(VS.valore)}</td></tr>`:""}</table>
-        <div class="note">Base imponibile IMU = rendita rivalutata del 5% × moltiplicatore (art. 1, c. 745, L. 160/2019: 160 per A e C/2-C/6-C/7; 140 per B e C/3-C/4-C/5; 80 per A/10 e D/5; 65 per D; 55 per C/1). Il mese si computa se il possesso dura più di 15 giorni (c. 761). Per il registro i moltiplicatori dell'art. 52 DPR 131/1986 sono aumentati del 20% (10% prima casa) dal DL 168/2004 e del 40% per la categoria B (DL 262/2006). Aliquota e riduzioni (comodato, canone concordato, inagibilità) dipendono dalla delibera comunale.</div>`)}</div>${actions()}`;
+        <div class="note">Base imponibile IMU = rendita rivalutata del 5% × moltiplicatore (art. 1, c. 745, L. 160/2019: 160 per A e C/2-C/6-C/7; 140 per B e C/3-C/4-C/5; 80 per A/10 e D/5; 65 per D; 55 per C/1). Il mese si computa se il possesso dura più di 15 giorni (c. 761). Per il registro i moltiplicatori dell'art. 52 DPR 131/1986 sono aumentati del 20% (10% prima casa) dal DL 168/2004 e del 40% per la categoria B (DL 262/2006). Aliquota e riduzioni (comodato, canone concordato, inagibilità) dipendono dalla delibera comunale. Non coperto: per i fabbricati del gruppo D privi di rendita, interamente posseduti da imprese e distintamente contabilizzati, la base è il valore contabile aggiornato con i coefficienti fissati ogni anno con decreto (per il 2026: DM 6 marzo 2026, GU n. 62 del 16/03/2026).</div>`)}</div>${actions()}`;
     }
   },
   "compravendita":{
@@ -1325,7 +1353,7 @@ const VIEWS = {
     form:()=>[
       field("ccan","Canone annuo (€)","number",9600,{min:0,step:0.01}),
       field("ctip","Tipo di contratto","select","libero",{options:[["libero","Libero 4+4, transitorio, studenti (cedolare 21%)"],["concordato","Canone concordato 3+2 in comune ad alta tensione abitativa (cedolare 10%)"]]}),
-      field("cirpef","Aliquota IRPEF marginale del locatore (%)","select","35",{options:[["23","23% (reddito fino a 28.000 €)"],["35","35% (28.000–50.000 €)"],["43","43% (oltre 50.000 €)"]]}),
+      field("cirpef","Aliquota IRPEF marginale del locatore (%)","select","33",{options:[["23","23% (reddito fino a 28.000 €)"],["33","33% (28.000–50.000 €, dal 2026)"],["43","43% (oltre 50.000 €)"]]}),
       field("cadd","Addizionali regionale e comunale (%)","number",2.5,{min:0,max:5,step:0.1}),
       field("canni","Durata del contratto (anni, per ripartire il bollo)","number",4,{min:1,max:10,step:1}),
     ].join(""),
@@ -1347,7 +1375,7 @@ const VIEWS = {
       field("pnet","Stipendio o pensione netta mensile (€)","number",1800,{min:0,step:0.01}),
       field("ptip","Tipo di credito","select","ordinario",{options:[["ordinario","Ordinario (1/5)"],["alimentare","Alimentare (misura del giudice)"],["fiscale","Fiscale — agente della riscossione (1/10, 1/7, 1/5)"],["concorso","Concorso di più cause (fino a 1/2)"]]}),
       field("ppens","Si tratta di pensione","select","no",{options:[["no","No: stipendio"],["si","Sì: pensione"]]}),
-      field("pas","Assegno sociale mensile (€)","number",538.69,{min:0,step:0.01,hint:"importo 2025: 538,69 €; aggiornato ogni gennaio"}),
+      field("pas","Assegno sociale mensile (€)","number",ASSEGNO_SOCIALE.importo,{min:0,step:0.01,hint:`importo ${ASSEGNO_SOCIALE.anno}: ${fmtN(ASSEGNO_SOCIALE.importo)} € (${ASSEGNO_SOCIALE.fonte}); aggiornato ogni gennaio`}),
       field("palim","Quota per crediti alimentari (%)","number",33.33,{min:0,max:50,step:0.01,hint:"solo per crediti alimentari"}),
     ].join(""),
     result:()=>{
@@ -1466,7 +1494,7 @@ const VIEWS = {
         <div class="eyebrow" style="margin:14px 0 6px">Tassazione separata (art. 19 TUIR)</div>
         <table class="rows"><tr><td>Anni di servizio</td><td class="r">${fmtN(R.anniServ,2)}</td></tr>
         <tr><td>Reddito di riferimento (TFR × 12 / anni)</td><td class="r">${fmt.format(R.rif)}</td></tr>
-        <tr><td>Aliquota media IRPEF (scaglioni 2025: 23/35/43%)</td><td class="r">${fmtN(R.aliq*100,2)} %</td></tr>
+        <tr><td>Aliquota media IRPEF (scaglioni ${IRPEF.anno}: ${IRPEF.scaglioni.map(x=>Math.round(x[1]*100)).join("/")}%, ${esc(IRPEF.fonte)})</td><td class="r">${fmtN(R.aliq*100,2)} %</td></tr>
         <tr><td>Imposta</td><td class="r">${fmt.format(R.imposta)}</td></tr>
         <tr class="sum"><td>TFR netto stimato</td><td class="r">${fmt.format(R.netto)}</td></tr></table>
         <div class="note">Quota annua = retribuzione utile / 13,5, al netto del contributo 0,50% (art. 3 L. 297/1982). Il fondo al 31/12 precedente è rivalutato con 1,5% fisso più il 75% dell'aumento dell'indice FOI dicembre su dicembre (nell'anno di cessazione, pro-rata mensile e indice dell'ultimo mese disponibile); imposta sostitutiva 17% sulle rivalutazioni (dal 2015). Frazioni di mese computate per mese di calendario. La tassazione separata è una stima: l'Agenzia delle Entrate riliquida con l'aliquota media del quinquennio e le detrazioni spettanti. Non considera il TFR destinato a previdenza complementare né anticipazioni.</div>`)}</div>${actions()}`;
@@ -1580,7 +1608,7 @@ const VIEWS = {
       <div class="pb">${gate(`<div class="tblwrap"><table class="rows"><tr><th>Semestre</th><th class="r">Giorni</th><th class="r">BCE</th><th class="r">Mora</th><th class="r">Interessi</th></tr>
       ${R.periodi.map(p=>`<tr><td>${fmtD(p.dal)} – ${fmtD(p.al)}</td><td class="r">${p.giorni}</td><td class="r">${fmtN(p.bce,2)} %</td><td class="r">${fmtN(p.tasso,2)} %</td><td class="r">${fmt.format(p.interessi)}</td></tr>`).join("")}
       <tr class="sum"><td colspan="4">Totale interessi di mora</td><td class="r">${fmt.format(R.totale)}</td></tr></table></div>
-      <div class="note">D.Lgs. 231/2002, art. 5: tasso di riferimento BCE del 1° gennaio / 1° luglio, maggiorato di 8 punti (7 fino al 2012). Solo transazioni commerciali tra imprese o con la PA; per i privati usa gli interessi legali. Oltre agli interessi spetta l'indennizzo forfettario di 40 € per i costi di recupero (art. 6).</div>`)}</div>${actions()}`;
+      <div class="note">D.Lgs. 231/2002, art. 5: tasso di riferimento BCE del 1° gennaio / 1° luglio, maggiorato di 8 punti (7 fino al 2012). Si applica solo ai corrispettivi di transazioni commerciali tra imprese o con la PA: non se una delle parti è consumatore, né ai crediti restitutori (es. restituzione di acconti dopo la risoluzione), per i quali valgono gli interessi legali e l'art. 2033 c.c. (Cass. civ., sez. II, ord. 24/09/2026 n. 25760). Gli interessi decorrono senza bisogno di costituzione in mora (art. 4), ma non per la parte di corrispettivo legittimamente sospesa con un'eccezione di inadempimento proporzionata ai vizi (art. 1460, c. 2, c.c.; Cass. civ., sez. II, 22/09/2026 n. 25704). Oltre agli interessi spetta l'indennizzo forfettario di 40 € per i costi di recupero (art. 6).</div>`)}</div>${actions()}`;
     }
   },
   "contributo-unificato":{
@@ -1641,10 +1669,10 @@ route();
 /* ===================== AUTOVERIFICA (#/verifica) ===================== */
 // Casi presi dagli MCP Legal IT il 17/09/2026: il motore deve riprodurli al centesimo.
 const TESTS = [
-  ["micro 5%/35a",()=>ENGINES.dannoMicro(5,35,10,0,20,0,10).totale,6892.32],
-  ["micro 1%/70a",()=>ENGINES.dannoMicro(1,70,0,0,0,0,0).totale,674.38],
-  ["micro 9%/20a",()=>ENGINES.dannoMicro(9,20,30,15,0,40,0).totale,15784.24],
-  ["micro 3%/50a +20%",()=>ENGINES.dannoMicro(3,50,5,0,0,0,20).totale,3389.13],
+  ["micro 5%/35a",()=>ENGINES.dannoMicro(5,35,10,0,20,0,10,"2025").totale,6892.32],
+  ["micro 1%/70a",()=>ENGINES.dannoMicro(1,70,0,0,0,0,0,"2025").totale,674.38],
+  ["micro 9%/20a",()=>ENGINES.dannoMicro(9,20,30,15,0,40,0,"2025").totale,15784.24],
+  ["micro 3%/50a +20%",()=>ENGINES.dannoMicro(3,50,5,0,0,0,20,"2025").totale,3389.13],
   ["legali 10k 2021→2026",()=>ENGINES.interessiLegali(10000,"2021-03-15","2026-09-17").totale,1190.45],
   ["legali 5k 2015→2020",()=>ENGINES.interessiLegali(5000,"2015-06-01","2020-06-01").totale,85.66],
   ["mora 25k 2024→2026",()=>ENGINES.interessiMora(25000,"2024-01-10","2026-09-17").totale,7498.97],

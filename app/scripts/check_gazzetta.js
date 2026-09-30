@@ -17,13 +17,13 @@ const TEMI = [
   [/parametri\s+per\s+la\s+liquidazione\s+dei\s+compensi|professione\s+forense|decreto.{0,40}n\.?\s*55\s+del\s+2014/i, "parcella", "Parametri forensi (DM 55/2014)"],
   [/contributo\s+unificato|spese\s+di\s+giustizia|testo\s+unico.{0,30}115\s+del\s+2002/i, "contributo-unificato", "Contributo unificato (DPR 115/2002)"],
   [/indennit.{0,3}\s+di\s+mediazione|organismi\s+di\s+mediazione|decreto\s+legislativo.{0,20}28\s+del\s+2010/i, "parcella", "Mediazione"],
-  [/imposta\s+municipale|IMU|aliquote\s+di\s+base/i, "imu", "IMU"],
+  [/imposta\s+municipale\s+propria/i, "imu", "IMU"],
   [/successioni\s+e\s+donazioni|imposta\s+sulle\s+successioni/i, "successione", "Imposta di successione"],
   [/cedolare\s+secca/i, "cedolare", "Cedolare secca"],
   [/assegno\s+sociale|perequazione\s+automatica\s+dei\s+trattamenti\s+pensionistici/i, "pignoramento", "Assegno sociale (limiti di pignorabilità)"],
   [/aliquote.{0,30}IRPEF|scaglioni\s+di\s+reddito/i, "tfr", "Scaglioni IRPEF (tassazione TFR)"],
   [/prospetto.{0,30}usufrutto|coefficienti.{0,30}usufrutto/i, "usufrutto", "Coefficienti usufrutto"],
-  [/sospensione\s+dei\s+termini|termini\s+processuali/i, "scadenze", "Termini processuali"],
+  [/termini\s+processuali|sospensione\s+feriale|codice\s+di\s+procedura\s+civile/i, "scadenze", "Termini processuali"],
 ];
 
 const testo = html => html.replace(/<[^>]+>/g, " ").replace(/&#\d+;/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ");
@@ -41,7 +41,7 @@ const testo = html => html.replace(/<[^>]+>/g, " ").replace(/&#\d+;/g, " ").repl
     if (!gazzette.length) { console.log(`GU: nessun nuovo fascicolo dopo il ${dal}`); process.exit(0); }
     console.log(`GU: ${gazzette.length} fascicoli da controllare (dopo il ${dal})`);
     const novita = [];
-    for (const g of gazzette.slice(-40)) {      // limite di sicurezza
+    for (const g of gazzette.slice(-(+process.env.GU_MAX || 60))) {      // limite di sicurezza (GU_MAX per le verifiche straordinarie)
       const url = `https://www.gazzettaufficiale.it/gazzetta/serie_generale/caricaDettaglio?dataPubblicazioneGazzetta=${g.iso}&numeroGazzetta=${g.num}`;
       let t;
       try { t = testo(await (await fetch(url, { headers: H })).text()); } catch (e) { console.log(`  ! GU n. ${g.num}: ${e.message}`); continue; }

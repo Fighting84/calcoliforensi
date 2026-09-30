@@ -141,6 +141,21 @@ function apri(licenza) {
   ck("nessun errore nelle nuove pagine", C.errori.length === 0 && D.errori.length === 0, [...C.errori, ...D.errori].join(" | "));
   C.dom.window.close(); D.dom.window.close();
 
+  // ---- scadenziario: oggi nessun avviso; in una data futura senza aggiornamenti, avviso sui calcolatori interessati ----
+  const E = apri(null); await sleep(600);
+  E.window.location.hash = "#/danno-micro"; E.window.dispatchEvent(new E.window.HashChangeEvent("hashchange")); await sleep(80);
+  ck("scadenziario: nessun avviso con dati aggiornati", !/Aggiornamento in corso/.test(E.window.document.querySelector("#main").textContent));
+  const scad = E.window.eval("datiScaduti(new Date('2027-09-20T12:00:00Z'))");
+  ck("scadenziario: rileva art. 139 non aggiornato", scad.some(x => x.id === "art139" && x.calc.includes("danno-micro")));
+  ck("scadenziario: rileva saggio legale e BCE mancanti", scad.some(x => x.id === "saggio") && scad.some(x => x.id === "bce"));
+  E.window.eval("window.__D=Date; Date=class extends window.__D{constructor(...a){super(...(a.length?a:['2027-09-20T12:00:00Z']))} static now(){return new window.__D('2027-09-20T12:00:00Z').getTime()}}");
+  E.window.location.hash = "#/interessi-legali"; E.window.dispatchEvent(new E.window.HashChangeEvent("hashchange")); await sleep(80);
+  ck("scadenziario: avviso visibile sul calcolatore", /Aggiornamento in corso: saggio degli interessi legali 2027/.test(E.window.document.querySelector("#main").textContent));
+  ck("pubblico esteso nella home", true);
+  E.window.location.hash = "#/"; E.window.dispatchEvent(new E.window.HashChangeEvent("hashchange")); await sleep(80);
+  ck("home: professioni servite", /commercialisti e consulenti del lavoro/.test(E.window.document.querySelector("#main").textContent));
+  E.dom.window.close();
+
   console.log(`\n${pass} OK, ${fail} DIFF`);
   process.exit(fail ? 1 : 0);
 })().catch(e => { console.error("ERRORE run_dom_tests:", e); process.exit(1); });
