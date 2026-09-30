@@ -15,6 +15,9 @@ if (gu) { out.push("## Gazzetta Ufficiale"); for (const x of gu) out.push(`- **$
 const cass = leggi("novita_cass.json");
 if (cass) { out.push("## Cassazione"); for (const x of cass) out.push(`- **${x.estremi}** — ${x.materia} (tema: ${x.tema}, calcolatore \`${x.calcolatore}\`)\n  > ${(x.estratto || "").slice(0, 400)}`); out.push(""); }
 
+const cod = leggi("codici.json");
+if (cod) { out.push("## Codici tributo del ravvedimento da sostituire"); for (const x of cod) out.push(`- **${x.codice}**: ${x.esito}${x.dal ? " dal " + x.dal : ""} ${x.descrizione || ""} — cercare la risoluzione dell'Agenzia che lo sostituisce e aggiornare \`RAVV_TRIBUTI\``); out.push(""); }
+
 const errori = ["foi.log", "bce.log", "saggio.log"].map(log).filter(l => /ERRORE|DISCORDANZA/.test(l));
 if (errori.length) { out.push("## Controlli non riusciti o discordanze"); for (const e of errori) out.push(`- ${e}`); out.push(""); }
 

@@ -245,7 +245,7 @@
       "cass": [
         "\"imposta di successione\" AND franchigia"
       ],
-      "note": "D.Lgs. 139/2024 in vigore dal 2025; dal 1/1/2026 trasfuso nel TU registro D.Lgs. 123/2025 (artt. 93, 133). D.Lgs. 148/2026 artt. 13-14 letti il 30/09/2026: trust e decorrenza termini, aliquote e franchigie invariate."
+      "note": "D.Lgs. 139/2024 in vigore dal 2025; trasfuso nel TU registro D.Lgs. 123/2025 (artt. 93, 133), applicabile dal 1/1/2027 (art. 4, c. 5, DL 200/2025). D.Lgs. 148/2026 artt. 13-14 letti il 30/09/2026: trust e decorrenza termini, aliquote e franchigie invariate."
     },
     {
       "id": "usufrutto",
@@ -300,6 +300,25 @@
         "preventivo AND \"247 del 2012\""
       ],
       "note": ""
+    },
+    {
+      "id": "ravvedimento",
+      "calcolatore": "ravvedimento",
+      "keywords": [
+        "ravvedimento operoso",
+        "art. 13 D.Lgs. 472/1997",
+        "art. 13 D.Lgs. 471/1997",
+        "codici tributo"
+      ],
+      "gu": [
+        "ravvedimento",
+        "sanzioni tributarie"
+      ],
+      "cass": [
+        "\"ravvedimento operoso\" AND (\"472 del 1997\" OR \"472/1997\")",
+        "\"omesso versamento\" AND ravvedimento AND sanzion*"
+      ],
+      "note": "Regime D.Lgs. 87/2024 per le violazioni dal 1/9/2024; TU sanzioni D.Lgs. 173/2024 (artt. 14 e 38) applicabile dal 1/1/2027 per l'art. 4, c. 1, DL 200/2025. Codici tributo controllati ogni giorno sulla banca dati dell'Agenzia (check_codici.js)."
     }
   ],
   "ultima_verifica_gu": "2026-09-29"

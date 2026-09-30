@@ -221,7 +221,7 @@ const TITOLARE = {
   email:"studiolegaleometto@gmail.com", ordine:"Ordine degli Avvocati di Venezia"
 };
 const CONFIG = {
-  version: "0.9.0 — 30 settembre 2026",
+  version: "0.10.0 — 30 settembre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -375,7 +375,7 @@ const SCAD_PRESET = {
   citaz:{label:"Termine a comparire — 120 giorni liberi tra notifica e udienza (art. 163-bis)",n:120,unita:"giorni",dir:"avanti",feriale:true,liberi:true},
   lav_app:{label:"Appello nel rito del lavoro — 30 giorni dalla notifica (art. 434)",n:30,unita:"giorni",dir:"avanti",feriale:false,liberi:false,nota:"Controversie di lavoro: sospensione feriale non applicabile."}
 };
-// Usufrutto — prospetto allegato al DPR 131/1986, ora allegato 4 al TU registro D.Lgs. 123/2025 (aggiornato con DM MEF al saggio legale): quota per fascia d'età, costante rispetto al saggio
+// Usufrutto — prospetto allegato al DPR 131/1986, dal 1/1/2027 allegato 4 al TU registro D.Lgs. 123/2025 (aggiornato con DM MEF al saggio legale): quota per fascia d'età, costante rispetto al saggio
 const USUFRUTTO = [[20,95],[30,90],[40,85],[45,80],[50,75],[53,70],[56,65],[60,60],[63,55],[66,50],[69,45],[72,40],[75,35],[78,30],[82,25],[86,20],[92,15],[99,10],[200,5]];
 // Moltiplicatori catastali (rendita rivalutata del 5%): registro = DPR 131/86 art. 52 (dal 2027 art. 299 D.Lgs. 141/2026) + DL 168/2004 (+20%) + DL 262/2006 (B +40%); successione = senza +20%; IMU = L. 160/2019 c. 745
 const CAT_MOLT = {
@@ -407,6 +407,54 @@ const PRESCR = {
 };
 // DPR 115/2002 art. 13 — scaglioni cognizione ordinaria
 const CU_SCAGLIONI = [[1100,43],[5200,98],[26000,237],[52000,518],[260000,759],[520000,1214],[Infinity,1686]];
+// Ravvedimento operoso — codici tributo verificati sulla banca dati ufficiale dell'Agenzia delle entrate il 30/09/2026.
+// Sanzione/interessi: IRPEF 8901/1989, IRES 8918/1990, IVA 8904/1991, IRAP 8907/1993, add. regionale 8902/1994, add. comunale 8926/1998;
+// cedolare 8940/1940 e forfetario 8944/1944 (ris. 12/E/2023, dal 2/5/2023; soppressi 8913 e 1992);
+// ritenute: sanzione 8947/8948 con mese di riferimento, interessi sommati al tributo (ris. 18/E/2023, dal 3/7/2023; soppresso 8906);
+// IMU: imposta, sanzione e interessi insieme con il codice dell'imposta e casella «Ravv.» (ris. 35/E/2012).
+// anno: scostamento dell'anno di riferimento rispetto all'anno della scadenza ("mese" = anno del mese precedente la scadenza)
+const RAVV_TRIBUTI = {
+  irpef_saldo:{g:"IRPEF",label:"IRPEF — saldo",cod:"4001",sanz:"8901",int:"1989",sez:"Erario",dich:"redditi",anno:-1},
+  irpef_acc1:{g:"IRPEF",label:"IRPEF — primo acconto",cod:"4033",sanz:"8901",int:"1989",sez:"Erario",dich:"redditi",anno:0},
+  irpef_acc2:{g:"IRPEF",label:"IRPEF — secondo o unico acconto",cod:"4034",sanz:"8901",int:"1989",sez:"Erario",dich:"redditi",anno:0},
+  addreg:{g:"IRPEF",label:"Addizionale regionale IRPEF",cod:"3801",sanz:"8902",int:"1994",sez:"Regioni",ente:"regione",dich:"redditi",anno:-1},
+  addcom_acc:{g:"IRPEF",label:"Addizionale comunale IRPEF — acconto",cod:"3843",sanz:"8926",int:"1998",sez:"IMU e altri tributi locali",ente:"comune",dich:"redditi",anno:0},
+  addcom_saldo:{g:"IRPEF",label:"Addizionale comunale IRPEF — saldo",cod:"3844",sanz:"8926",int:"1998",sez:"IMU e altri tributi locali",ente:"comune",dich:"redditi",anno:-1},
+  ced_acc1:{g:"Imposte sostitutive",label:"Cedolare secca — primo acconto",cod:"1840",sanz:"8940",int:"1940",sez:"Erario",dich:"redditi",anno:0},
+  ced_acc2:{g:"Imposte sostitutive",label:"Cedolare secca — secondo o unico acconto",cod:"1841",sanz:"8940",int:"1940",sez:"Erario",dich:"redditi",anno:0},
+  ced_saldo:{g:"Imposte sostitutive",label:"Cedolare secca — saldo",cod:"1842",sanz:"8940",int:"1940",sez:"Erario",dich:"redditi",anno:-1},
+  forf_acc1:{g:"Imposte sostitutive",label:"Forfetario — primo acconto",cod:"1790",sanz:"8944",int:"1944",sez:"Erario",dich:"redditi",anno:0},
+  forf_acc2:{g:"Imposte sostitutive",label:"Forfetario — secondo o unico acconto",cod:"1791",sanz:"8944",int:"1944",sez:"Erario",dich:"redditi",anno:0},
+  forf_saldo:{g:"Imposte sostitutive",label:"Forfetario — saldo",cod:"1792",sanz:"8944",int:"1944",sez:"Erario",dich:"redditi",anno:-1},
+  iva_mese:{g:"IVA",label:"IVA mensile (codice del mese automatico)",cod:s=>String(6000+(+prevMese(s).slice(5,7))),sanz:"8904",int:"1991",sez:"Erario",dich:"iva",anno:"mese"},
+  iva_trim:{g:"IVA",label:"IVA trimestrale (1°, 2°, 3° trimestre)",cod:s=>({"05":"6031","08":"6032","11":"6033"})[s.slice(5,7)]||"",sanz:"8904",int:"1991",sez:"Erario",dich:"iva",anno:0},
+  iva_acc:{g:"IVA",label:"IVA — acconto di dicembre (contribuenti mensili)",cod:"6013",sanz:"8904",int:"1991",sez:"Erario",dich:"iva",anno:0},
+  iva_ann:{g:"IVA",label:"IVA — saldo annuale",cod:"6099",sanz:"8904",int:"1991",sez:"Erario",dich:"iva",anno:-1},
+  ires_saldo:{g:"Società",label:"IRES — saldo",cod:"2003",sanz:"8918",int:"1990",sez:"Erario",dich:"redditi",anno:-1},
+  ires_acc1:{g:"Società",label:"IRES — primo acconto",cod:"2001",sanz:"8918",int:"1990",sez:"Erario",dich:"redditi",anno:0},
+  ires_acc2:{g:"Società",label:"IRES — secondo o unico acconto",cod:"2002",sanz:"8918",int:"1990",sez:"Erario",dich:"redditi",anno:0},
+  irap_saldo:{g:"Società",label:"IRAP — saldo",cod:"3800",sanz:"8907",int:"1993",sez:"Regioni",ente:"regione",dich:"redditi",anno:-1},
+  irap_acc1:{g:"Società",label:"IRAP — primo acconto",cod:"3812",sanz:"8907",int:"1993",sez:"Regioni",ente:"regione",dich:"redditi",anno:0},
+  irap_acc2:{g:"Società",label:"IRAP — secondo o unico acconto",cod:"3813",sanz:"8907",int:"1993",sez:"Regioni",ente:"regione",dich:"redditi",anno:0},
+  rit_dip:{g:"Ritenute del sostituto",label:"Ritenute su lavoro dipendente e assimilati (1001)",cod:"1001",sanz:"8947",int:"cumulati",mese:true,sez:"Erario",dich:"770",anno:"mese"},
+  rit_aut:{g:"Ritenute del sostituto",label:"Ritenute su lavoro autonomo (1040)",cod:"1040",sanz:"8948",int:"cumulati",mese:true,sez:"Erario",dich:"770",anno:"mese"},
+  imu_altri:{g:"IMU",label:"IMU — altri fabbricati (3918)",cod:"3918",int:"stesso",sez:"IMU e altri tributi locali",ente:"comune",dich:"imu",anno:0},
+  imu_aree:{g:"IMU",label:"IMU — aree fabbricabili (3916)",cod:"3916",int:"stesso",sez:"IMU e altri tributi locali",ente:"comune",dich:"imu",anno:0},
+  imu_terreni:{g:"IMU",label:"IMU — terreni (3914)",cod:"3914",int:"stesso",sez:"IMU e altri tributi locali",ente:"comune",dich:"imu",anno:0},
+  imu_ap:{g:"IMU",label:"IMU — abitazione principale di lusso A/1, A/8, A/9 (3912)",cod:"3912",int:"stesso",sez:"IMU e altri tributi locali",ente:"comune",dich:"imu",anno:0},
+  imu_d_stato:{g:"IMU",label:"IMU — gruppo D, quota Stato (3925)",cod:"3925",int:"stesso",sez:"IMU e altri tributi locali",ente:"comune",dich:"imu",anno:0},
+  imu_d_com:{g:"IMU",label:"IMU — gruppo D, incremento Comune (3930)",cod:"3930",int:"stesso",sez:"IMU e altri tributi locali",ente:"comune",dich:"imu",anno:0},
+};
+const prevMese=s=>{ const y=+s.slice(0,4), m=+s.slice(5,7); return new Date(Date.UTC(y,m-2,1)).toISOString().slice(0,7); };
+// Termine della dichiarazione relativa all'anno y (soglia della riduzione a 1/8, e per le violazioni fino al 31/8/2024 anche di quella a 1/7)
+// redditi, IRAP e 770: 31 ottobre dell'anno successivo (art. 2 e art. 4, c. 4-bis, DPR 322/1998; fino alle dichiarazioni presentate nel 2023: 30 novembre);
+// IVA: 30 aprile (art. 8 DPR 322/1998); IMU: 30 giugno (art. 1, c. 769, L. 160/2019)
+const termineDich=(tipo,y)=>tipo==="iva"?`${y+1}-04-30`:tipo==="imu"?`${y+1}-06-30`:tipo==="redditi"&&y+1<2024?`${y+1}-11-30`:`${y+1}-10-31`;
+// Sabato, domenica e festivi nazionali (scadenze fiscali prorogate al primo giorno lavorativo successivo)
+const nonLavorativo=iso=>{ const t=pd(iso), d=new Date(t), y=d.getUTCFullYear(); if(d.getUTCDay()===0||d.getUTCDay()===6) return true;
+  if(["01-01","01-06","04-25","05-01","06-02","08-15","11-01","12-08","12-25","12-26"].includes(iso.slice(5))) return true;
+  const a=y%19,b=Math.floor(y/100),c=y%100,dd=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-dd-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;
+  return t===Date.UTC(y,mo-1,da)+86400000; };
 
 /* ===================== UTILITÀ ===================== */
 // Locale de-DE: stessi separatori dell'italiano ma raggruppa anche le migliaia a 4 cifre (1.400,48 €), come negli atti
@@ -743,6 +791,58 @@ const ENGINES = {
     const ritenuta=o.ritenuta? r2((compenso+speseGen)*0.20):0;
     return {tab,label:T.label,valore,scaglione:i,scLim:T.sc[i],over,bands,fattore6,oltreDett,oltreImp,fasi,agg,compenso,speseGen,cpa,imponibile,iva,esenti,totale,ritenuta,netto:r2(totale-ritenuta)};
   },
+  // Ravvedimento operoso per omesso o tardivo versamento (art. 13 D.Lgs. 471/1997 e art. 13 D.Lgs. 472/1997; regime del D.Lgs. 87/2024
+  // per le violazioni dal 1/9/2024). o = {tributo, imposta, scadenza, pagamento, pvc, ente, cod, anno, mese, dich}
+  ravvedimento(o){
+    const T=RAVV_TRIBUTI[o.tributo], imp=r2(+o.imposta||0), S=o.scadenza, P=o.pagamento;
+    if(!T||!(imp>0)||!/^\d{4}-\d{2}-\d{2}$/.test(S||"")||!/^\d{4}-\d{2}-\d{2}$/.test(P||"")) return null;
+    const d=daysBetween(S,P); if(d<1) return null;
+    // prima del 2016 le misure erano diverse (D.Lgs. 158/2015): calcolo non previsto
+    if(S<"2016-01-01") return {errore:"Per le scadenze anteriori al 1° gennaio 2016 si applicava un diverso regime sanzionatorio (prima del D.Lgs. 158/2015): calcolo non disponibile."};
+    const nuovo=S>="2024-09-01", base=nuovo?25:30, meta=base/2, Y=+S.slice(0,4);
+    // sanzione per il ritardo (art. 13, c. 1, D.Lgs. 471/1997)
+    let pctBase, voceBase;
+    if(d<=15){ pctBase=meta*d/15; voceBase=`${fmtN(meta,1)}% × ${d}/15 (ritardo non superiore a 15 giorni)`; }
+    else if(d<=90){ pctBase=meta; voceBase=`${fmtN(meta,1)}% (ritardo non superiore a 90 giorni)`; }
+    else { pctBase=base; voceBase=`${base}% (ritardo oltre 90 giorni)`; }
+    // riduzione per ravvedimento (art. 13, c. 1, D.Lgs. 472/1997)
+    const auto1=termineDich(T.dich,Y), t1=/^\d{4}-\d{2}-\d{2}$/.test(o.dich||"")?o.dich:auto1, t2=termineDich(T.dich,Y+1);
+    let fr, lett, perche;
+    if(o.pvc){ fr=5; lett="b-quater"; perche="dopo la constatazione della violazione (processo verbale)"; }
+    else if(d<=30){ fr=10; lett="a"; perche="entro 30 giorni dalla scadenza"; }
+    else if(d<=90){ fr=9; lett="a-bis"; perche="entro 90 giorni dalla scadenza"; }
+    else if(P<=t1){ fr=8; lett="b"; perche=`entro il termine della dichiarazione relativa all'anno della violazione (${fmtD(t1)})`; }
+    else if(nuovo){ fr=7; lett="b-bis"; perche=`oltre il termine della dichiarazione relativa all'anno della violazione (${fmtD(t1)})`; }
+    else if(P<=t2){ fr=7; lett="b-bis"; perche=`entro il termine della dichiarazione relativa all'anno successivo (${fmtD(t2)})`; }
+    else { fr=6; lett="b-ter"; perche=`oltre il termine della dichiarazione relativa all'anno successivo (${fmtD(t2)})`; }
+    const pct=pctBase/fr, sanzione=r2(imp*pct/100);
+    // interessi al tasso legale, giorno per giorno, dal giorno successivo alla scadenza al giorno del versamento (art. 13, c. 2)
+    const ultimo=Math.max(...Object.keys(TASSI_LEGALI).map(Number)); let tot=0, stimato=false; const periodi=[];
+    for(let y=Y;y<=+P.slice(0,4);y++){
+      const from=y===Y?S:`${y-1}-12-31`, end=y===+P.slice(0,4)?P:`${y}-12-31`, g=daysBetween(from,end); if(g<=0) continue;
+      const t=TASSI_LEGALI[y]??TASSI_LEGALI[ultimo]; if(TASSI_LEGALI[y]==null) stimato=true;
+      const i=imp*t/100*g/365; tot+=i; periodi.push({anno:y,dal:y===Y?S:`${y}-01-01`,al:end,giorni:g,tasso:t,interessi:r2(i)});
+    }
+    const interessi=r2(tot);
+    // righe del modello F24
+    const cod=(o.cod||"").trim()||(typeof T.cod==="function"?T.cod(S):T.cod);
+    const anno=/^\d{4}$/.test(String(o.anno||""))?String(o.anno):String(T.anno==="mese"?+prevMese(S).slice(0,4):Y+T.anno);
+    const mese=/^(0[1-9]|1[0-2])$/.test(String(o.mese||""))?String(o.mese):prevMese(S).slice(5,7);
+    const ente=(o.ente||"").trim().toUpperCase(), accSaldo=+S.slice(5,7)<=7?"acconto":"saldo";
+    const riga=(codice,rat,importo,voce)=>({sez:T.sez,codice,ente:T.ente?ente:"",rat,anno,importo:r2(importo),voce});
+    let righe;
+    if(T.int==="stesso") righe=[{...riga(cod,"",imp+sanzione+interessi,"imposta + sanzione + interessi"),ravv:true,accSaldo}];
+    else if(T.int==="cumulati") righe=[riga(cod,"",imp+interessi,"imposta + interessi"),riga(T.sanz,mese,sanzione,"sanzione")];
+    else righe=[riga(cod,"",imp,"imposta"),riga(T.sanz,"",sanzione,"sanzione"),riga(T.int,"",interessi,"interessi")];
+    const avvisi=[];
+    if(!cod) avvisi.push("Codice tributo dell'imposta non determinabile dalla data di scadenza: indicalo nel campo «Codice tributo».");
+    if(nonLavorativo(S)) avvisi.push(`La scadenza indicata (${fmtD(S)}) cade di sabato o in un giorno festivo: il versamento era prorogato al primo giorno lavorativo successivo, da indicare come scadenza.`);
+    if(S.slice(5,7)==="08"&&+S.slice(8)<20) avvisi.push("Per le scadenze tra il 1° e il 20 agosto il versamento poteva essere eseguito entro il 20 agosto senza maggiorazione (art. 37, c. 11-bis, DL 223/2006): in tal caso indica il 20 agosto come scadenza.");
+    if(T.ente&&!ente) avvisi.push(T.ente==="regione"?"Indica il codice della Regione (tabella T0 dell'Agenzia delle entrate).":"Indica il codice catastale del Comune (tabella T4 dell'Agenzia delle entrate).");
+    if(stimato) avvisi.push(`Saggio legale ${+P.slice(0,4)} non ancora disponibile: usato l'ultimo noto (${fmtN(TASSI_LEGALI[ultimo],2)}%).`);
+    return {T,imp,scadenza:S,pagamento:P,giorni:d,nuovo,base,pctBase,voceBase,fr,lett,perche,pct,sanzione,periodi,interessi,
+      totale:r2(imp+sanzione+interessi),righe,cod,anno,mese,ente,t1,auto1,t2,avvisi,pvc:!!o.pvc};
+  },
   contributoUnificato(valore, tipo, grado){
     if(!(valore>=0)) return null;
     const scag = v=>CU_SCAGLIONI.find(s=>v<=s[0])[1];
@@ -770,7 +870,7 @@ const ENGINES = {
 function datiScaduti(oggi){
   oggi=oggi||new Date(); const Y=oggi.getFullYear(), iso=oggi.toISOString().slice(0,10), out=[];
   const add=(id,calc,msg)=>out.push({id,calc,msg});
-  if(TASSI_LEGALI[Y]==null) add("saggio",["interessi-legali","rivalutazione","usufrutto"],`saggio degli interessi legali ${Y} non ancora inserito`);
+  if(TASSI_LEGALI[Y]==null) add("saggio",["interessi-legali","rivalutazione","usufrutto","ravvedimento"],`saggio degli interessi legali ${Y} non ancora inserito`);
   const sem=oggi.getMonth()<6?1:2;
   if(TASSI_BCE[Y+"-"+sem]==null) add("bce",["interessi-mora"],`tasso BCE del ${sem}° semestre ${Y} non ancora inserito`);
   const [fy,fm]=FOI_META.ultimo.split("-").map(Number);
@@ -843,11 +943,14 @@ const CATALOG = [
   ]},
   {group:"Immobili, locazioni e fisco", items:[
     {id:"imu", title:"IMU e valore catastale", desc:"Rendita rivalutata e moltiplicatori per IMU, registro e successione; IMU annua per aliquota, mesi e quota di possesso.", refs:"L. 160/2019, art. 1, c. 740-749 — DPR 131/1986, art. 52 (dal 1° gennaio 2027 art. 299 TU adempimenti e accertamento, D.Lgs. 141/2026) — DL 168/2004 — DL 262/2006", status:"free"},
-    {id:"compravendita", title:"Imposte sull'acquisto di un immobile", desc:"Registro 2%/9% con prezzo-valore, ipotecaria e catastale, oppure IVA 4%/10%/22% da impresa; terreni.", refs:"TU registro D.Lgs. 123/2025 (già DPR 131/1986, dal 1° gennaio 2026) — L. 266/2005, art. 1, c. 497 — DPR 633/1972, art. 10, n. 8-bis (TU IVA D.Lgs. 10/2026, art. 37, dal 1° gennaio 2027)", status:"free"},
-    {id:"successione", title:"Imposta di successione e donazione", desc:"Aliquote 4/6/8%, franchigie per parentela e disabilità, imposte ipotecaria e catastale sugli immobili.", refs:"TU registro D.Lgs. 123/2025 (già D.Lgs. 346/1990, TUS, come modificato dal D.Lgs. 139/2024, dal 1° gennaio 2026) — DL 262/2006, art. 2, c. 48-49", status:"free"},
-    {id:"usufrutto", title:"Usufrutto e nuda proprietà", desc:"Valore dell'usufrutto vitalizio per età dell'usufruttuario (prospetto allegato 4 al TU registro) e della nuda proprietà.", refs:"TU registro D.Lgs. 123/2025, artt. 50 e 52 e allegato 4 (già DPR 131/1986, artt. 46 e 48, dal 1° gennaio 2026) — DM MEF sul saggio legale", status:"free"},
+    {id:"compravendita", title:"Imposte sull'acquisto di un immobile", desc:"Registro 2%/9% con prezzo-valore, ipotecaria e catastale, oppure IVA 4%/10%/22% da impresa; terreni.", refs:"DPR 131/1986 (dal 1° gennaio 2027 TU registro D.Lgs. 123/2025: DL 200/2025, art. 4) — L. 266/2005, art. 1, c. 497 — DPR 633/1972, art. 10, n. 8-bis (TU IVA D.Lgs. 10/2026, art. 37, dal 1° gennaio 2027)", status:"free"},
+    {id:"successione", title:"Imposta di successione e donazione", desc:"Aliquote 4/6/8%, franchigie per parentela e disabilità, imposte ipotecaria e catastale sugli immobili.", refs:"D.Lgs. 346/1990 (TUS), come modificato dal D.Lgs. 139/2024 (dal 1° gennaio 2027 TU registro D.Lgs. 123/2025, artt. 93 e 133) — DL 262/2006, art. 2, c. 48-49", status:"free"},
+    {id:"usufrutto", title:"Usufrutto e nuda proprietà", desc:"Valore dell'usufrutto vitalizio per età dell'usufruttuario (prospetto dei coefficienti allegato al DPR 131/1986) e della nuda proprietà.", refs:"DPR 131/1986, artt. 46 e 48 e prospetto allegato (dal 1° gennaio 2027 TU registro D.Lgs. 123/2025, artt. 50 e 52 e allegato 4) — DM MEF sul saggio legale", status:"free"},
     {id:"canone", title:"Adeguamento ISTAT del canone", desc:"Aggiornamento annuale del canone di locazione al 75% o 100% della variazione FOI, con indici reali.", refs:"Art. 32 L. 392/1978 — L. 431/1998 — indici FOI ISTAT", status:"free"},
     {id:"cedolare", title:"Cedolare secca o IRPEF?", desc:"Confronto tra cedolare 21%/10% e tassazione ordinaria (IRPEF su 95% del canone, addizionali, registro e bollo).", refs:"Art. 3 D.Lgs. 23/2011 — art. 37 TUIR (dal 1° gennaio 2027 art. 39 D.Lgs. 117/2026) — art. 8 L. 392/1978", status:"free"},
+  ]},
+  {group:"Fisco e tributi", items:[
+    {id:"ravvedimento", title:"Ravvedimento operoso con righe F24", desc:"Omesso o tardivo versamento di IRPEF, addizionali, IVA, IRES, IRAP, cedolare, forfetario, ritenute e IMU: sanzione ridotta, interessi legali giorno per giorno e righe del modello F24 con i codici tributo in vigore.", refs:"Art. 13 D.Lgs. 471/1997 e art. 13 D.Lgs. 472/1997 (D.Lgs. 87/2024 per le violazioni dal 1/9/2024; dal 1° gennaio 2027 artt. 14 e 38 D.Lgs. 173/2024) — ris. AdE 35/E/2012, 12/E/2023, 18/E/2023", status:"free"},
   ]},
 ];
 const findCalc = id=>CATALOG.flatMap(g=>g.items).find(i=>i.id===id);
@@ -1281,7 +1384,7 @@ const VIEWS = {
       if(!R) return empty("Inserisci il prezzo.");
       return `<div class="total"><div class="eyebrow">Imposte sull'acquisto</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">regime ${R.regime} · base imponibile ${fmt.format(R.base)}</div></div>
       <div class="pb">${gate(`<table class="rows">${R.voci.map(([l,v])=>`<tr><td>${esc(l)}</td><td class="r">${fmt.format(v)}</td></tr>`).join("")}<tr class="sum"><td>Totale imposte</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
-        <div class="note">${esc(R.nota)} Prima casa (nota I alla tariffa, parte I, art. 1, allegato 1 al TU registro D.Lgs. 123/2025, applicabile dal 1° gennaio 2026; già nota II-bis all'art. 1 Tariffa DPR 131/1986): immobile non di lusso nel Comune di residenza, nessun'altra abitazione acquistata con l'agevolazione. Oltre alle imposte: onorario notarile, imposta di bollo 230 € e tassa ipotecaria 90 € (registro) ovvero bollo e tasse ipotecarie 320 € (IVA). Dal 2025 il termine per rivendere la precedente prima casa è di 2 anni (L. 207/2024).</div>`)}</div>${actions()}`;
+        <div class="note">${esc(R.nota)} Prima casa (nota II-bis all'art. 1 della Tariffa, parte I, DPR 131/1986; dal 1° gennaio 2027 nota I all'art. 1, allegato 1 al TU registro D.Lgs. 123/2025, per il rinvio disposto dall'art. 4 DL 200/2025): immobile non di lusso nel Comune di residenza, nessun'altra abitazione acquistata con l'agevolazione. Oltre alle imposte: onorario notarile, imposta di bollo 230 € e tassa ipotecaria 90 € (registro) ovvero bollo e tasse ipotecarie 320 € (IVA). Dal 2025 il termine per rivendere la precedente prima casa è di 2 anni (L. 207/2024).</div>`)}</div>${actions()}`;
     }
   },
   "successione":{
@@ -1304,7 +1407,7 @@ const VIEWS = {
         <tr><td>Imposta ipotecaria ${R.primaCasa?"(fissa)":"2% sugli immobili"}</td><td class="r">${fmt.format(R.ipo)}</td></tr>
         <tr><td>Imposta catastale ${R.primaCasa?"(fissa)":"1% sugli immobili"}</td><td class="r">${fmt.format(R.cat)}</td></tr>
         <tr class="sum"><td>Totale</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
-        <div class="note">Aliquote e franchigie dell'art. 2, c. 48-49, DL 262/2006, ora artt. 7 e 56 TUS (D.Lgs. 346/1990) come riscritti dal D.Lgs. 139/2024 e trasfusi dal 1° gennaio 2026 negli artt. 93 e 133 del TU registro (D.Lgs. 123/2025), in vigore per le successioni aperte dal 1° gennaio 2025: 4% oltre 1.000.000 € per coniuge e linea retta; 6% oltre 100.000 € per fratelli e sorelle; 6% senza franchigia per gli altri parenti fino al 4° grado e affini; 8% per gli altri. La franchigia si applica per ciascun beneficiario ed è ridotta delle donazioni precedenti (coacervo). Gli immobili si valutano al valore catastale (rendita × 1,05 × moltiplicatore senza il +20%); l'imposta è autoliquidata dagli eredi con la dichiarazione telematica entro 12 mesi.</div>`)}</div>${actions()}`;
+        <div class="note">Aliquote e franchigie dell'art. 2, c. 48-49, DL 262/2006, ora artt. 7 e 56 TUS (D.Lgs. 346/1990) come riscritti dal D.Lgs. 139/2024 (trasfusi negli artt. 93 e 133 del TU registro D.Lgs. 123/2025, applicabile dal 1° gennaio 2027 per il rinvio dell'art. 4 DL 200/2025), in vigore per le successioni aperte dal 1° gennaio 2025: 4% oltre 1.000.000 € per coniuge e linea retta; 6% oltre 100.000 € per fratelli e sorelle; 6% senza franchigia per gli altri parenti fino al 4° grado e affini; 8% per gli altri. La franchigia si applica per ciascun beneficiario ed è ridotta delle donazioni precedenti (coacervo). Gli immobili si valutano al valore catastale (rendita × 1,05 × moltiplicatore senza il +20%); l'imposta è autoliquidata dagli eredi con la dichiarazione telematica entro 12 mesi.</div>`)}</div>${actions()}`;
     }
   },
   "usufrutto":{
@@ -1324,7 +1427,7 @@ const VIEWS = {
         <tr><td>Quota usufrutto</td><td class="r">${R.pct} %</td></tr>
         <tr class="sum"><td>Usufrutto</td><td class="r">${fmt.format(R.usufrutto)}</td></tr>
         <tr class="sum"><td>Nuda proprietà</td><td class="r">${fmt.format(R.nuda)}</td></tr></table>
-        <div class="note">Prospetto dei coefficienti (allegato 4 al TU registro D.Lgs. 123/2025, artt. 50 e 52, applicabile dal 1° gennaio 2026; già allegato al DPR 131/1986, artt. 46 e 48): l'usufrutto vitalizio vale la rendita (valore × saggio legale) moltiplicata per il coefficiente della fascia d'età; poiché i coefficienti sono aggiornati con decreto MEF a ogni variazione del saggio legale, la quota per fascia d'età resta costante (95% fino a 20 anni … 10% da 93 a 99 anni). Per l'usufrutto a tempo determinato: valore = rendita annua × anni, entro il limite del vitalizio. Per l'usufrutto congiuntivo si considera l'età del più giovane.</div>`)}</div>${actions()}`;
+        <div class="note">Prospetto dei coefficienti (allegato al DPR 131/1986, artt. 46 e 48; dal 1° gennaio 2027 allegato 4 al TU registro D.Lgs. 123/2025, artt. 50 e 52, per il rinvio dell'art. 4 DL 200/2025): l'usufrutto vitalizio vale la rendita (valore × saggio legale) moltiplicata per il coefficiente della fascia d'età; poiché i coefficienti sono aggiornati con decreto MEF a ogni variazione del saggio legale, la quota per fascia d'età resta costante (95% fino a 20 anni … 10% da 93 a 99 anni). Per l'usufrutto a tempo determinato: valore = rendita annua × anni, entro il limite del vitalizio. Per l'usufrutto congiuntivo si considera l'età del più giovane.</div>`)}</div>${actions()}`;
     }
   },
   "canone":{
@@ -1347,6 +1450,52 @@ const VIEWS = {
         <tr><td>Canone attuale</td><td class="r">${fmt.format(R.canone)}</td></tr>
         <tr class="sum"><td>Canone aggiornato</td><td class="r">${fmt.format(R.nuovo)}</td></tr></table>
         <div class="note">Art. 32 L. 392/1978: per le locazioni abitative l'aggiornamento non può superare il 75% della variazione FOI; per le locazioni a canone concordato l'aggiornamento è escluso se il locatore ha optato per la cedolare secca (art. 3, c. 11, D.Lgs. 23/2011: la rinuncia vale per tutto il periodo dell'opzione). L'aggiornamento va richiesto per iscritto e decorre dalla richiesta (art. 32, c. 2). Le variazioni negative non riducono il canone.</div>`)}</div>${actions()}`;
+    }
+  },
+  "ravvedimento":{
+    form:()=>{
+      const k=state.inputs.rtrib||"irpef_saldo", T=RAVV_TRIBUTI[k]||RAVV_TRIBUTI.irpef_saldo;
+      // cambiando tributo, i codici indicati a mano per il precedente non valgono più
+      if(state.inputs.rtribPrima&&state.inputs.rtribPrima!==k){ state.inputs.rcod=""; state.inputs.ranno=""; state.inputs.rmese=""; }
+      state.inputs.rtribPrima=k;
+      const testo=(id,label,ph,hint,full)=>`<div class="field ${full?"full":""}"><label for="${id}">${label}</label><input id="${id}" data-in type="text" value="${esc(state.inputs[id]??"")}" placeholder="${esc(ph)}">${hint?`<div class="hint">${hint}</div>`:""}</div>`;
+      return [
+        field("rtrib","Tributo non versato","select","irpef_saldo",{full:true,rerender:true,options:Object.entries(RAVV_TRIBUTI).map(([id,t])=>[id,t.label])}),
+        field("rimp","Importo non versato (€)","number",1000,{min:0,step:0.01}),
+        field("rscad","Scadenza del versamento","date","2026-06-30",{hint:"se cadeva di sabato o festivo, il primo giorno lavorativo successivo"}),
+        field("rpag","Data in cui si versa","date",todayISO()),
+        field("rpvc","Situazione","select","",{options:[["","Ravvedimento spontaneo"],["pvc","Dopo la constatazione della violazione (processo verbale)"]]}),
+        T.ente?testo("rente",T.ente==="regione"?"Codice Regione (F24)":"Codice catastale del Comune (F24)",T.ente==="regione"?"es. 20 (Veneto)":"es. G565",T.ente==="regione"?"tabella T0 dell'Agenzia delle entrate":"tabella T4 dell'Agenzia delle entrate (codice di 4 caratteri)",false):"",
+        `<div class="fieldset-title">Dati del modello F24 (facoltativi: se vuoti sono calcolati in automatico)</div>`,
+        testo("rcod","Codice tributo dell'imposta","automatico",""),
+        testo("ranno","Anno di riferimento","automatico","periodo d'imposta (AAAA)"),
+        T.mese?testo("rmese","Mese di riferimento delle ritenute","automatico","MM: mese di pagamento dei compensi"):"",
+        field("rdich","Termine della dichiarazione (per la riduzione a 1/8)","date",state.inputs.rdich??"",{hint:"lascia vuoto per il termine ordinario"}),
+      ].join("");
+    },
+    result:()=>{
+      const R=ENGINES.ravvedimento({tributo:val("rtrib"),imposta:num("rimp"),scadenza:val("rscad"),pagamento:val("rpag"),pvc:val("rpvc")==="pvc",ente:val("rente"),cod:val("rcod"),anno:val("ranno"),mese:val("rmese"),dich:val("rdich")});
+      if(!R) return empty("Inserisci l'importo, la scadenza e una data di versamento successiva alla scadenza.");
+      if(R.errore) return empty(esc(R.errore));
+      const imu=R.T.int==="stesso";
+      return `<div class="total"><div class="eyebrow">Totale da versare con F24</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">imposta ${fmt.format(R.imp)} · sanzione ${fmt.format(R.sanzione)} (${fmtN(R.pct,4)}%) · interessi ${fmt.format(R.interessi)} · ${R.giorni} giorni di ritardo · riduzione a 1/${R.fr}</div>${R.avvisi.map(a=>`<div class="warn">${esc(a)}</div>`).join("")}</div>
+      <div class="pb">${gate(`
+        <div class="eyebrow" style="margin-bottom:6px">Righe del modello F24 — sezione «${esc(R.T.sez)}»</div>
+        <div class="tblwrap"><table class="rows"><tr><th>Codice tributo</th>${R.T.ente?`<th>${R.T.ente==="regione"?"Cod. Regione":"Cod. ente/Comune"}</th>`:""}<th>${imu?"Ravv. / periodo":"Rateaz./mese rif."}</th><th>Anno rif.</th><th class="r">Importo a debito</th><th>Contenuto</th></tr>
+        ${R.righe.map(x=>`<tr><td><b>${esc(x.codice||"????")}</b></td>${R.T.ente?`<td>${esc(x.ente||"…")}</td>`:""}<td>${imu?`☒ Ravv. · ☒ ${x.accSaldo}`:esc(x.rat)}</td><td>${esc(x.anno)}</td><td class="r">${fmt.format(x.importo)}</td><td>${esc(x.voce)}</td></tr>`).join("")}
+        <tr class="sum"><td colspan="${R.T.ente?4:3}">Saldo della delega</td><td class="r">${fmt.format(R.totale)}</td><td></td></tr></table></div>
+        <div class="eyebrow" style="margin:14px 0 6px">Sanzione</div>
+        <table class="rows">
+        <tr><td colspan="2">Regime: ${R.nuovo?"violazioni dal 1° settembre 2024 (D.Lgs. 87/2024)":"violazioni fino al 31 agosto 2024"}</td></tr>
+        <tr><td>Sanzione per il ritardo (art. 13, c. 1, D.Lgs. 471/1997): ${esc(R.voceBase)}</td><td class="r">${fmtN(R.pctBase,4)}%</td></tr>
+        <tr><td>Riduzione a 1/${R.fr} (art. 13, c. 1, lett. ${R.lett}, D.Lgs. 472/1997): ${esc(R.perche)}</td><td class="r">${fmtN(R.pct,4)}%</td></tr>
+        <tr class="sum"><td>Sanzione ridotta su ${fmt.format(R.imp)}</td><td class="r">${fmt.format(R.sanzione)}</td></tr></table>
+        <div class="eyebrow" style="margin:14px 0 6px">Interessi legali (giorno per giorno)</div>
+        <div class="tblwrap"><table class="rows"><tr><th>Anno</th><th>Periodo</th><th class="r">Giorni</th><th class="r">Tasso</th><th class="r">Interessi</th></tr>
+        ${R.periodi.map(p=>`<tr><td>${p.anno}</td><td>${p.anno===+R.scadenza.slice(0,4)?"dal giorno dopo il "+fmtD(p.dal):"dal "+fmtD(p.dal)} al ${fmtD(p.al)}</td><td class="r">${p.giorni}</td><td class="r">${fmtN(p.tasso,2)}%</td><td class="r">${fmt.format(p.interessi)}</td></tr>`).join("")}
+        <tr class="sum"><td colspan="4">Totale interessi</td><td class="r">${fmt.format(R.interessi)}</td></tr></table></div>
+        <div class="note">Sanzione per omesso o tardivo versamento (art. 13 D.Lgs. 471/1997): per le violazioni dal 1° settembre 2024 il 25%, ridotto al 12,5% per ritardi fino a 90 giorni e a 1/15 per ogni giorno di ritardo fino a 15 giorni (D.Lgs. 87/2024, art. 5); per le violazioni precedenti il 30%, ridotto al 15% e, fino a 15 giorni, all'1% per giorno. Riduzioni per ravvedimento (art. 13 D.Lgs. 472/1997): 1/10 entro 30 giorni, 1/9 entro 90 giorni, 1/8 entro il termine della dichiarazione relativa all'anno della violazione (o entro un anno se non è prevista dichiarazione); oltre, 1/7 per le violazioni dal 1° settembre 2024; per quelle precedenti 1/7 entro il termine della dichiarazione dell'anno successivo (o due anni) e 1/6 oltre. Dopo la constatazione con processo verbale la riduzione è a 1/5; dopo lo schema d'atto (art. 6-bis L. 212/2000) 1/6 o 1/4, qui non calcolate. Il ravvedimento si perfeziona versando insieme imposta, sanzione e interessi legali giorno per giorno (c. 2); è ammesso anche per una parte dell'imposta (art. 13-bis). Per i tributi dell'Agenzia delle entrate è precluso solo dalla notifica di atti di liquidazione o accertamento, comprese le comunicazioni degli esiti dei controlli automatizzati (c. 1-ter). Dal 1° gennaio 2027 la disciplina è negli artt. 14 e 38 del TU sanzioni D.Lgs. 173/2024 (rinvio disposto dall'art. 4 DL 200/2025). Codici tributo verificati sulla banca dati dell'Agenzia delle entrate; ${R.T.int==="cumulati"?"per le ritenute gli interessi si sommano al tributo e la sanzione si versa con il codice dedicato, con il mese di riferimento (ris. 18/E/2023)":imu?"per l'IMU imposta, sanzione e interessi si versano insieme con il codice dell'imposta, barrando «Ravv.» e acconto o saldo (ris. 35/E/2012); il numero degli immobili va indicato nell'F24":"sanzione e interessi hanno codici propri"}. Il termine della dichiarazione applicato è il ${fmtD(R.t1)}${R.t1!==R.auto1?" (indicato da te)":""}.</div>`)}
+      </div>${actions()}`;
     }
   },
   "cedolare":{

@@ -150,7 +150,41 @@ ck("TUN 2026 punto 10%", ENGINES.dannoTUN(10, 1, "2026", "none", 0, 0, 0, 0, 0, 
 ck("TUN senza anno usa il 2026", ENGINES.dannoTUN(10, 1, "", "none", 0, 0, 0, 0, 0, 0).punto, r2(988.45 * 2.75773));
 ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, "ordinario", true, 0, 0).AS, 546.24);
 { const T = ENGINES.tfr(30000, "2016-01-01", "2026-08-31", 0); const x = T.rif, sc = [[28000, .23], [50000, .33], [Infinity, .43]]; let tax = 0, prev = 0; for (const [l, a] of sc) { if (x <= prev) break; tax += (Math.min(x, l) - prev) * a; prev = l; } ck("TFR: scaglioni IRPEF 2026", T.aliq, tax / x); }
-// Citazioni dei testi unici (D.Lgs. 123/2025 registro dal 1/1/2026; D.Lgs. 10/2026 IVA e 117/2026 TUIR dal 1/1/2027): verificate sui testi in monitoraggio/gazzetta
-{ const need = ["TU registro D.Lgs. 123/2025", "artt. 50 e 52 e allegato 4", "artt. 93 e 133 del TU registro", "art. 299", "D.Lgs. 117/2026", "TU IVA D.Lgs. 10/2026"]; const miss = need.filter(n => !html.includes(n)); miss.length ? fail++ : pass++; console.log(`${miss.length ? "DIFF" : "OK  "} citazioni testi unici nelle note ${miss.join("; ")}`); }
+// Citazioni dei testi unici: tutti applicabili dal 1/1/2027 (D.Lgs. 123/2025 registro e 173/2024 sanzioni rinviati dall'art. 4 DL 200/2025,
+// GU 302 del 31/12/2025; D.Lgs. 10/2026 IVA, 117/2026 TUIR e 141/2026 adempimenti dal 1/1/2027 in origine). Testi in monitoraggio/gazzetta
+{ const need = ["TU registro D.Lgs. 123/2025", "artt. 50 e 52 e allegato 4", "artt. 93 e 133 del TU registro", "art. 299", "D.Lgs. 117/2026", "TU IVA D.Lgs. 10/2026", "DL 200/2025"]; const miss = need.filter(n => !html.includes(n)); miss.length ? fail++ : pass++; console.log(`${miss.length ? "DIFF" : "OK  "} citazioni testi unici nelle note ${miss.join("; ")}`); }
+{ const bad = (html.match(/.{0,120}(?:1° gennaio 2026|1\/1\/2026).{0,40}/g) || []).filter(s => /D\.Lgs\. (?:123\/2025|173\/2024)|TU (?:registro|sanzioni)/.test(s)); bad.length ? fail++ : pass++; console.log(`${bad.length ? "DIFF" : "OK  "} nessun testo unico indicato come applicabile dal 2026 ${bad.join(" | ")}`); }
+// Ravvedimento operoso: casi calcolati a mano dalla norma (art. 13 D.Lgs. 471/1997 e 472/1997), saggi legali 2025 2%, 2026 1,6%
+{ const rv = o => ENGINES.ravvedimento({ tributo: "irpef_saldo", imposta: 1000, ...o });
+  const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
+  let R = rv({ scadenza: "2026-06-30", pagamento: "2026-07-10" });
+  ck("ravv. sprint 10 gg (nuovo regime): sanzione 12,5%×10/15÷10", R.sanzione, r2(1000 * 0.125 * 10 / 15 / 10)); ck("  interessi 1,6% × 10/365", R.interessi, r2(1000 * 0.016 * 10 / 365));
+  ck("  totale", R.totale, r2(1000 + r2(1000 * 0.125 * 10 / 15 / 10) + r2(1000 * 0.016 * 10 / 365)));
+  eq("  righe F24", R.righe.map(x => `${x.codice}/${x.anno}/${x.importo}`).join(" "), "4001/2025/1000 8901/2025/8.33 1989/2025/0.44");
+  R = rv({ scadenza: "2026-06-30", pagamento: "2026-08-14" }); ck("ravv. 45 gg: 12,5% ÷ 9", R.sanzione, r2(125 / 9)); eq("  lettera", R.lett, "a-bis");
+  R = rv({ scadenza: "2025-06-30", pagamento: "2026-09-30" }); eq("ravv. 457 gg entro dichiarazione 2025 (31/10/2026): 1/8", `${R.giorni} 1/${R.fr} ${R.t1}`, "457 1/8 2026-10-31");
+  ck("  sanzione 25% ÷ 8", R.sanzione, 31.25); ck("  interessi 2025 (184 gg al 2%) + 2026 (273 gg all'1,6%)", R.interessi, r2(1000 * 0.02 * 184 / 365 + 1000 * 0.016 * 273 / 365));
+  R = rv({ scadenza: "2025-06-30", pagamento: "2026-11-02" }); eq("ravv. oltre la dichiarazione (nuovo regime): 1/7", R.fr, 7); ck("  sanzione 25% ÷ 7", R.sanzione, r2(250 / 7));
+  R = rv({ scadenza: "2024-07-01", pagamento: "2026-09-30" }); eq("vecchio regime: entro dichiarazione anno successivo (31/10/2026) 1/7", `${R.nuovo} 1/${R.fr} ${R.t2}`, "false 1/7 2026-10-31"); ck("  sanzione 30% ÷ 7", R.sanzione, r2(300 / 7));
+  R = rv({ scadenza: "2022-06-30", pagamento: "2026-09-30" }); eq("vecchio regime oltre la dichiarazione dell'anno successivo: 1/6", `${R.fr} ${R.t2}`, "6 2024-10-31"); ck("  sanzione 30% ÷ 6", R.sanzione, 50);
+  eq("termine dichiarazione redditi 2022 (30 novembre)", R.t1, "2023-11-30");
+  R = rv({ scadenza: "2024-05-16", pagamento: "2024-05-21" }); ck("vecchio regime sprint 5 gg: 15%×5/15÷10", R.sanzione, 5);
+  R = rv({ scadenza: "2026-06-30", pagamento: "2026-12-30", pvc: true }); ck("dopo processo verbale: 25% ÷ 5", R.sanzione, 50);
+  R = rv({ scadenza: "2026-06-30", pagamento: "2027-01-10", dich: "2026-12-31" }); eq("termine dichiarazione indicato a mano", `1/${R.fr} ${R.t1}`, "1/7 2026-12-31");
+  eq("scadenza anteriore al 2016: nessun calcolo", !!rv({ scadenza: "2015-06-16", pagamento: "2026-09-30" }).errore, true);
+  eq("pagamento non successivo alla scadenza: nessun calcolo", rv({ scadenza: "2026-06-30", pagamento: "2026-06-30" }), null);
+  R = ENGINES.ravvedimento({ tributo: "rit_dip", imposta: 1000, scadenza: "2026-01-16", pagamento: "2026-02-05" });
+  eq("ritenute dicembre: interessi nel 1001, sanzione 8947 con mese 12", R.righe.map(x => `${x.codice}/${x.rat}/${x.anno}/${x.importo}`).join(" "), `1001//2025/${r2(1000 + r2(1000 * 0.016 * 20 / 365))} 8947/12/2025/12.5`);
+  R = ENGINES.ravvedimento({ tributo: "imu_altri", imposta: 500, scadenza: "2026-06-16", pagamento: "2026-07-16", ente: "g565" });
+  eq("IMU: una riga 3918 con imposta+sanzione+interessi, Ravv. e acconto", R.righe.map(x => `${x.codice}/${x.ente}/${x.anno}/${x.importo}/${x.accSaldo}/${x.ravv}`).join(" "), `3918/G565/2026/${r2(500 + 6.25 + r2(500 * 0.016 * 30 / 365))}/acconto/true`);
+  eq("IMU: termine dichiarazione 30 giugno", R.t1, "2027-06-30");
+  eq("IVA mensile: codice e anno dal mese precedente la scadenza", ["2026-03-16", "2026-01-16"].map(s => { const x = ENGINES.ravvedimento({ tributo: "iva_mese", imposta: 100, scadenza: s, pagamento: "2026-09-30" }); return x.cod + "/" + x.anno; }).join(" "), "6002/2026 6012/2025");
+  eq("IVA trimestrale: 2° trimestre 6032", ENGINES.ravvedimento({ tributo: "iva_trim", imposta: 100, scadenza: "2026-08-20", pagamento: "2026-09-30" }).cod, "6032");
+  eq("IVA: termine dichiarazione 30 aprile", ENGINES.ravvedimento({ tributo: "iva_ann", imposta: 100, scadenza: "2026-03-16", pagamento: "2026-09-30" }).t1, "2027-04-30");
+  R = ENGINES.ravvedimento({ tributo: "addcom_saldo", imposta: 100, scadenza: "2026-06-30", pagamento: "2026-07-10" });
+  eq("addizionale comunale: 3844/8926/1998 in sezione tributi locali", R.righe.map(x => x.codice).join(" ") + " " + R.T.sez, "3844 8926 1998 IMU e altri tributi locali");
+  eq("cedolare: 8940 e 1940 (ris. 12/E/2023)", ENGINES.ravvedimento({ tributo: "ced_saldo", imposta: 100, scadenza: "2026-06-30", pagamento: "2026-07-10" }).righe.map(x => x.codice).join(" "), "1842 8940 1940");
+  eq("scadenza di sabato segnalata", rv({ scadenza: "2026-05-16", pagamento: "2026-07-10" }).avvisi.some(a => /sabato/.test(a)), true);
+  eq("nessun codice soppresso (8906, 8913, 1992, 8903, 8908)", /"(8906|8913|1992|8903|8908)"/.test(html.slice(html.indexOf("const RAVV_TRIBUTI"), html.indexOf("const prevMese"))), false); }
 console.log(`\n${pass} OK, ${fail} DIFF`);
 process.exit(fail ? 1 : 0);

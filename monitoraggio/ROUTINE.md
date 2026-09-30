@@ -20,6 +20,10 @@ Ignora quelle con etichetta `azione-richiesta` (sono per il titolare). Le altre 
   (`MICRO_ANNI`, `TUN_P1`, `ASSEGNO_SOCIALE`, `IRPEF`, `TASSI_LEGALI`, `TASSI_BCE`) mantenendo gli anni
   precedenti, aggiungi un caso in `app/tests/run_tests.js` calcolato a mano dalla fonte.
 - **Atto in Gazzetta**: il sito della Gazzetta non è raggiungibile dal cloud; il testo integrale degli atti segnalati è in `monitoraggio/gazzetta/<data>_<codice>.txt` (lo salva il controllo quotidiano; per un atto non ancora salvato chiedilo aggiungendo a `monitoraggio/gazzetta_richieste.json` una voce con i soli estremi, ad esempio `{"tipo":"DECRETO LEGISLATIVO","dataAtto":"2025-08-01","numero":123}` (oppure `{"data":"AAAA-MM-GG","codice":"…"}` se conosci data di pubblicazione e codice): il controllo quotidiano lo scarica entro il giorno dopo; se serve subito, lascia la segnalazione aperta e riprendila al giro successivo). Valuta se cambia un valore, una regola o una nota; se sì, applica con test.
+- **Codice tributo soppresso** (sezione "Codici tributo del ravvedimento"): cerca la risoluzione dell'Agenzia
+  delle entrate che istituisce il codice sostitutivo (elenco annuale "risoluzioni istitutive di codici tributo" su
+  agenziaentrate.gov.it), leggila, aggiorna `RAVV_TRIBUTI` in `app/index.html` e il test corrispondente in
+  `run_tests.js`, poi `node app/scripts/check_codici.js` deve dare exit 0.
 - **Pronuncia di Cassazione**: il testo integrale è in `monitoraggio/cassazione/<id>.txt` (la banca dati
   della Cassazione non è raggiungibile dal cloud). Se enuncia un principio che incide sul calcolo o sulla
   nota del calcolatore indicato, aggiorna la nota citando estremi esatti; altrimenti annota "non rilevante".
@@ -49,4 +53,10 @@ Il titolare non è tecnico: passi concreti, un'azione per volta, niente gergo.
 ## Regole
 - Mai pubblicare una modifica ai calcoli senza aver letto la fonte ufficiale e senza test verdi.
 - Mai inventare estremi di sentenze o decreti. Se non riesci a leggere la fonte, lascia aperta.
+- Date di applicazione: il testo originale in Gazzetta può essere stato modificato dopo (es. i testi unici
+  tributari, nati "dal 1° gennaio 2026", sono stati rinviati al 1° gennaio 2027 dall'art. 4 DL 200/2025,
+  il Milleproroghe). Prima di scrivere "dal …" verifica il testo vigente su Normattiva
+  (`https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legislativo:AAAA-MM-GG;N~artX`) o, se non
+  raggiungibile, cerca in `monitoraggio/gazzetta/` i decreti di proroga successivi; nel dubbio cita la norma
+  in vigore oggi e il testo unico come "dal …" solo con la fonte del rinvio.
 - Messaggio finale: massimo 8 righe, con modifiche pubblicate, segnalazioni chiuse, DA FARE, richieste al titolare.

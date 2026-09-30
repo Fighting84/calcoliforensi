@@ -47,6 +47,9 @@ function apri(licenza) {
   ck("risultato gratuito visibile", !!$("#result .total .big") && /\d/.test($("#result .total .big").textContent));
   ck("stampa riservata a Pro", /\(Pro\)/.test($("#btnPrint")?.textContent || ""));
 
+  await vai("ravvedimento");
+  ck("ravvedimento: righe F24 riservate a Pro", !!$("#result .gate") && !/8901|1989/.test($("#result").textContent));
+
   // valori limite
   let limiti = 0;
   for (const id of ids) {
@@ -132,6 +135,24 @@ function apri(licenza) {
   ck("informazioni: assistenza", /assistenza/i.test(info));
   ck("footer con link informativi", !!$3('.foot a[href="#/informazioni"]'));
   ck("footer con titolare e contatto", /P\. IVA/.test($3("#footTitolare").textContent));
+
+  // ravvedimento: righe F24 e cambio di tributo
+  await vai3("#/ravvedimento");
+  const set3 = async (id, v) => { const el = $3("#" + id); el.value = v; el.dispatchEvent(new w3.Event("input", { bubbles: true })); await sleep(90); };
+  await set3("rscad", "2026-06-30"); await set3("rpag", "2026-07-10");
+  const rv = $3("#result").textContent;
+  ck("ravvedimento: totale 1.008,77 € (1.000 € pagati 10 giorni dopo)", /1\.008,77/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  ck("ravvedimento: righe 4001, 8901, 1989 con anno 2025", /4001/.test(rv) && /8901/.test(rv) && /1989/.test(rv) && /2025/.test(rv));
+  ck("ravvedimento: riduzione a 1/10", /1\/10/.test(rv));
+  await set3("rtrib", "imu_altri");
+  ck("ravvedimento IMU: campo codice Comune", !!$3("#rente"));
+  await set3("rente", "g565");
+  const rimu = $3("#result").textContent;
+  ck("ravvedimento IMU: una riga 3918 con Ravv. e codice G565", /3918/.test(rimu) && /Ravv\./.test(rimu) && /G565/.test(rimu) && !/8901/.test(rimu));
+  await set3("rtrib", "rit_dip"); await set3("rscad", "2026-01-16");
+  const rrit = $3("#result").textContent;
+  ck("ravvedimento ritenute: 1001 e 8947 con mese 12", /1001/.test(rrit) && /8947/.test(rrit) && !!$3("#rmese"));
+  ck("ravvedimento: nessun errore", C.errori.length === 0, C.errori.join(" | "));
 
   // senza licenza le impostazioni restano bloccate
   const D = apri(null); await sleep(600);
