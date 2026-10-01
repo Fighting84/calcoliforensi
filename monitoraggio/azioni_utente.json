@@ -9,6 +9,18 @@
   ],
   "tempo": "5 minuti",
   "seNo": "Prima di attivare i pagamenti questi dati sono obbligatori (art. 7 D.Lgs. 70/2003, art. 2250 c.c.): senza, gli abbonamenti non possono partire.",
+  "risolta": true
+ },
+ {
+  "id": "dati-genaitix",
+  "titolo": "Inviare i dati di GenAItix S.r.l.s. dopo la costituzione",
+  "cosa": "Sul sito il servizio risulta erogato da GenAItix S.r.l.s. (in costituzione). Appena la società è costituita servono i dati da pubblicare per legge.",
+  "passi": [
+   "Prendere la visura camerale della società",
+   "Scrivere a Claude: sede legale, partita IVA/codice fiscale, numero REA e Camera di commercio, capitale sociale, PEC, email di assistenza, legale rappresentante"
+  ],
+  "tempo": "5 minuti",
+  "seNo": "Prima di attivare i pagamenti questi dati sono obbligatori (art. 7 D.Lgs. 70/2003, art. 2250 c.c.): senza, gli abbonamenti non possono partire.",
   "risolta": false
  }
 ]

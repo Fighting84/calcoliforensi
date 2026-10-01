@@ -128,7 +128,7 @@ function apri(licenza) {
   // pagine informative e contatti
   await vai3("#/informazioni");
   const info = $3("#main").textContent;
-  ck("informazioni: Genex S.r.l.s. in costituzione, campi societari previsti", /Genex S.r.l.s./.test(info) && /in costituzione/.test(info) && /Partita IVA/.test(info) && /REA/.test(info) && !/Ordine degli Avvocati/.test(info));
+  ck("informazioni: GenAItix S.r.l.s. in costituzione, campi societari previsti", /GenAItix S.r.l.s./.test(info) && /in costituzione/.test(info) && /Partita IVA/.test(info) && /REA/.test(info) && !/Ordine degli Avvocati/.test(info));
   ck("informazioni: condizioni e disdetta", /disdett/i.test(info));
   ck("informazioni: privacy", /Regolamento UE 2016\/679/.test(info));
   ck("informazioni: recesso", /recesso/i.test(info));
