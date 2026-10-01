@@ -24,6 +24,7 @@ const TEMI = [
   [/aliquote.{0,30}IRPEF|scaglioni\s+di\s+reddito/i, "tfr", "Scaglioni IRPEF (tassazione TFR)"],
   [/prospetto.{0,30}usufrutto|coefficienti.{0,30}usufrutto/i, "usufrutto", "Coefficienti usufrutto"],
   [/termini\s+processuali|sospensione\s+feriale|codice\s+di\s+procedura\s+civile/i, "scadenze", "Termini processuali"],
+  [/pene\s+sostitutive|applicazione\s+della\s+pena\s+su\s+richiesta|giudizio\s+abbreviato|sospensione\s+condizionale\s+della\s+pena|articol[oi]\s+(?:442|444|445)\s+del\s+codice\s+di\s+procedura\s+penale/i, "pena", "Determinazione della pena e riti speciali"],
   [/ravvedimento|articolo\s+13\s+del\s+decreto\s+legislativo\s+18\s+dicembre\s+1997,?\s+n\.\s*47[12]|testo\s+unico\s+delle\s+sanzioni\s+tributarie/i, "ravvedimento", "Ravvedimento operoso e sanzioni tributarie"],
   // i testi unici tributari possono essere rinviati da decreti successivi (es. art. 4 DL 200/2025): ogni modifica della decorrenza va letta
   [/testo\s+unico[^.;]{0,160}(?:1°|primo)\s+gennaio\s+20\d\d|decreto\s+legislativo\s+(?:5\s+novembre\s+2024,?\s+n\.\s*17[345]|1°?\s+agosto\s+2025,?\s+n\.\s*123|24\s+marzo\s+2025,?\s+n\.\s*33)\b/i, "compravendita", "Testi unici tributari (decorrenza e modifiche)"],

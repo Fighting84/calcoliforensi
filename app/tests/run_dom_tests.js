@@ -154,6 +154,23 @@ function apri(licenza) {
   ck("ravvedimento ritenute: 1001 e 8947 con mese 12", /1001/.test(rrit) && /8947/.test(rrit) && !!$3("#rmese"));
   ck("ravvedimento: nessun errore", C.errori.length === 0, C.errori.join(" | "));
 
+  // pena: patteggiamento e abbreviato
+  await vai3("#/pena");
+  ck("pena: 2 anni con attenuanti generiche = 1 anno e 4 mesi", /1 anno e 4 mesi di reclusione/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  await set3("prito", "patt");
+  ck("pena: patteggiamento mostra la diminuzione concordata", !!$3("#ppatfr") && /10 mesi e 20 giorni/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  ck("pena: effetti dell'art. 445 nel prospetto", /art\. 445/.test($3("#result").textContent));
+  await set3("prito", "abbr"); await set3("pnonimp", "si");
+  ck("pena: abbreviato con ulteriore 1/6", /8 mesi e 26 giorni/.test($3("#result").textContent));
+  await set3("ptipo", "contravvenzione");
+  ck("pena: contravvenzione con arresto e ammenda", /arresto/.test($3("#result .total .big").textContent) && /Ammenda/.test($3(".panel").textContent));
+  // parcella penale
+  await vai3("#/parcella-penale");
+  ck("parcella penale: monocratico 5.241,16 €", /5\.241,16/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  await set3("pp2aut", "gip"); await set3("pp2fasi", "senzaIst");
+  ck("parcella penale: seconda autorità sommata", /GIP e GUP/.test($3("#result").textContent));
+  ck("pena e parcella penale: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+
   // senza licenza le impostazioni restano bloccate
   const D = apri(null); await sleep(600);
   D.window.location.hash = "#/impostazioni"; D.window.dispatchEvent(new D.window.HashChangeEvent("hashchange")); await sleep(90);

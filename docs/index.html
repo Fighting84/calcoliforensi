@@ -87,7 +87,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0;text-
 .pill.soon{color:var(--ink-3)}
 
 .wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px;display:grid;grid-template-columns:260px 1fr;gap:24px}
-@media (max-width:820px){.wrap{grid-template-columns:1fr}}
+@media (max-width:820px){.wrap{grid-template-columns:minmax(0,1fr)}}
 
 /* ---------- nav ---------- */
 .nav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 64px);align-self:start}
@@ -109,7 +109,8 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0;text-
 .head p{color:var(--ink-2);margin:6px 0 0;max-width:62ch}
 .head .refs{margin-top:8px;font-size:12px;color:var(--ink-3)}
 .calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
-@media (max-width:980px){.calc{grid-template-columns:1fr}}
+@media (max-width:980px){.calc{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:600px){#result .pb{overflow-x:auto}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
 .panel .ph{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
 .panel .ph h2{font-size:15px;font-family:var(--sans);font-weight:600}
@@ -135,6 +136,8 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0;text-
 .rows tr.sum td{font-weight:600;border-top:2px solid var(--ink);border-bottom:none}
 .rows tr.muted td{color:var(--ink-3)}
 .tblwrap{overflow-x:auto}
+.rows th.r+th.r,.rows td.r+td.r{padding-left:12px}
+.rows.testo td.r{white-space:normal;font-family:inherit}
 .warn{font-size:12.5px;color:var(--warn);margin-top:10px}
 .note{font-size:12.5px;color:var(--ink-3);margin-top:12px;line-height:1.45}
 
@@ -245,7 +248,7 @@ const TITOLARE = {
   email:"studiolegaleometto@gmail.com", ordine:"Ordine degli Avvocati di Venezia"
 };
 const CONFIG = {
-  version: "0.10.0 — 30 settembre 2026",
+  version: "0.11.0 — 1 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -256,7 +259,7 @@ const CONFIG = {
 const impronta = s=>{ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h; };
 
 // Registro delle verifiche (aggiornato dagli script di monitoraggio: vedi app/scripts e monitoraggio/README.md)
-const MONITOR = { fonti:"30/09/2026", dati:"01/10/2026" };   // fonti = verifica normativa/giurisprudenziale; dati = verifica automatica serie ISTAT e test
+const MONITOR = { fonti:"01/10/2026", dati:"01/10/2026" };   // fonti = verifica normativa/giurisprudenziale; dati = verifica automatica serie ISTAT e test
 /* ===================== DATI NORMATIVI ===================== */
 // Art. 1284 c.c. — saggio legale per anno (DM MEF). Dal 1991 in poi.
 const TASSI_LEGALI = {
@@ -469,6 +472,33 @@ const RAVV_TRIBUTI = {
   imu_d_stato:{g:"IMU",label:"IMU — gruppo D, quota Stato (3925)",cod:"3925",int:"stesso",sez:"IMU e altri tributi locali",ente:"comune",dich:"imu",anno:0},
   imu_d_com:{g:"IMU",label:"IMU — gruppo D, incremento Comune (3930)",cod:"3930",int:"stesso",sez:"IMU e altri tributi locali",ente:"comune",dich:"imu",anno:0},
 };
+// DM 55/2014, tabella 15 (giudizi penali) come sostituita dal DM 147/2022 (GU n. 236 dell'8/10/2022, pag. 7): valori medi per
+// fase [studio, introduttiva, istruttoria/dibattimentale, decisionale]; null = fase non prevista per quell'autorità
+const TAB15 = {
+  gdp:{label:"Giudice di pace",f:[378,473,756,662]},
+  ip:{label:"Indagini preliminari",f:[851,662,1040,1229]},
+  idif:{label:"Indagini difensive",f:[851,null,1418,null]},
+  conv:{label:"Convalida dell'arresto",f:[378,null,473,709]},
+  cpers:{label:"Procedimenti cautelari personali",f:[378,1229,null,1418]},
+  creali:{label:"Procedimenti cautelari reali",f:[378,1229,null,1418]},
+  gip:{label:"GIP e GUP",f:[851,756,1040,1418]},
+  mono:{label:"Tribunale monocratico",f:[473,567,1134,1418]},
+  coll:{label:"Tribunale collegiale",f:[473,756,1418,1418]},
+  assise:{label:"Corte di Assise",f:[756,1418,2363,2835]},
+  tsorv:{label:"Tribunale di Sorveglianza",f:[473,945,1418,1418]},
+  msorv:{label:"Magistrato di Sorveglianza",f:[315,378,null,945]},
+  app:{label:"Corte di Appello",f:[473,945,1418,1418]},
+  assapp:{label:"Corte di Assise di Appello",f:[756,1985,2268,2336]},
+  cass:{label:"Corte di Cassazione e giurisdizioni superiori",f:[945,2646,null,2741]},
+};
+const FASI_PEN=["Studio","Introduttiva","Istruttoria/dibattimentale","Decisionale"];
+// Pene: computo in giorni con mese di 30 giorni e anno di 12 mesi (prassi per le frazioni); le frazioni di giorno e di euro
+// non si contano (art. 134 c.p.)
+const penaGiorni=(a,m,g)=>Math.max(0,Math.floor(+a||0))*360+Math.max(0,Math.floor(+m||0))*30+Math.max(0,Math.floor(+g||0));
+const penaTesto=d=>{ if(!d) return "nessuna"; const a=Math.floor(d/360), m=Math.floor(d%360/30), g=d%30;
+  const p=[a?`${a} ${a===1?"anno":"anni"}`:"",m?`${m} ${m===1?"mese":"mesi"}`:"",g?`${g} ${g===1?"giorno":"giorni"}`:""].filter(Boolean);
+  return p.length>1?p.slice(0,-1).join(", ")+" e "+p[p.length-1]:p[0]; };
+const FRAZ={"1/2":[1,2],"1/3":[1,3],"1/4":[1,4],"1/5":[1,5],"1/6":[1,6],"2/3":[2,3]};
 const prevMese=s=>{ const y=+s.slice(0,4), m=+s.slice(5,7); return new Date(Date.UTC(y,m-2,1)).toISOString().slice(0,7); };
 // Termine della dichiarazione relativa all'anno y (soglia della riduzione a 1/8, e per le violazioni fino al 31/8/2024 anche di quella a 1/7)
 // redditi, IRAP e 770: 31 ottobre dell'anno successivo (art. 2 e art. 4, c. 4-bis, DPR 322/1998; fino alle dichiarazioni presentate nel 2023: 30 novembre);
@@ -815,6 +845,78 @@ const ENGINES = {
     const ritenuta=o.ritenuta? r2((compenso+speseGen)*0.20):0;
     return {tab,label:T.label,valore,scaglione:i,scLim:T.sc[i],over,bands,fattore6,oltreDett,oltreImp,fasi,agg,compenso,speseGen,cpa,imponibile,iva,esenti,totale,ritenuta,netto:r2(totale-ritenuta)};
   },
+  // Determinazione della pena: tentativo, circostanze (artt. 63-69 c.p.), continuazione (art. 81), riti (artt. 442 e 444 c.p.p.),
+  // sospensione condizionale (art. 163), pene sostitutive (art. 20-bis c.p., art. 53 L. 689/1981). Pene detentive in giorni.
+  pena(o){
+    const del=o.tipo!=="contravvenzione", det=del?"reclusione":"arresto", pec=del?"multa":"ammenda";
+    let d=penaGiorni(o.base?.a,o.base?.m,o.base?.g), p=Math.max(0,Math.floor(+o.multa||0));
+    if(!(d>0||p>0)) return null;
+    const passi=[], avvisi=[], fl=x=>Math.floor(x+1e-9);
+    const muta=(fr,segno)=>{ const [n,den]=fr; d=fl(d*(den+segno*n)/den); p=fl(p*(den+segno*n)/den); };
+    passi.push({voce:"Pena base",d,p});
+    if(FRAZ[o.tentativo]){ muta(FRAZ[o.tentativo],-1); passi.push({voce:`Delitto tentato (art. 56 c.p.): diminuzione di ${o.tentativo}`,d,p}); }
+    // circostanze
+    const circ=(o.circ||[]).filter(c=>(c.t==="agg"||c.t==="att")&&FRAZ[c.f]);
+    let agg=circ.filter(c=>c.t==="agg"), att=circ.filter(c=>c.t==="att"), bil="";
+    if(agg.length&&att.length){
+      if(o.bil==="agg"){ bil="prevalenza delle aggravanti: si applicano solo gli aumenti (art. 69, c. 1)"; att=[]; }
+      else if(o.bil==="equi"){ bil="equivalenza: nessun aumento e nessuna diminuzione (art. 69, c. 3)"; agg=[]; att=[]; }
+      else { bil="prevalenza delle attenuanti: si applicano solo le diminuzioni (art. 69, c. 2)"; agg=[]; }
+      passi.push({voce:`Giudizio di bilanciamento: ${bil}`,d,p,nota:true});
+    }
+    const speciale=c=>FRAZ[c.f][0]/FRAZ[c.f][1]>1/3, ordina=l=>[...l.filter(speciale),...l.filter(c=>!speciale(c))];
+    for(const c of ordina(agg)){ muta(FRAZ[c.f],+1); passi.push({voce:`Aggravante${speciale(c)?" ad effetto speciale":""}: aumento di ${c.f}${c.nome?` (${c.nome})`:""}`,d,p}); }
+    const capDet=del?10800:1800;
+    if(agg.length&&d>capDet){ d=capDet; passi.push({voce:`Limite di ${del?"30 anni di reclusione":"5 anni di arresto"} (artt. 64 e 66 c.p.)`,d,p}); }
+    const primaAtt={d,p};
+    for(const c of ordina(att)){ muta(FRAZ[c.f],-1); passi.push({voce:`Attenuante${speciale(c)?" ad effetto speciale":""}: diminuzione di ${c.f}${c.nome?` (${c.nome})`:""}`,d,p}); }
+    if(att.filter(c=>!speciale(c)).length>=2&&!att.some(speciale)&&(d<fl(primaAtt.d/4)||p<fl(primaAtt.p/4))){
+      d=Math.max(d,fl(primaAtt.d/4)); p=Math.max(p,fl(primaAtt.p/4)); passi.push({voce:"Limite di un quarto per il concorso di più attenuanti (art. 67 c.p.)",d,p}); }
+    const piuGrave={d,p};
+    // continuazione e concorso formale
+    let cd=penaGiorni(o.cont?.a,o.cont?.m,o.cont?.g), cp=Math.max(0,Math.floor(+o.contMulta||0));
+    if(cd||cp){
+      if(cd>2*piuGrave.d){ cd=2*piuGrave.d; avvisi.push("L'aumento per la continuazione supera il triplo della pena per il reato più grave (art. 81 c.p.): ridotto al massimo consentito."); }
+      if(piuGrave.p&&cp>2*piuGrave.p){ cp=2*piuGrave.p; avvisi.push(`L'aumento della ${pec} per la continuazione supera il triplo: ridotto al massimo consentito.`); }
+      d+=cd; p+=cp; passi.push({voce:`Continuazione o concorso formale (art. 81 c.p.): aumento di ${penaTesto(cd)}${cp?` e ${fmt.format(cp)}`:""}`,d,p});
+    }
+    // rito
+    let esec=null;
+    if(o.rito==="abbr"){ muta(del?[1,3]:[1,2],-1); passi.push({voce:`Giudizio abbreviato (art. 442, c. 2, c.p.p.): diminuzione di ${del?"un terzo (delitto)":"metà (contravvenzione)"}`,d,p});
+      if(o.nonImpugnata){ esec={d:fl(d*5/6),p:fl(p*5/6)}; } }
+    if(o.rito==="patt"){ const fr=FRAZ[o.patFr]&&FRAZ[o.patFr][0]/FRAZ[o.patFr][1]<=1/3?o.patFr:"1/3"; muta(FRAZ[fr],-1); passi.push({voce:`Applicazione della pena su richiesta (art. 444 c.p.p.): diminuzione di ${fr}`,d,p}); }
+    const minDet=del?15:5, minPec=del?50:20;
+    if(d>0&&d<minDet) avvisi.push(`La ${det} risultante è inferiore al minimo generale di ${minDet} giorni (art. ${del?23:25} c.p.): verifica.`);
+    if(p>0&&p<minPec) avvisi.push(`La ${pec} risultante è inferiore al minimo generale di ${minPec} € (art. ${del?24:26} c.p.): verifica.`);
+    // benefici
+    const lim=o.eta==="minore"?1080:o.eta==="giovane"?900:720;
+    const sosp=(dd,pp)=>{ const ragg=Math.ceil(pp/250), tot=dd+ragg; return {ragg,tot,esito:tot<=lim?"si":dd<=lim&&dd>0?"solo-detentiva":"no"}; };
+    const vg=Math.min(2500,Math.max(5,+o.valoreGiorno||5));
+    const sostitutive=[
+      {nome:"Semilibertà sostitutiva e detenzione domiciliare sostitutiva",lim:1440,ok:d>0&&d<=1440},
+      {nome:"Lavoro di pubblica utilità sostitutivo",lim:1080,ok:d>0&&d<=1080},
+      {nome:"Pena pecuniaria sostitutiva",lim:360,ok:d>0&&d<=360,importo:d>0&&d<=360?d*vg:0},
+    ];
+    const patt=o.rito==="patt"?{ammissibile:d<=1800,art445:d<=720}:null;
+    return {del,det,pec,passi,avvisi,d,p,esec,lim,sosp:sosp(d,p),sospEsec:esec?sosp(esec.d,esec.p):null,sostitutive,vg,patt,ragguaglio:d*250,rito:o.rito||"ord"};
+  },
+  // Compenso dell'avvocato nel processo penale: DM 55/2014, art. 12 e tabella 15 (DM 147/2022)
+  parcellaPenale(o){
+    const SEL={tutte:[0,1,2,3],senzaIst:[0,1,3],studioIntro:[0,1],studio:[0]};
+    const v=Math.max(-50,Math.min(50,+o.varPct||0)), righe=[]; let compenso=0;
+    for(const r of (o.righe||[])){ const T=TAB15[r.aut]; if(!T) continue;
+      for(const i of (SEL[r.fasi]||SEL.tutte)){ const medio=T.f[i]; if(medio==null) continue;
+        let imp=r2(medio*(1+v/100)); const compl=o.idCompl&&r.aut==="idif"; if(compl) imp=r2(imp*1.2);
+        righe.push({aut:T.label,fase:FASI_PEN[i],medio,imp,compl}); compenso+=imp; } }
+    if(!righe.length) return null;
+    compenso=r2(compenso); const base=compenso, agg=[];
+    const n=Math.min(30,Math.max(1,Math.floor(+o.assistiti||1)));
+    if(n>1){ const pct=(Math.min(n,10)-1)*30+Math.max(0,n-10)*10, a=r2(base*pct/100); agg.push([`Più assistiti con la stessa posizione (art. 12, c. 2): ${n} soggetti, +${pct}%`,a]); compenso=r2(compenso+a); }
+    if(o.gratuito){ const rid=r2(compenso/3); agg.push(["Patrocinio a spese dello Stato: riduzione di un terzo (art. 106-bis DPR 115/2002)",-rid]); compenso=r2(compenso-rid); }
+    const speseGen=r2(compenso*(o.speseGenPct??15)/100), cpa=r2((compenso+speseGen)*0.04), imponibile=r2(compenso+speseGen+cpa);
+    const iva=r2(imponibile*(o.ivaPct??22)/100), totale=r2(imponibile+iva), ritenuta=o.ritenuta?r2((compenso+speseGen)*0.20):0;
+    return {righe,v,base,agg,compenso,speseGen,cpa,imponibile,iva,totale,ritenuta,netto:r2(totale-ritenuta),n};
+  },
   // Ravvedimento operoso per omesso o tardivo versamento (art. 13 D.Lgs. 471/1997 e art. 13 D.Lgs. 472/1997; regime del D.Lgs. 87/2024
   // per le violazioni dal 1/9/2024). o = {tributo, imposta, scadenza, pagamento, pvc, ente, cod, anno, mese, dich}
   ravvedimento(o){
@@ -962,6 +1064,10 @@ const CATALOG = [
     {id:"prescrizione", title:"Prescrizione dei diritti", desc:"Termini del codice civile (ordinaria, illecito, RC auto, canoni, retribuzioni, professionisti, vizi, appalto…): data di prescrizione e giorni residui.", refs:"Artt. 2946-2956, 1495, 1667 c.c. — L. 335/1995", status:"free"},
     {id:"pignoramento", title:"Pignoramento di stipendio e pensione", desc:"Quote pignorabili ex art. 545 c.p.c.: crediti ordinari, alimentari, fiscali, concorso; minimo impignorabile delle pensioni e somme sul conto.", refs:"Art. 545 c.p.c. (DL 83/2015, DL 115/2022) — art. 72-ter DPR 602/1973", status:"free"},
   ]},
+  {group:"Diritto penale", items:[
+    {id:"pena", title:"Determinazione della pena, patteggiamento e abbreviato", desc:"Pena base, tentativo, circostanze e bilanciamento, continuazione, diminuente del rito (abbreviato con l'ulteriore 1/6, patteggiamento), sospensione condizionale e pene sostitutive.", refs:"Artt. 56, 62-bis, 63-69, 81, 133-135, 163 c.p. — artt. 442 e 444-445 c.p.p. (D.Lgs. 150/2022) — art. 20-bis c.p. e artt. 53, 56-quater L. 689/1981", status:"free"},
+    {id:"parcella-penale", title:"Parcella penale — parametri forensi", desc:"Compenso dell'avvocato nel processo penale per autorità e fase (tabella 15), con più autorità, variazioni, più assistiti, patrocinio a spese dello Stato, spese generali, CPA, IVA e ritenuta.", refs:"DM 10/03/2014 n. 55, artt. 12, 15, 16 — tabella 15 sostituita dal DM 13/08/2022 n. 147 (GU n. 236 dell'8/10/2022) — art. 106-bis DPR 115/2002", status:"free"},
+  ]},
   {group:"Lavoro", items:[
     {id:"tfr", title:"TFR — trattamento di fine rapporto", desc:"Art. 2120 c.c.: quote annue, rivalutazione con indici FOI reali (1,5% + 75% ISTAT), imposta sostitutiva 17%, netto in tassazione separata.", refs:"Art. 2120 c.c. — L. 297/1982 — art. 19 TUIR (dal 1° gennaio 2027 art. 21 TU imposte sui redditi, D.Lgs. 117/2026) — indici FOI ISTAT (serie reale)", status:"free"},
   ]},
@@ -1058,7 +1164,7 @@ function renderInfo(){
   $("#main").innerHTML=`<div class="head"><h1>Informazioni, condizioni e contatti</h1><p>Chi eroga il servizio, come funzionano gli abbonamenti, come vengono trattati i dati e come ottenere assistenza.</p></div>
   <div class="panel"><div class="pb">
     <div class="eyebrow" style="margin-bottom:6px">Titolare del servizio</div>
-    <table class="rows"><tr><td>Denominazione</td><td class="r">${esc(T.nome)}</td></tr>
+    <table class="rows testo"><tr><td>Denominazione</td><td class="r">${esc(T.nome)}</td></tr>
     <tr><td>Titolare</td><td class="r">${esc(T.titolare)} — ${esc(T.ordine)}</td></tr>
     <tr><td>Sede</td><td class="r">${esc(T.indirizzo)}</td></tr>
     <tr><td>Partita IVA</td><td class="r">${esc(T.piva)}</td></tr>
@@ -1476,6 +1582,93 @@ const VIEWS = {
         <div class="note">Art. 32 L. 392/1978: per le locazioni abitative l'aggiornamento non può superare il 75% della variazione FOI; per le locazioni a canone concordato l'aggiornamento è escluso se il locatore ha optato per la cedolare secca (art. 3, c. 11, D.Lgs. 23/2011: la rinuncia vale per tutto il periodo dell'opzione). L'aggiornamento va richiesto per iscritto e decorre dalla richiesta (art. 32, c. 2). Le variazioni negative non riducono il canone.</div>`)}</div>${actions()}`;
     }
   },
+  "pena":{
+    form:()=>{
+      const fr=[["1/3","1/3"],["1/4","1/4"],["1/5","1/5"],["1/6","1/6"],["1/2","1/2 (effetto speciale)"],["2/3","2/3 (effetto speciale)"]];
+      const circ=i=>field(`pc${i}t`,`Circostanza ${i}`,"select",i===1?"att":"",{options:[["","—"],["att","Attenuante"],["agg","Aggravante"]]})+field(`pc${i}f`,"Misura","select","1/3",{options:fr});
+      const rito=state.inputs.prito||"ord";
+      return [
+        field("ptipo","Reato","select","delitto",{rerender:true,options:[["delitto","Delitto (reclusione e multa)"],["contravvenzione","Contravvenzione (arresto e ammenda)"]]}),
+        field("peta","Età dell'imputato al fatto","select","adulto",{options:[["adulto","Maggiorenne"],["giovane","Tra 18 e 21 anni, oppure 70 anni compiuti"],["minore","Minore di 18 anni"]]}),
+        `<div class="fieldset-title">Pena base scelta per il reato più grave</div>`,
+        field("pa","Anni","number",2,{min:0,max:30,step:1}), field("pm","Mesi","number",0,{min:0,max:11,step:1}),
+        field("pg","Giorni","number",0,{min:0,max:29,step:1}), field("pmulta",(state.inputs.ptipo==="contravvenzione"?"Ammenda":"Multa")+" (€)","number",0,{min:0,step:1}),
+        field("ptent","Delitto tentato (art. 56)","select","",{full:true,options:[["","No"],["1/3","Sì: diminuzione di 1/3"],["1/2","Sì: diminuzione di 1/2"],["2/3","Sì: diminuzione di 2/3"]]}),
+        `<div class="fieldset-title">Circostanze (in ordine di applicazione)</div>`,
+        circ(1),circ(2),circ(3),circ(4),
+        field("pbil","Se concorrono aggravanti e attenuanti (art. 69)","select","att",{full:true,options:[["att","Prevalenza delle attenuanti"],["equi","Equivalenza"],["agg","Prevalenza delle aggravanti"]]}),
+        `<div class="fieldset-title">Continuazione o concorso formale (art. 81): aumento complessivo per i reati satellite</div>`,
+        field("pca","Anni","number",0,{min:0,step:1}), field("pcm","Mesi","number",0,{min:0,max:11,step:1}),
+        field("pcg","Giorni","number",0,{min:0,max:29,step:1}), field("pcmulta","Aumento della pena pecuniaria (€)","number",0,{min:0,step:1}),
+        `<div class="fieldset-title">Rito</div>`,
+        field("prito","Rito","select","ord",{rerender:true,options:[["ord","Ordinario"],["abbr","Giudizio abbreviato"],["patt","Applicazione della pena su richiesta (patteggiamento)"]]}),
+        rito==="patt"?field("ppatfr","Diminuzione concordata (fino a 1/3)","select","1/3",{options:[["1/3","1/3"],["1/4","1/4"],["1/5","1/5"],["1/6","1/6"]]}):"",
+        rito==="abbr"?field("pnonimp","Sentenza non impugnata","select","no",{options:[["no","No / non ancora"],["si","Sì: ulteriore 1/6 in esecuzione (art. 442, c. 2-bis)"]]}):"",
+        field("pvg","Valore giornaliero per la pena pecuniaria sostitutiva (€)","number",5,{min:5,max:2500,step:1,hint:"da 5 a 2.500 € (art. 56-quater L. 689/1981)"}),
+      ].join("");
+    },
+    result:()=>{
+      const circ=[1,2,3,4].map(i=>({t:val(`pc${i}t`),f:val(`pc${i}f`)}));
+      const R=ENGINES.pena({tipo:val("ptipo"),base:{a:num("pa"),m:num("pm"),g:num("pg")},multa:num("pmulta"),tentativo:val("ptent"),circ,bil:val("pbil"),
+        cont:{a:num("pca"),m:num("pcm"),g:num("pcg")},contMulta:num("pcmulta"),rito:val("prito"),patFr:val("ppatfr"),nonImpugnata:val("pnonimp")==="si",eta:val("peta"),valoreGiorno:num("pvg")});
+      if(!R) return empty("Inserisci la pena base (detentiva o pecuniaria).");
+      const pena=(d,p)=>`${d?`${penaTesto(d)} di ${R.det}`:""}${d&&p?" e ":""}${p?`${fmt.format(p)} di ${R.pec}`:""}`||"nessuna pena";
+      const S=R.sosp, sospTxt=s=>s.esito==="si"?`concedibile per entità della pena (${penaTesto(s.tot)} complessivi, limite ${penaTesto(R.lim)})`:s.esito==="solo-detentiva"?`solo per la pena detentiva: con la pena pecuniaria ragguagliata si superano ${penaTesto(R.lim)}`:`non concedibile: la pena supera ${penaTesto(R.lim)}`;
+      return `<div class="total"><div class="eyebrow">Pena ${R.rito==="patt"?"applicata su richiesta":"inflitta"}</div><div class="big" style="font-size:26px">${esc(pena(R.d,R.p))}</div><div class="sub">${R.esec?`in esecuzione, senza impugnazione: ${esc(pena(R.esec.d,R.esec.p))} · `:""}sospensione condizionale: ${S.esito==="si"?"possibile per entità":S.esito==="solo-detentiva"?"solo pena detentiva":"esclusa per entità"}${R.patt?` · patteggiamento ${R.patt.ammissibile?"ammissibile (entro 5 anni)":"non ammissibile (oltre 5 anni)"}`:""}</div>${R.avvisi.map(a=>`<div class="warn">${esc(a)}</div>`).join("")}</div>
+      <div class="pb">${gate(`
+        <div class="tblwrap"><table class="rows"><tr><th>Passaggio</th><th class="r">${R.del?"Reclusione":"Arresto"}</th><th class="r">${R.del?"Multa":"Ammenda"}</th></tr>
+        ${R.passi.map(x=>x.nota?`<tr class="muted"><td colspan="3">${esc(x.voce)}</td></tr>`:`<tr><td>${esc(x.voce)}</td><td class="r">${esc(penaTesto(x.d))}</td><td class="r">${x.p?fmt.format(x.p):"—"}</td></tr>`).join("")}
+        <tr class="sum"><td>Pena ${R.rito==="patt"?"applicata":"inflitta"}</td><td class="r">${esc(penaTesto(R.d))}</td><td class="r">${R.p?fmt.format(R.p):"—"}</td></tr>
+        ${R.esec?`<tr><td>Ulteriore riduzione di 1/6 in esecuzione per mancata impugnazione (art. 442, c. 2-bis, c.p.p.)</td><td class="r">${esc(penaTesto(R.esec.d))}</td><td class="r">${R.esec.p?fmt.format(R.esec.p):"—"}</td></tr>`:""}</table></div>
+        <div class="eyebrow" style="margin:14px 0 6px">Benefici e alternative (limiti di pena)</div>
+        <table class="rows">
+        <tr><td>Sospensione condizionale (art. 163 c.p.): ${esc(sospTxt(S))}</td><td class="r">${{si:"sì","solo-detentiva":"parziale",no:"no"}[S.esito]}</td></tr>
+        ${R.sospEsec&&R.sospEsec.esito!==S.esito?`<tr><td>Sospensione sulla pena ridotta di 1/6 dal giudice dell'esecuzione (Corte cost. n. 208/2024): ${esc(sospTxt(R.sospEsec))}</td><td class="r">${{si:"sì","solo-detentiva":"parziale",no:"no"}[R.sospEsec.esito]}</td></tr>`:""}
+        ${R.sostitutive.map(s=>`<tr><td>${esc(s.nome)} (pena fino a ${penaTesto(s.lim)})${s.ok&&s.importo?`: ${R.d} giorni × ${fmt.format(R.vg)}`:""}</td><td class="r">${s.ok?(s.importo?fmt.format(s.importo):"sì"):"no"}</td></tr>`).join("")}
+        ${R.patt?`<tr><td>Patteggiamento: limite di 5 anni di pena detentiva (art. 444, c. 1, c.p.p.)</td><td class="r">${R.patt.ammissibile?"rispettato":"superato"}</td></tr>
+        <tr><td>Pena non superiore a 2 anni (art. 445 c.p.p.): ${R.patt.art445?`niente spese del procedimento, pene accessorie e misure di sicurezza (salva la confisca); reato estinto se in ${R.del?"5 anni non si commette un delitto":"2 anni non si commette una contravvenzione della stessa indole"}`:"effetti ordinari ed esclusioni dell'art. 444, c. 1-bis"}</td><td class="r">${R.patt.art445?"sì":"no"}</td></tr>`:""}
+        <tr><td>Ragguaglio della pena detentiva (art. 135 c.p.: 250 € al giorno)</td><td class="r">${fmt.format(R.ragguaglio)}</td></tr></table>
+        <div class="note">Computo: mesi di 30 giorni e anni di 12 mesi, senza frazioni di giorno né di euro (art. 134 c.p.). Le circostanze si applicano in successione, ciascuna sulla pena risultante dalla precedente (art. 63, c. 2), e quelle ad effetto speciale (oltre 1/3) per prime (art. 63, c. 3). Aggravanti comuni fino a 1/3 (art. 64), attenuanti fino a 1/3 (art. 65), attenuanti generiche fino a 1/3 (art. 62-bis); limiti degli artt. 66 e 67. Se concorrono più circostanze ad effetto speciale si applica la pena per la più grave, che il giudice può aumentare o diminuire (art. 63, c. 4-5): inserisci la più grave e l'ulteriore variazione come circostanza ordinaria. Il bilanciamento (art. 69) non opera per la recidiva reiterata (divieto di prevalenza delle attenuanti, con le eccezioni dichiarate dalla Corte costituzionale) né per le circostanze autonome. Continuazione: pena del reato più grave aumentata fino al triplo e non oltre il cumulo materiale (art. 81); con la recidiva reiterata l'aumento non può essere inferiore a 1/3. La diminuente del rito si applica per ultima, sulla pena comprensiva della continuazione: abbreviato 1/3 per i delitti e 1/2 per le contravvenzioni, con l'ulteriore 1/6 in esecuzione se nessuno impugna (art. 442, c. 2 e 2-bis, c.p.p.); patteggiamento fino a 1/3, ammesso se la pena detentiva finale non supera 5 anni (art. 444 c.p.p.; esclusioni del c. 1-bis oltre 2 anni). Sospensione condizionale: limite di 2 anni, 2 anni e 6 mesi tra 18 e 21 anni o dai 70 anni, 3 anni per i minori, con la pena pecuniaria ragguagliata a 250 € al giorno (artt. 163 e 135 c.p.); restano da valutare i presupposti soggettivi (art. 164). Pene sostitutive (art. 20-bis c.p.; artt. 53 e 56-quater L. 689/1981): semilibertà e detenzione domiciliare fino a 4 anni, lavoro di pubblica utilità fino a 3 anni, pena pecuniaria fino a 1 anno, calcolati sulla pena comprensiva della continuazione. Il risultato è una simulazione: la misura degli aumenti e delle diminuzioni è rimessa al giudice (art. 133 c.p.).</div>`)}
+      </div>${actions()}`;
+    }
+  },
+  "parcella-penale":{
+    form:()=>{
+      const aut=Object.entries(TAB15).map(([k,t])=>[k,t.label]);
+      const fasi=[["tutte","Tutte le fasi previste"],["senzaIst","Senza istruttoria (es. patteggiamento, abbreviato)"],["studioIntro","Studio e fase introduttiva"],["studio","Solo studio"]];
+      return [
+        field("pp1aut","Autorità / attività","select","mono",{options:aut}), field("pp1fasi","Fasi","select","tutte",{options:fasi}),
+        field("pp2aut","Seconda autorità / attività","select","",{options:[["","— nessuna —"],...aut]}), field("pp2fasi","Fasi","select","tutte",{options:fasi}),
+        field("pp3aut","Terza autorità / attività","select","",{options:[["","— nessuna —"],...aut]}), field("pp3fasi","Fasi","select","tutte",{options:fasi}),
+        field("ppvar","Variazione sui valori medi (%)","number",0,{min:-50,max:50,step:5,hint:"da −50% a +50% (art. 12, c. 1)"}),
+        field("ppass","Soggetti assistiti con la stessa posizione","number",1,{min:1,max:30,step:1}),
+        field("ppidc","Indagini difensive complesse o urgenti","select","no",{options:[["no","No"],["si","Sì: +20% (art. 12, c. 3-bis)"]]}),
+        field("ppgrat","Patrocinio a spese dello Stato","select","no",{options:[["no","No"],["si","Sì: riduzione di 1/3 (art. 106-bis DPR 115/2002)"]]}),
+        field("ppsg","Spese generali (%)","number",15,{min:0,max:15,step:1}),
+        field("ppiva","IVA (%)","number",22,{min:0,max:22,step:1}),
+        field("pprit","Cliente sostituto d'imposta (ritenuta 20%)","select","no",{options:[["no","No"],["si","Sì"]]}),
+      ].join("");
+    },
+    result:()=>{
+      const righe=[1,2,3].map(i=>({aut:val(`pp${i}aut`),fasi:val(`pp${i}fasi`)})).filter(r=>r.aut);
+      const R=ENGINES.parcellaPenale({righe,varPct:num("ppvar"),assistiti:num("ppass"),idCompl:val("ppidc")==="si",gratuito:val("ppgrat")==="si",speseGenPct:num("ppsg"),ivaPct:num("ppiva"),ritenuta:val("pprit")==="si"});
+      if(!R) return empty("Scegli almeno un'autorità con fasi previste dalla tabella.");
+      return `<div class="total"><div class="eyebrow">Totale documento</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">compenso ${fmt.format(R.compenso)} · spese generali ${fmt.format(R.speseGen)} · CPA ${fmt.format(R.cpa)} · IVA ${fmt.format(R.iva)}${R.ritenuta?` · netto a pagare ${fmt.format(R.netto)}`:""}</div></div>
+      <div class="pb">${gate(`<div class="tblwrap"><table class="rows"><tr><th>Autorità / attività</th><th>Fase</th><th class="r">Valore medio</th><th class="r">Importo</th></tr>
+        ${R.righe.map(x=>`<tr><td>${esc(x.aut)}</td><td>${esc(x.fase)}${x.compl?" (+20%)":""}</td><td class="r">${fmt.format(x.medio)}</td><td class="r">${fmt.format(x.imp)}</td></tr>`).join("")}
+        <tr class="sum"><td colspan="3">Compenso per fasi${R.v?` (variazione ${R.v>0?"+":""}${R.v}%)`:""}</td><td class="r">${fmt.format(R.base)}</td></tr></table></div>
+        <table class="rows">${R.agg.map(([l,a])=>`<tr><td>${esc(l)}</td><td class="r">${a<0?"− "+fmt.format(-a):fmt.format(a)}</td></tr>`).join("")}
+        <tr><td>Compenso</td><td class="r">${fmt.format(R.compenso)}</td></tr>
+        <tr><td>Spese generali ${num("ppsg")}% (art. 2, c. 2)</td><td class="r">${fmt.format(R.speseGen)}</td></tr>
+        <tr><td>CPA 4%</td><td class="r">${fmt.format(R.cpa)}</td></tr>
+        <tr><td>Imponibile IVA</td><td class="r">${fmt.format(R.imponibile)}</td></tr>
+        <tr><td>IVA ${num("ppiva")}%</td><td class="r">${fmt.format(R.iva)}</td></tr>
+        <tr class="sum"><td>Totale</td><td class="r">${fmt.format(R.totale)}</td></tr>
+        ${R.ritenuta?`<tr><td>Ritenuta d'acconto 20%</td><td class="r">− ${fmt.format(R.ritenuta)}</td></tr><tr class="sum"><td>Netto a pagare</td><td class="r">${fmt.format(R.netto)}</td></tr>`:""}</table>
+        <div class="note">Valori medi della tabella 15 allegata al DM 55/2014, come sostituita dal DM 147/2022 (GU n. 236 dell'8/10/2022), in vigore dal 23/10/2022. Il compenso si liquida per fasi (art. 12, c. 3): studio (anche attività investigativa), introduttiva (esposti, denunce, querele, istanze, impugnazioni, memorie), istruttoria o dibattimentale, decisionale. I valori medi possono essere aumentati fino al 50% o diminuiti non oltre il 50% secondo i parametri dell'art. 12, c. 1 (gravità e numero delle imputazioni, complessità, numero di udienze, esito). Più assistiti con la stessa posizione: +30% per ciascuno fino a dieci e +10% oltre, fino a trenta; il compenso può invece essere ridotto fino al 30% se le posizioni non richiedono esami distinti (art. 12, c. 2). Davanti al Tribunale per i minorenni si applicano i valori dell'autorità che sarebbe stata competente per un maggiorenne (art. 12, c. 3-ter). Per la parte civile e la persona offesa valgono gli stessi parametri (art. 16). Trasferte: art. 15. Le caselle vuote della tabella corrispondono a fasi non previste per quell'autorità.</div>`)}
+      </div>${actions()}`;
+    }
+  },
   "ravvedimento":{
     form:()=>{
       const k=state.inputs.rtrib||"irpef_saldo", T=RAVV_TRIBUTI[k]||RAVV_TRIBUTI.irpef_saldo;
@@ -1603,9 +1796,9 @@ const VIEWS = {
         <div class="print-only" style="margin-bottom:10px"></div>
         <h3 style="font-family:var(--serif);font-size:17px;margin-bottom:6px">Preventivo di massima ex art. 13, c. 5, L. 31 dicembre 2012, n. 247</h3>
         <table class="rows">
-        ${val("qcli")?`<tr><td>Cliente</td><td class="r">${esc(val("qcli"))}</td></tr>`:""}
-        ${val("qogg")?`<tr><td>Oggetto</td><td class="r">${esc(val("qogg"))}</td></tr>`:""}
-        <tr><td>Procedimento</td><td class="r">${esc(T.label)}</td></tr>
+        ${val("qcli")?`<tr><td>Cliente</td><td class="r" style="white-space:normal">${esc(val("qcli"))}</td></tr>`:""}
+        ${val("qogg")?`<tr><td>Oggetto</td><td class="r" style="white-space:normal">${esc(val("qogg"))}</td></tr>`:""}
+        <tr><td>Procedimento</td><td class="r" style="white-space:normal">${esc(T.label)}</td></tr>
         <tr><td>Valore della controversia</td><td class="r">${fmt.format(num("qval"))}</td></tr>
         <tr><td>Data</td><td class="r">${fmtD(todayISO())}</td></tr></table>
         <div class="eyebrow" style="margin:14px 0 6px">Compensi (DM 55/2014, tabelle DM 147/2022, livello ${liv===0?"medio":(liv>0?"+":"")+liv+"%"})</div>

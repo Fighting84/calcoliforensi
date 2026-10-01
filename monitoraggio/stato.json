@@ -319,6 +319,43 @@
         "\"omesso versamento\" AND ravvedimento AND sanzion*"
       ],
       "note": "Regime D.Lgs. 87/2024 per le violazioni dal 1/9/2024; TU sanzioni D.Lgs. 173/2024 (artt. 14 e 38) applicabile dal 1/1/2027 per l'art. 4, c. 1, DL 200/2025. Codici tributo controllati ogni giorno sulla banca dati dell'Agenzia (check_codici.js)."
+    },
+    {
+      "id": "pena",
+      "calcolatore": "pena",
+      "keywords": [
+        "patteggiamento",
+        "giudizio abbreviato",
+        "pene sostitutive",
+        "sospensione condizionale",
+        "circostanze"
+      ],
+      "gu": [
+        "pene sostitutive",
+        "applicazione della pena su richiesta",
+        "giudizio abbreviato"
+      ],
+      "cass": [
+        "\"giudizio abbreviato\" AND \"un sesto\" AND \"442\"",
+        "\"pene sostitutive\" AND (\"20-bis\" OR \"56-quater\")",
+        "\"applicazione della pena su richiesta\" AND (diminuzione OR \"un terzo\") AND calcolo"
+      ],
+      "note": "Riforma Cartabia (D.Lgs. 150/2022): art. 442 c. 2-bis, pene sostitutive. Corte cost. 208/2024 su 442 c. 2-bis."
+    },
+    {
+      "id": "parcella-penale",
+      "calcolatore": "parcella-penale",
+      "keywords": [
+        "parcella penale",
+        "tabella 15 DM 55/2014"
+      ],
+      "gu": [
+        "parametri per la liquidazione dei compensi"
+      ],
+      "cass": [
+        "\"tabella 15\" AND (\"55 del 2014\" OR \"55/2014\")"
+      ],
+      "note": "Tabella 15 trascritta dal DM 147/2022 (GU 236/2022 pag. 7) il 01/10/2026; confronto con Legal IT su 4 autorità."
     }
   ],
   "ultima_verifica_gu": "2026-10-01"

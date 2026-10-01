@@ -154,6 +154,40 @@ ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, 
 // GU 302 del 31/12/2025; D.Lgs. 10/2026 IVA, 117/2026 TUIR e 141/2026 adempimenti dal 1/1/2027 in origine). Testi in monitoraggio/gazzetta
 { const need = ["TU registro D.Lgs. 123/2025", "artt. 50 e 52 e allegato 4", "artt. 93 e 133 del TU registro", "art. 299", "D.Lgs. 117/2026", "TU IVA D.Lgs. 10/2026", "DL 200/2025"]; const miss = need.filter(n => !html.includes(n)); miss.length ? fail++ : pass++; console.log(`${miss.length ? "DIFF" : "OK  "} citazioni testi unici nelle note ${miss.join("; ")}`); }
 { const bad = (html.match(/.{0,120}(?:1° gennaio 2026|1\/1\/2026).{0,40}/g) || []).filter(s => /D\.Lgs\. (?:123\/2025|173\/2024)|TU (?:registro|sanzioni)/.test(s)); bad.length ? fail++ : pass++; console.log(`${bad.length ? "DIFF" : "OK  "} nessun testo unico indicato come applicabile dal 2026 ${bad.join(" | ")}`); }
+// Pena: casi calcolati a mano (giorni con mese di 30 e anno di 360, frazioni di giorno ed euro eliminate: art. 134 c.p.)
+{ const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
+  const P = o => ENGINES.pena({ tipo: "delitto", eta: "adulto", valoreGiorno: 5, ...o });
+  const pt = new Function(src + "\nreturn penaTesto;")();
+  eq("testo pena 320 giorni", pt(320), "10 mesi e 20 giorni"); eq("testo pena 400 giorni", pt(400), "1 anno, 1 mese e 10 giorni"); eq("testo pena 361 giorni", pt(361), "1 anno e 1 giorno");
+  let R = P({ base: { a: 2 }, circ: [{ t: "att", f: "1/3" }], rito: "abbr", nonImpugnata: true });
+  eq("2 anni − generiche 1/3 − abbreviato 1/3", R.d, 320); eq("  ulteriore 1/6 senza impugnazione (266,67 → 266)", R.esec.d, 266);
+  R = P({ base: { a: 1, m: 6 }, multa: 600, circ: [{ t: "att", f: "1/3" }], rito: "patt", patFr: "1/3" });
+  eq("patteggiamento 1a6m + 600 € − 1/3 − 1/3", `${R.d}/${R.p}`, "240/266"); eq("  art. 445 e sospensione (240 gg + 2 gg di ragguaglio)", `${R.patt.art445}/${R.sosp.tot}/${R.sosp.esito}`, "true/242/si");
+  eq("  pena pecuniaria sostitutiva 240 gg × 5 €", R.sostitutive[2].importo, 1200);
+  R = P({ base: { a: 2 }, circ: [{ t: "agg", f: "1/3" }, { t: "att", f: "1/3" }], bil: "equi" }); eq("equivalenza: pena base invariata", R.d, 720);
+  R = P({ base: { a: 2 }, circ: [{ t: "agg", f: "1/3" }, { t: "att", f: "1/3" }], bil: "agg" }); eq("prevalenza aggravanti: solo +1/3", R.d, 960);
+  R = P({ base: { m: 7 }, circ: [{ t: "agg", f: "1/3" }, { t: "agg", f: "1/2" }] }); eq("effetto speciale applicato per primo", R.passi[1].voce.startsWith("Aggravante ad effetto speciale") && R.d === 420, true);
+  R = P({ base: { a: 1 }, circ: [1, 2, 3, 4].map(() => ({ t: "att", f: "1/3" })) }); eq("art. 67: non sotto 1/4 (360 → 70 → 90)", R.d, 90);
+  R = ENGINES.pena({ tipo: "contravvenzione", base: { m: 3 }, multa: 1000, rito: "abbr" }); eq("contravvenzione abbreviato −1/2", `${R.d}/${R.p}/${R.pec}`, "45/500/ammenda");
+  R = P({ base: { a: 1 }, cont: { m: 4 } }); eq("continuazione +4 mesi", R.d, 480);
+  R = P({ base: { m: 1 }, cont: { m: 3 } }); eq("continuazione oltre il triplo ridotta", `${R.d}/${R.avvisi.length}`, "90/1");
+  R = P({ base: { a: 6 }, tentativo: "2/3" }); eq("tentativo −2/3 su 6 anni", R.d, 720);
+  R = P({ base: { a: 24 }, circ: [{ t: "agg", f: "1/2" }] }); eq("limite 30 anni di reclusione", R.d, 10800);
+  eq("sospensione 2a3m: adulto no, 18-21 sì", `${P({ base: { a: 2, m: 3 } }).sosp.esito}/${P({ base: { a: 2, m: 3 }, eta: "giovane" }).sosp.esito}`, "no/si");
+  eq("sospensione solo detentiva se la multa ragguagliata supera", P({ base: { a: 1, m: 11 }, multa: 10000 }).sosp.esito, "solo-detentiva");
+  eq("patteggiamento oltre 5 anni non ammissibile", P({ base: { a: 9 }, rito: "patt", patFr: "1/3" }).patt.ammissibile, false);
+  eq("pene sostitutive a 3 anni e 6 mesi: solo semilibertà/detenzione domiciliare", P({ base: { a: 3, m: 6 } }).sostitutive.map(s => s.ok).join(), "true,false,false");
+  eq("nessuna pena: nessun calcolo", P({ base: {} }), null); }
+// Parcella penale: tabella 15 DM 147/2022 (GU 236/2022, pag. 7) — Tribunale monocratico confrontato con Legal IT (5.241,16 €)
+{ const PP = o => ENGINES.parcellaPenale({ righe: [{ aut: "mono", fasi: "tutte" }], ...o });
+  let R = PP({}); ck("monocratico tutte le fasi: compenso", R.compenso, 3592); ck("  totale con spese generali, CPA e IVA", R.totale, 5241.16);
+  ck("Cassazione (senza istruttoria in tabella)", ENGINES.parcellaPenale({ righe: [{ aut: "cass", fasi: "tutte" }] }).compenso, 945 + 2646 + 2741);
+  ck("GIP senza istruttoria + monocratico", ENGINES.parcellaPenale({ righe: [{ aut: "gip", fasi: "senzaIst" }, { aut: "mono", fasi: "tutte" }] }).compenso, 851 + 756 + 1418 + 3592);
+  ck("variazione +50%", PP({ varPct: 50 }).compenso, 5388); ck("variazione −80% limitata a −50%", PP({ varPct: -80 }).compenso, 1796);
+  ck("3 assistiti: +60%", PP({ assistiti: 3 }).compenso, r2(3592 * 1.6)); ck("12 assistiti: +270% +20%", PP({ assistiti: 12 }).compenso, r2(3592 * 3.9));
+  ck("patrocinio a spese dello Stato: −1/3", PP({ gratuito: true }).compenso, r2(3592 - r2(3592 / 3)));
+  ck("indagini difensive complesse +20%", ENGINES.parcellaPenale({ righe: [{ aut: "idif", fasi: "tutte" }], idCompl: true }).compenso, r2(851 * 1.2 + 1418 * 1.2));
+  ck("Corte di Assise di Appello", ENGINES.parcellaPenale({ righe: [{ aut: "assapp", fasi: "tutte" }] }).compenso, 756 + 1985 + 2268 + 2336); }
 // Ravvedimento operoso: casi calcolati a mano dalla norma (art. 13 D.Lgs. 471/1997 e 472/1997), saggi legali 2025 2%, 2026 1,6%
 { const rv = o => ENGINES.ravvedimento({ tributo: "irpef_saldo", imposta: 1000, ...o });
   const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
