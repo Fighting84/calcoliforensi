@@ -188,6 +188,37 @@ ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, 
   ck("patrocinio a spese dello Stato: −1/3", PP({ gratuito: true }).compenso, r2(3592 - r2(3592 / 3)));
   ck("indagini difensive complesse +20%", ENGINES.parcellaPenale({ righe: [{ aut: "idif", fasi: "tutte" }], idCompl: true }).compenso, r2(851 * 1.2 + 1418 * 1.2));
   ck("Corte di Assise di Appello", ENGINES.parcellaPenale({ righe: [{ aut: "assapp", fasi: "tutte" }] }).compenso, 756 + 1985 + 2268 + 2336); }
+// Prescrizione del reato: casi calcolati a mano dagli artt. 157-161-bis c.p.
+{ const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
+  const PR = o => ENGINES.prescrizioneReato({ tipo: "delitto", pena: "detentiva", limite: "1/4", oggi: "2026-10-01", ...o });
+  let R = PR({ data: "2021-03-10", maxA: 3 });
+  eq("delitto max 3 anni: minimo 6 anni, massimo 7a6m", `${R.mesi}/${R.mesiMax}/${R.ordinaria}/${R.massima}`, "72/90/2027-03-10/2028-09-10");
+  eq("  dal 2020 senza sentenza: non prescritto", R.prescritto, false);
+  eq("atti interruttivi senza data: termine massimo", PR({ data: "2021-03-10", maxA: 3, interrotto: true }).effettiva, "2028-09-10");
+  R = PR({ tipo: "contravvenzione", data: "2021-03-10", maxA: 1 }); eq("contravvenzione: 4 anni, massimo 5", `${R.ordinaria}/${R.massima}`, "2025-03-10/2026-03-10");
+  eq("  prescritta al 1/10/2026", R.prescritto, true);
+  R = PR({ data: "2021-03-10", maxA: 10 }); eq("rapina (max 10 anni): 10 anni e 12a6m", `${R.mesi}/${R.mesiMax}`, "120/150");
+  R = PR({ data: "2021-03-10", maxA: 10, tentato: true }); eq("tentativo: 80 mesi, massimo 100", `${R.mesi}/${R.mesiMax}`, "80/100");
+  R = PR({ data: "2021-03-10", maxA: 5, aggSpec: "1/2" }); eq("aggravante ad effetto speciale +1/2 su 5 anni: 7a6m; massimo 112,5 mesi", `${R.mesi}/${R.mesiMax}/${R.massima}`, "90/112.5/2030-07-25");
+  R = PR({ data: "2021-03-10", maxA: 7, raddoppio: true }); eq("raddoppio (art. 589 c. 2): 14 anni, massimo 17a6m", `${R.mesi}/${R.mesiMax}`, "168/210");
+  R = PR({ data: "2021-03-10", maxA: 3, limite: "2/3" }); eq("recidiva reiterata: massimo 10 anni", R.mesiMax, 120);
+  R = PR({ data: "2021-03-10", maxA: 3, limite: "illimitato", ultimaInterr: "2026-01-15" }); eq("art. 51 c. 3-bis: nessun limite, nuovo termine dall'atto", `${R.massima}/${R.effettiva}`, "null/2032-01-15");
+  R = PR({ data: "2021-03-10", maxA: 3, ultimaInterr: "2024-01-15" }); eq("interruzione: nuovo termine oltre il massimo → massimo", R.effettiva, "2028-09-10");
+  R = PR({ data: "2021-03-10", maxA: 3, ultimaInterr: "2021-06-01" }); eq("interruzione precoce: 6 anni dall'atto", R.effettiva, "2027-06-01");
+  R = PR({ data: "2021-03-10", maxA: 3, ultimaInterr: "2027-06-01" }); eq("atto successivo alla scadenza ordinaria: non interrompe", `${R.effettiva}/${R.avvisi.length}`, "2027-03-10/1");
+  R = PR({ data: "2021-03-10", maxA: 3, sospGiorni: 100 }); eq("sospensione di 100 giorni", R.ordinaria, "2027-06-18");
+  R = PR({ tipo: "contravvenzione", data: "2018-05-01", maxA: 1, interrotto: true, condanna1: true, condanna2: true }); eq("legge Orlando: termine massimo + 36 mesi dopo due condanne", `${R.regime}/${R.massima}/${R.dopo.conSosp}`, "orlando/2023-05-01/2026-05-01");
+  R = PR({ tipo: "contravvenzione", data: "2018-05-01", maxA: 1, condanna1: true }); eq("  senza atti interruttivi e con una sola condanna: +18 mesi sul termine ordinario", R.dopo.conSosp, "2023-11-01");
+  eq("legge Orlando dal 3/8/2017 (SU 20989/2025)", `${PR({ data: "2017-08-03", maxA: 3 }).regime}/${PR({ data: "2017-08-02", maxA: 3 }).regime}/${PR({ data: "2020-01-01", maxA: 3 }).regime}`, "orlando/ante/cartabia");
+  R = PR({ data: "2021-01-10", maxA: 3, sentenza1: "2025-06-01" }); eq("dal 2020: sentenza di primo grado prima della scadenza → corso cessato", `${R.cessata}/${R.prescritto}`, "true/false");
+  R = PR({ data: "2021-01-10", maxA: 3, sentenza1: "2029-06-01" }); eq("sentenza dopo la scadenza: già prescritto (al 2029)", R.cessata, false);
+  eq("sola pena pecuniaria: 6 anni (delitto) e 4 (contravvenzione)", `${PR({ data: "2021-03-10", pena: "pecuniaria" }).mesi}/${PR({ tipo: "contravvenzione", data: "2021-03-10", pena: "pecuniaria" }).mesi}`, "72/48");
+  eq("pene diverse: 3 anni sotto il minimo → minimo", PR({ tipo: "contravvenzione", data: "2021-03-10", pena: "altre" }).mesi, 48);
+  eq("ergastolo: imprescrittibile", PR({ data: "2021-03-10", ergastolo: true }).imprescrittibile, true);
+  eq("fatti anteriori alla ex Cirielli: non calcolato", !!PR({ data: "2004-01-01", maxA: 3 }).errore, true);
+  eq("fine mese: 31/08/2020 + 6 anni", PR({ data: "2020-08-31", maxA: 3 }).ordinaria, "2026-08-31");
+  eq("29 febbraio + 4 anni (contravvenzione)", PR({ tipo: "contravvenzione", data: "2020-02-29", maxA: 1 }).ordinaria, "2024-02-29");
+  eq("29 febbraio + 6 anni → 28 febbraio", PR({ data: "2020-02-29", maxA: 3 }).ordinaria, "2026-02-28"); }
 // Modello F24: raggruppamento per sezione, totali e saldo
 { const F = ENGINES.f24([
     { sez: "Erario", codice: "4001", anno: "2025", deb: 1000 }, { sez: "Erario", codice: "8901", anno: "2025", deb: 8.33 },

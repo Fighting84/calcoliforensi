@@ -179,6 +179,18 @@ function apri(licenza) {
   ck("pena: abbreviato con ulteriore 1/6", /8 mesi e 26 giorni/.test($3("#result").textContent));
   await set3("ptipo", "contravvenzione");
   ck("pena: contravvenzione con arresto e ammenda", /arresto/.test($3("#result .total .big").textContent) && /Ammenda/.test($3(".panel").textContent));
+  // prescrizione del reato
+  await vai3("#/prescrizione-reato");
+  ck("prescrizione reato: delitto max 3 anni del 10/03/2021 con interruzioni → 10/09/2028", /10\/09\/2028/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  await set3("pzdata", "2018-05-01"); await set3("pzc1", "si");
+  ck("prescrizione reato: regime legge Orlando con sospensione", /L\. 103\/2017/.test($3("#result").textContent) && /01\/05\/2027/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  await set3("pzdata", "2021-03-10"); await set3("pzsent", "2025-06-01");
+  ck("prescrizione reato: dal 2020 corso cessato con la sentenza di primo grado", /Corso cessato/.test($3("#result .total .big").textContent) && /344-bis/.test($3("#result").textContent));
+  await set3("pzintsel", "data");
+  ck("prescrizione reato: campo data dell'ultimo atto interruttivo", !!$3("#pzint"));
+  await set3("pzpena", "ergastolo");
+  ck("prescrizione reato: ergastolo imprescrittibile", /Imprescrittibile/.test($3("#result .total .big").textContent));
+  ck("prescrizione reato: nessun errore", C.errori.length === 0, C.errori.join(" | "));
   // parcella penale
   await vai3("#/parcella-penale");
   ck("parcella penale: monocratico 5.241,16 €", /5\.241,16/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);

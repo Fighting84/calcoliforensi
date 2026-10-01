@@ -356,6 +356,26 @@
         "\"tabella 15\" AND (\"55 del 2014\" OR \"55/2014\")"
       ],
       "note": "Tabella 15 trascritta dal DM 147/2022 (GU 236/2022 pag. 7) il 01/10/2026; confronto con Legal IT su 4 autorità."
+    },
+    {
+      "id": "prescrizione-reato",
+      "calcolatore": "prescrizione-reato",
+      "keywords": [
+        "prescrizione del reato",
+        "161-bis",
+        "improcedibilità",
+        "legge Orlando"
+      ],
+      "gu": [
+        "prescrizione del reato",
+        "improcedibilità"
+      ],
+      "cass": [
+        "\"161-bis\" AND prescrizione",
+        "\"344-bis\" AND improcedibilit*",
+        "prescrizione AND sospensione AND \"103 del 2017\""
+      ],
+      "note": "Regimi per data del fatto: ex Cirielli; L. 103/2017 per i fatti dal 3/8/2017 al 31/12/2019 (Cass. SU 20989/2025, dep. 5/6/2025); art. 161-bis e 344-bis dal 1/1/2020. A giugno 2025 era in Parlamento un disegno di legge di riforma della prescrizione: se approvato, rivedere il calcolatore."
     }
   ],
   "ultima_verifica_gu": "2026-10-01"

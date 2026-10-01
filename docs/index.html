@@ -263,7 +263,7 @@ const TITOLARE = {
   email:"studiolegaleometto@gmail.com", ordine:"Ordine degli Avvocati di Venezia"
 };
 const CONFIG = {
-  version: "0.12.0 — 1 ottobre 2026",
+  version: "0.13.0 — 1 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -932,6 +932,51 @@ const ENGINES = {
     const iva=r2(imponibile*(o.ivaPct??22)/100), totale=r2(imponibile+iva), ritenuta=o.ritenuta?r2((compenso+speseGen)*0.20):0;
     return {righe,v,base,agg,compenso,speseGen,cpa,imponibile,iva,totale,ritenuta,netto:r2(totale-ritenuta),n};
   },
+  // Prescrizione del reato (artt. 157-161-bis c.p., testo della L. 251/2005 e successive): termine ordinario e massimo,
+  // regimi dopo la sentenza secondo la data del fatto (L. 103/2017 per i fatti dal 3/8/2017 al 31/12/2019, Cass. SU 20989/2025;
+  // art. 161-bis e art. 344-bis c.p.p. per i fatti dal 1/1/2020). Date per calendario comune, senza il giorno di decorrenza (art. 14).
+  prescrizioneReato(o){
+    const D=o.data; if(!/^\d{4}-\d{2}-\d{2}$/.test(D||"")) return null;
+    if(D<"2005-12-08") return {errore:"Per i fatti anteriori all'8 dicembre 2005 si applicano i termini precedenti alla L. 251/2005 (ex Cirielli) e la sua disciplina transitoria: calcolo non disponibile."};
+    if(o.ergastolo) return {imprescrittibile:true,data:D};
+    const del=o.tipo!=="contravvenzione", minimo=del?72:48, passi=[];
+    let mesi;
+    if(o.pena==="altre"){ mesi=36; passi.push(["Reato punito con pene diverse da quella detentiva e pecuniaria (art. 157, c. 5)",36]); }
+    else if(o.pena==="pecuniaria"){ mesi=0; passi.push([`Reato punito con la sola pena pecuniaria: si applica il minimo (art. 157, c. 1)`,0]); }
+    else { mesi=Math.max(0,Math.floor(+o.maxA||0))*12+Math.max(0,Math.floor(+o.maxM||0)); if(!(mesi>0)) return null;
+      passi.push(["Massimo della pena detentiva edittale (art. 157, c. 1 e 4)",mesi]);
+      if(o.tentato){ mesi=mesi*2/3; passi.push(["Delitto tentato: massimo diminuito di un terzo (artt. 56 e 157, c. 2)",mesi]); }
+      if(FRAZ[o.aggSpec]){ const [n,d]=FRAZ[o.aggSpec]; mesi=mesi*(d+n)/d; passi.push([`Aggravante ad effetto speciale: aumento massimo di ${o.aggSpec} (art. 157, c. 2)`,mesi]); }
+      if(o.aggSpec==="doppio"){ mesi*=2; passi.push(["Aggravante ad effetto speciale: pena fino al doppio (art. 157, c. 2)",mesi]); } }
+    if(mesi<minimo){ mesi=minimo; passi.push([`Termine minimo per ${del?"i delitti (6 anni)":"le contravvenzioni (4 anni)"} (art. 157, c. 1)`,mesi]); }
+    if(o.raddoppio){ mesi*=2; passi.push(["Termine raddoppiato (art. 157, c. 6)",mesi]); }
+    if(mesi>1200||(+o.sospGiorni||0)>36500) return null;   // oltre 100 anni: dato non plausibile
+    const LIM={"1/4":[1,4,"un quarto (art. 161, c. 2)"],"1/2":[1,2,"la metà: artt. 318, 319, 319-ter, 319-quater, 320, 321, 322-bis, 640-bis o recidiva aggravata (art. 161, c. 2)"],"2/3":[2,3,"due terzi: recidiva reiterata (art. 161, c. 2)"],"doppio":[1,1,"il doppio: delinquenti abituali, professionali o per tendenza (art. 161, c. 2)"]};
+    const lim=o.limite==="illimitato"?null:(LIM[o.limite]||LIM["1/4"]);
+    const mesiMax=lim?mesi*(lim[1]+lim[0])/lim[1]:null;
+    const split=x=>{ const m=Math.floor(x+1e-9); return {m,g:Math.round((x-m)*30)}; };
+    const add=(iso,x,giorni)=>{ const {m,g}=split(x), [y,mm,dd]=iso.split("-").map(Number); const t=new Date(Date.UTC(y,mm-1+m,dd)); if(t.getUTCDate()!==dd) t.setUTCDate(0);
+      t.setUTCDate(t.getUTCDate()+g+(giorni||0)); return t.toISOString().slice(0,10); };
+    const sosp=Math.max(0,Math.floor(+o.sospGiorni||0)), avvisi=[];
+    const ordinaria=add(D,mesi,sosp), massima=lim?add(D,mesiMax,sosp):null;
+    let effettiva=ordinaria, int=null;
+    if(o.interrotto&&!o.ultimaInterr) effettiva=massima||ordinaria;
+    if(/^\d{4}-\d{2}-\d{2}$/.test(o.ultimaInterr||"")){
+      if(o.ultimaInterr<D) avvisi.push("L'atto interruttivo indicato è anteriore al fatto: non considerato.");
+      else if(o.ultimaInterr>ordinaria) avvisi.push("L'atto interruttivo indicato è successivo alla scadenza del termine ordinario: la prescrizione era già maturata e l'atto non la interrompe.");
+      else { const nuovo=add(o.ultimaInterr,mesi,sosp); int=nuovo; effettiva=lim&&nuovo>massima?massima:(nuovo>ordinaria?nuovo:ordinaria); }
+    }
+    // regimi dopo la sentenza
+    let regime, dopo={};
+    if(D<"2017-08-03"){ regime="ante"; }
+    else if(D<="2019-12-31"){ regime="orlando"; let m=0; if(o.condanna1) m+=18; if(o.condanna1&&o.condanna2) m+=18; dopo.mesiSosp=m; dopo.conSosp=m?add(effettiva,m,0):null; }
+    else { regime="cartabia";
+      if(/^\d{4}-\d{2}-\d{2}$/.test(o.sentenza1||"")){ dopo.sentenza1=o.sentenza1; dopo.cessata=o.sentenza1<=effettiva; } }
+    const oggi=o.oggi||todayISO(), riferimento=regime==="orlando"&&dopo.conSosp?dopo.conSosp:effettiva;
+    const giorni=Math.round((pd(riferimento)-pd(oggi))/86400000);
+    return {del,data:D,passi,mesi,split,mesiMax,lim,sosp,ordinaria,massima,int,effettiva,regime,dopo,avvisi,giorni,riferimento,
+      cessata:regime==="cartabia"&&dopo.cessata,prescritto:!(regime==="cartabia"&&dopo.cessata)&&giorni<0};
+  },
   // Modello F24: righe raggruppate per sezione, totali a debito e a credito, saldo (struttura del modello approvato
   // dall'Agenzia delle entrate: Erario 6 righe, Regioni 4, IMU e altri tributi locali 4)
   f24(righe){
@@ -1114,6 +1159,7 @@ const CATALOG = [
   ]},
   {group:"Diritto penale", items:[
     {id:"pena", title:"Determinazione della pena, patteggiamento e abbreviato", desc:"Pena base, tentativo, circostanze e bilanciamento, continuazione, diminuente del rito (abbreviato con l'ulteriore 1/6, patteggiamento), sospensione condizionale e pene sostitutive.", refs:"Artt. 56, 62-bis, 63-69, 81, 133-135, 163 c.p. — artt. 442 e 444-445 c.p.p. (D.Lgs. 150/2022) — art. 20-bis c.p. e artt. 53, 56-quater L. 689/1981", status:"free"},
+    {id:"prescrizione-reato", title:"Prescrizione del reato", desc:"Termine ordinario e massimo (aggravanti ad effetto speciale, tentativo, raddoppi, limiti per le interruzioni), sospensioni, ultimo atto interruttivo e regime dopo la sentenza secondo la data del fatto: ex Cirielli, legge Orlando, cessazione e improcedibilità.", refs:"Artt. 14, 157-161-bis c.p. — L. 251/2005, L. 103/2017, L. 3/2019, L. 134/2021 — art. 344-bis c.p.p. — Cass. SU 20989/2025", status:"free"},
     {id:"parcella-penale", title:"Parcella penale — parametri forensi", desc:"Compenso dell'avvocato nel processo penale per autorità e fase (tabella 15), con più autorità, variazioni, più assistiti, patrocinio a spese dello Stato, spese generali, CPA, IVA e ritenuta.", refs:"DM 10/03/2014 n. 55, artt. 12, 15, 16 — tabella 15 sostituita dal DM 13/08/2022 n. 147 (GU n. 236 dell'8/10/2022) — art. 106-bis DPR 115/2002", status:"free"},
   ]},
   {group:"Lavoro", items:[
@@ -1678,6 +1724,61 @@ const VIEWS = {
         <tr><td>Pena non superiore a 2 anni (art. 445 c.p.p.): ${R.patt.art445?`niente spese del procedimento, pene accessorie e misure di sicurezza (salva la confisca); reato estinto se in ${R.del?"5 anni non si commette un delitto":"2 anni non si commette una contravvenzione della stessa indole"}`:"effetti ordinari ed esclusioni dell'art. 444, c. 1-bis"}</td><td class="r">${R.patt.art445?"sì":"no"}</td></tr>`:""}
         <tr><td>Ragguaglio della pena detentiva (art. 135 c.p.: 250 € al giorno)</td><td class="r">${fmt.format(R.ragguaglio)}</td></tr></table>
         <div class="note">Computo: mesi di 30 giorni e anni di 12 mesi, senza frazioni di giorno né di euro (art. 134 c.p.). Le circostanze si applicano in successione, ciascuna sulla pena risultante dalla precedente (art. 63, c. 2), e quelle ad effetto speciale (oltre 1/3) per prime (art. 63, c. 3). Aggravanti comuni fino a 1/3 (art. 64), attenuanti fino a 1/3 (art. 65), attenuanti generiche fino a 1/3 (art. 62-bis); limiti degli artt. 66 e 67. Se concorrono più circostanze ad effetto speciale si applica la pena per la più grave, che il giudice può aumentare o diminuire (art. 63, c. 4-5): inserisci la più grave e l'ulteriore variazione come circostanza ordinaria. Il bilanciamento (art. 69) non opera per la recidiva reiterata (divieto di prevalenza delle attenuanti, con le eccezioni dichiarate dalla Corte costituzionale) né per le circostanze autonome. Continuazione: pena del reato più grave aumentata fino al triplo e non oltre il cumulo materiale (art. 81); con la recidiva reiterata l'aumento non può essere inferiore a 1/3. La diminuente del rito si applica per ultima, sulla pena comprensiva della continuazione: abbreviato 1/3 per i delitti e 1/2 per le contravvenzioni, con l'ulteriore 1/6 in esecuzione se nessuno impugna (art. 442, c. 2 e 2-bis, c.p.p.); patteggiamento fino a 1/3, ammesso se la pena detentiva finale non supera 5 anni (art. 444 c.p.p.; esclusioni del c. 1-bis oltre 2 anni). Sospensione condizionale: limite di 2 anni, 2 anni e 6 mesi tra 18 e 21 anni o dai 70 anni, 3 anni per i minori, con la pena pecuniaria ragguagliata a 250 € al giorno (artt. 163 e 135 c.p.); restano da valutare i presupposti soggettivi (art. 164). Pene sostitutive (art. 20-bis c.p.; artt. 53 e 56-quater L. 689/1981): semilibertà e detenzione domiciliare fino a 4 anni, lavoro di pubblica utilità fino a 3 anni, pena pecuniaria fino a 1 anno, calcolati sulla pena comprensiva della continuazione. Il risultato è una simulazione: la misura degli aumenti e delle diminuzioni è rimessa al giudice (art. 133 c.p.).</div>`)}
+      </div>${actions()}`;
+    }
+  },
+  "prescrizione-reato":{
+    form:()=>{
+      const pena=state.inputs.pzpena||"detentiva", del=(state.inputs.pztipo||"delitto")==="delitto";
+      return [
+        field("pztipo","Reato","select","delitto",{rerender:true,options:[["delitto","Delitto"],["contravvenzione","Contravvenzione"]]}),
+        field("pzdata","Data del fatto","date","2021-03-10",{hint:"consumazione; tentativo: cessazione dell'attività; reato permanente: cessazione della permanenza"}),
+        field("pzpena","Pena prevista","select","detentiva",{full:true,rerender:true,options:[["detentiva","Pena detentiva (sola, congiunta o alternativa alla pecuniaria)"],["pecuniaria","Sola pena pecuniaria"],["altre","Pene diverse dalla detentiva e dalla pecuniaria"],["ergastolo","Ergastolo"]]}),
+        pena==="detentiva"?field("pzmaxa","Massimo edittale: anni","number",3,{min:0,max:30,step:1}):"",
+        pena==="detentiva"?field("pzmaxm","mesi","number",0,{min:0,max:11,step:1}):"",
+        pena==="detentiva"&&del?field("pztent","Delitto tentato","select","no",{options:[["no","No"],["si","Sì (massimo diminuito di 1/3)"]]}):"",
+        pena==="detentiva"?field("pzagg","Aggravante ad effetto speciale","select","",{options:[["","Nessuna"],["1/2","Aumento fino alla metà"],["2/3","Aumento fino a due terzi"],["doppio","Pena fino al doppio"]],hint:"per un'aggravante con pena di specie diversa indica direttamente il massimo della pena aggravata"}):"",
+        pena!=="ergastolo"?field("pzradd","Termini raddoppiati (art. 157, c. 6)","select","no",{full:true,options:[["no","No"],["si","Sì: artt. 375 c. 3, 449, 589 c. 2-3, 589-bis, 572, 609-bis ss., reati dell'art. 51 c. 3-bis e 3-quater c.p.p. e altri dell'elenco"]]}):"",
+        pena!=="ergastolo"?field("pzlim","Aumento massimo per le interruzioni (art. 161, c. 2)","select","1/4",{full:true,options:[["1/4","Un quarto (regola generale)"],["1/2","Metà: corruzione (artt. 318-322-bis), 640-bis, recidiva aggravata"],["2/3","Due terzi: recidiva reiterata"],["doppio","Il doppio: abituali, professionali, per tendenza"],["illimitato","Nessun limite: reati dell'art. 51, c. 3-bis e 3-quater, c.p.p."]]}):"",
+        `<div class="fieldset-title">Atti del procedimento (facoltativi)</div>`,
+        field("pzintsel","Atti interruttivi (art. 160)","select","max",{full:true,rerender:true,options:[["no","Nessuno"],["max","Sì: applica il termine massimo"],["data","Sì: indico la data dell'ultimo"]],hint:"ad esempio richiesta di rinvio a giudizio, decreto di citazione, decreto penale, interrogatorio"}),
+        (state.inputs.pzintsel||"max")==="data"?field("pzint","Data dell'ultimo atto interruttivo","date",state.inputs.pzint??""):"",
+        field("pzsosp","Giorni di sospensione (art. 159)","number",0,{min:0,step:1}),
+        field("pzc1","Fatti dal 3/8/2017 al 31/12/2019: condanna in primo grado","select","no",{options:[["no","No / non ancora"],["si","Sì"]]}),
+        field("pzc2","…e condanna in appello","select","no",{options:[["no","No / non ancora"],["si","Sì"]]}),
+        field("pzsent","Fatti dal 1/1/2020: data della sentenza di primo grado","date",state.inputs.pzsent??""),
+      ].join("");
+    },
+    result:()=>{
+      const R=ENGINES.prescrizioneReato({tipo:val("pztipo"),data:val("pzdata"),pena:val("pzpena")==="ergastolo"?"detentiva":val("pzpena"),ergastolo:val("pzpena")==="ergastolo",
+        maxA:num("pzmaxa"),maxM:num("pzmaxm"),tentato:val("pztent")==="si",aggSpec:val("pzagg"),raddoppio:val("pzradd")==="si",limite:val("pzlim"),
+        interrotto:val("pzintsel")!=="no",ultimaInterr:val("pzintsel")==="data"?val("pzint"):"",sospGiorni:num("pzsosp"),condanna1:val("pzc1")==="si",condanna2:val("pzc2")==="si",sentenza1:val("pzsent")});
+      if(!R) return empty("Inserisci la data del fatto e il massimo della pena.");
+      if(R.errore) return empty(esc(R.errore));
+      if(R.imprescrittibile) return `<div class="total"><div class="eyebrow">Prescrizione</div><div class="big">Imprescrittibile</div><div class="sub">i reati puniti con l'ergastolo, anche per effetto di aggravanti, non si prescrivono (art. 157, c. 8, c.p.) e non sono soggetti all'improcedibilità (art. 344-bis, c. 9, c.p.p.)</div></div>${actions()}`;
+      const dur=x=>{ const {m,g}=R.split(x), a=Math.floor(m/12), mm=m%12; const p=[a?`${a} ${a===1?"anno":"anni"}`:"",mm?`${mm} ${mm===1?"mese":"mesi"}`:"",g?`${g} ${g===1?"giorno":"giorni"}`:""].filter(Boolean); return p.length>1?p.slice(0,-1).join(", ")+" e "+p[p.length-1]:(p[0]||"—"); };
+      const REG={ante:"Fatto anteriore al 3 agosto 2017: la prescrizione continua a decorrere anche durante l'appello e il giudizio di cassazione, con le interruzioni e sospensioni di legge, fino alla sentenza irrevocabile.",
+        orlando:"Fatto commesso tra il 3 agosto 2017 e il 31 dicembre 2019: si applica la L. 103/2017 (Cass. SU n. 20989/2025). Dopo la sentenza di condanna di primo grado il corso è sospeso dalla scadenza del termine per il deposito della motivazione (art. 544 c.p.p.) fino al dispositivo d'appello, per non più di 1 anno e 6 mesi; lo stesso dopo la condanna in appello fino alla sentenza definitiva. Se il grado successivo proscioglie o annulla la condanna, i periodi di sospensione si ricomputano nel termine (art. 159, c. 2-4, testo L. 103/2017).",
+        cartabia:"Fatto commesso dal 1° gennaio 2020: il corso della prescrizione cessa definitivamente con la sentenza di primo grado, di condanna o di assoluzione (art. 161-bis c.p.); riprende solo se un annullamento fa regredire il processo al primo grado o a una fase anteriore. Nei gradi successivi opera l'improcedibilità: il giudizio di appello deve concludersi in 2 anni e quello di cassazione in 1 anno (3 anni e 1 anno e 6 mesi per le impugnazioni proposte entro il 31/12/2024), dal novantesimo giorno successivo alla scadenza del termine per il deposito della motivazione, salvo proroghe e sospensioni (art. 344-bis c.p.p.). Per il reato continuato il termine decorre dalla cessazione della continuazione (art. 158 c.p. come modificato dalla L. 3/2019)."};
+      const big=R.cessata?"Corso cessato":fmtD(R.riferimento);
+      const sub=R.cessata?`sentenza di primo grado del ${fmtD(R.dopo.sentenza1)}, pronunciata prima della scadenza (${fmtD(R.effettiva)}): opera l'improcedibilità nei gradi successivi`
+        :`${R.prescritto?"reato prescritto da":"mancano"} ${Math.abs(R.giorni)} giorni · termine ${dur(R.mesi)}${R.lim?` · massimo con interruzioni ${dur(R.mesiMax)}`:" · interruzioni senza limite"}${R.regime==="orlando"&&R.dopo.mesiSosp?` · incluse le sospensioni L. 103/2017 fino a ${R.dopo.mesiSosp} mesi`:""}`;
+      return `<div class="total"><div class="eyebrow">${R.cessata?"Prescrizione":"Il reato si prescrive alla fine del giorno"}</div><div class="big">${esc(big)}</div><div class="sub">${esc(sub)}</div>${R.avvisi.map(a=>`<div class="warn">${esc(a)}</div>`).join("")}${R.dopo.sentenza1&&!R.dopo.cessata?`<div class="warn">La sentenza di primo grado indicata (${fmtD(R.dopo.sentenza1)}) è successiva alla scadenza (${fmtD(R.effettiva)}): il reato era già prescritto.</div>`:""}</div>
+      <div class="pb">${gate(`<div class="eyebrow" style="margin-bottom:6px">Tempo necessario a prescrivere</div>
+        <table class="rows">${R.passi.map(([v,m])=>`<tr><td>${esc(v)}</td><td class="r">${esc(m?dur(m):"—")}</td></tr>`).join("")}
+        <tr class="sum"><td>Termine ordinario</td><td class="r">${esc(dur(R.mesi))}</td></tr>
+        <tr><td>Termine massimo con atti interruttivi: aumento di ${esc(R.lim?R.lim[2]:"nessun limite (art. 161, c. 2, e art. 160, c. 3)")}</td><td class="r">${R.lim?esc(dur(R.mesiMax)):"—"}</td></tr></table>
+        <div class="eyebrow" style="margin:14px 0 6px">Date</div>
+        <table class="rows"><tr><td>Data del fatto (giorno di decorrenza non computato, art. 14 c.p.)</td><td class="r">${fmtD(R.data)}</td></tr>
+        ${R.sosp?`<tr><td>Sospensioni aggiunte (art. 159)</td><td class="r">${R.sosp} giorni</td></tr>`:""}
+        <tr><td>Scadenza del termine ordinario (senza atti interruttivi)</td><td class="r">${fmtD(R.ordinaria)}</td></tr>
+        <tr><td>Scadenza del termine massimo (con atti interruttivi)</td><td class="r">${R.massima?fmtD(R.massima):"nessun limite"}</td></tr>
+        ${R.int?`<tr><td>Nuovo termine dall'ultimo atto interruttivo (${fmtD(val("pzint"))})</td><td class="r">${fmtD(R.int)}</td></tr>`:""}
+        <tr class="sum"><td>Scadenza applicabile</td><td class="r">${fmtD(R.effettiva)}</td></tr>
+        ${R.regime==="orlando"&&R.dopo.conSosp?`<tr class="sum"><td>Con le sospensioni massime della L. 103/2017 (${R.dopo.mesiSosp} mesi)</td><td class="r">${fmtD(R.dopo.conSosp)}</td></tr>`:""}</table>
+        <div class="eyebrow" style="margin:14px 0 6px">Dopo la sentenza di primo grado</div>
+        <div class="note" style="margin-top:0">${esc(REG[R.regime])}</div>
+        <div class="note">Tempo necessario a prescrivere (art. 157): massimo della pena edittale, e comunque almeno 6 anni per i delitti e 4 per le contravvenzioni; si considera la sola pena detentiva se è prevista anche quella pecuniaria; non contano le attenuanti né le aggravanti ordinarie, ma solo quelle ad effetto speciale o di specie diversa (aumento massimo), senza bilanciamento. Gli atti interruttivi (art. 160: misure cautelari, interrogatorio, richiesta di rinvio a giudizio, decreto che dispone il giudizio, decreto di citazione, decreto penale di condanna e gli altri ivi elencati) fanno ricominciare il termine, che non può superare quello massimo (art. 161, c. 2). Le sospensioni (art. 159) si sommano al termine: indicale nel campo dedicato; il calcolo le aggiunge anche al termine dall'ultimo atto interruttivo. Decorrenza (art. 158): dalla consumazione, dalla cessazione dell'attività nel tentativo, dalla cessazione della permanenza; per il reato continuato, dalla cessazione della continuazione solo per i fatti dal 1° gennaio 2020 (prima, da ciascun reato); per i reati dell'art. 392, c. 1-bis, c.p.p. commessi contro minori, dal compimento dei 18 anni della persona offesa. La prescrizione è rinunciabile dall'imputato. Testo vigente verificato su Normattiva al ${MONITOR.fonti}.</div>`)}
       </div>${actions()}`;
     }
   },
