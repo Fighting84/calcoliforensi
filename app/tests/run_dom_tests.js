@@ -134,7 +134,7 @@ function apri(licenza) {
   ck("informazioni: recesso", /recesso/i.test(info));
   ck("informazioni: assistenza", /assistenza/i.test(info));
   ck("footer con link informativi", !!$3('.foot a[href="#/informazioni"]'));
-  ck("footer con erogatore e contatto", /Servizio erogato da Genex S\.r\.l\.s\. \(in costituzione\)/.test($3("#footTitolare").textContent) && /@/.test($3("#footTitolare").textContent));
+  ck("footer con erogatore e contatto", /Servizio erogato da GenAItix S\.r\.l\.s\. \(in costituzione\)/.test($3("#footTitolare").textContent) && /@/.test($3("#footTitolare").textContent));
 
   // ravvedimento: righe F24 e cambio di tributo
   await vai3("#/ravvedimento");
