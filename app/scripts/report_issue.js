@@ -15,6 +15,9 @@ if (gu) { out.push("## Gazzetta Ufficiale"); for (const x of gu) out.push(`- **$
 const cass = leggi("novita_cass.json");
 if (cass) { out.push("## Cassazione"); for (const x of cass) out.push(`- **${x.estremi}** — ${x.materia} (tema: ${x.tema}, calcolatore \`${x.calcolatore}\`)\n  > ${(x.estratto || "").slice(0, 400)}`); out.push(""); }
 
+const norme = leggi("norme_novita.json");
+if (norme) { out.push("## Norme sentinella variate (testo vigente su Normattiva)"); for (const x of norme) out.push(x.errore ? `- **${x.id}**: ${x.errore}` : `- **${x.id}**${x.abrogato ? " — ABROGAZIONE" : ""} (calcolatori: ${x.calc.join(", ")}) ${x.url}\n  > prima: ${x.prima.slice(0, 500)}\n  > ora: ${x.ora.slice(0, 500)}`); out.push(""); }
+
 const cod = leggi("codici.json");
 if (cod) { out.push("## Codici tributo del ravvedimento da sostituire"); for (const x of cod) out.push(`- **${x.codice}**: ${x.esito}${x.dal ? " dal " + x.dal : ""} ${x.descrizione || ""} — cercare la risoluzione dell'Agenzia che lo sostituisce e aggiornare \`RAVV_TRIBUTI\``); out.push(""); }
 

@@ -1,0 +1,577 @@
+[
+ {
+  "id": "cp-14",
+  "urn": "regio.decreto:1930-10-19;1398:1~art14",
+  "calc": [
+   "prescrizione-reato"
+  ]
+ },
+ {
+  "id": "cp-20bis",
+  "urn": "regio.decreto:1930-10-19;1398:1~art20bis",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-23",
+  "urn": "regio.decreto:1930-10-19;1398:1~art23",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-24",
+  "urn": "regio.decreto:1930-10-19;1398:1~art24",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-25",
+  "urn": "regio.decreto:1930-10-19;1398:1~art25",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-26",
+  "urn": "regio.decreto:1930-10-19;1398:1~art26",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-56",
+  "urn": "regio.decreto:1930-10-19;1398:1~art56",
+  "calc": [
+   "pena",
+   "prescrizione-reato"
+  ]
+ },
+ {
+  "id": "cp-62bis",
+  "urn": "regio.decreto:1930-10-19;1398:1~art62bis",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-63",
+  "urn": "regio.decreto:1930-10-19;1398:1~art63",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-64",
+  "urn": "regio.decreto:1930-10-19;1398:1~art64",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-65",
+  "urn": "regio.decreto:1930-10-19;1398:1~art65",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-66",
+  "urn": "regio.decreto:1930-10-19;1398:1~art66",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-67",
+  "urn": "regio.decreto:1930-10-19;1398:1~art67",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-69",
+  "urn": "regio.decreto:1930-10-19;1398:1~art69",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-81",
+  "urn": "regio.decreto:1930-10-19;1398:1~art81",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-99",
+  "urn": "regio.decreto:1930-10-19;1398:1~art99",
+  "calc": [
+   "pena",
+   "prescrizione-reato"
+  ]
+ },
+ {
+  "id": "cp-133",
+  "urn": "regio.decreto:1930-10-19;1398:1~art133",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-134",
+  "urn": "regio.decreto:1930-10-19;1398:1~art134",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-135",
+  "urn": "regio.decreto:1930-10-19;1398:1~art135",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cp-157",
+  "urn": "regio.decreto:1930-10-19;1398:1~art157",
+  "calc": [
+   "prescrizione-reato"
+  ]
+ },
+ {
+  "id": "cp-158",
+  "urn": "regio.decreto:1930-10-19;1398:1~art158",
+  "calc": [
+   "prescrizione-reato"
+  ]
+ },
+ {
+  "id": "cp-159",
+  "urn": "regio.decreto:1930-10-19;1398:1~art159",
+  "calc": [
+   "prescrizione-reato"
+  ]
+ },
+ {
+  "id": "cp-160",
+  "urn": "regio.decreto:1930-10-19;1398:1~art160",
+  "calc": [
+   "prescrizione-reato"
+  ]
+ },
+ {
+  "id": "cp-161",
+  "urn": "regio.decreto:1930-10-19;1398:1~art161",
+  "calc": [
+   "prescrizione-reato"
+  ]
+ },
+ {
+  "id": "cp-161bis",
+  "urn": "regio.decreto:1930-10-19;1398:1~art161bis",
+  "calc": [
+   "prescrizione-reato"
+  ]
+ },
+ {
+  "id": "cp-163",
+  "urn": "regio.decreto:1930-10-19;1398:1~art163",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cpp-344bis",
+  "urn": "decreto.del.presidente.della.repubblica:1988-09-22;447~art344bis",
+  "calc": [
+   "prescrizione-reato"
+  ]
+ },
+ {
+  "id": "cpp-442",
+  "urn": "decreto.del.presidente.della.repubblica:1988-09-22;447~art442",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cpp-444",
+  "urn": "decreto.del.presidente.della.repubblica:1988-09-22;447~art444",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cpp-445",
+  "urn": "decreto.del.presidente.della.repubblica:1988-09-22;447~art445",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "cc-1224",
+  "urn": "regio.decreto:1942-03-16;262:2~art1224",
+  "calc": [
+   "interessi-legali",
+   "rivalutazione"
+  ]
+ },
+ {
+  "id": "cc-1284",
+  "urn": "regio.decreto:1942-03-16;262:2~art1284",
+  "calc": [
+   "interessi-legali",
+   "interessi-mora"
+  ]
+ },
+ {
+  "id": "cc-1495",
+  "urn": "regio.decreto:1942-03-16;262:2~art1495",
+  "calc": [
+   "prescrizione"
+  ]
+ },
+ {
+  "id": "cc-1667",
+  "urn": "regio.decreto:1942-03-16;262:2~art1667",
+  "calc": [
+   "prescrizione"
+  ]
+ },
+ {
+  "id": "cc-2120",
+  "urn": "regio.decreto:1942-03-16;262:2~art2120",
+  "calc": [
+   "tfr"
+  ]
+ },
+ {
+  "id": "cc-2946",
+  "urn": "regio.decreto:1942-03-16;262:2~art2946",
+  "calc": [
+   "prescrizione",
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "cc-2947",
+  "urn": "regio.decreto:1942-03-16;262:2~art2947",
+  "calc": [
+   "prescrizione"
+  ]
+ },
+ {
+  "id": "cc-2948",
+  "urn": "regio.decreto:1942-03-16;262:2~art2948",
+  "calc": [
+   "prescrizione",
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "cc-2953",
+  "urn": "regio.decreto:1942-03-16;262:2~art2953",
+  "calc": [
+   "prescrizione",
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "cc-2956",
+  "urn": "regio.decreto:1942-03-16;262:2~art2956",
+  "calc": [
+   "prescrizione"
+  ]
+ },
+ {
+  "id": "cpc-155",
+  "urn": "regio.decreto:1940-10-28;1443:1~art155",
+  "calc": [
+   "scadenze"
+  ]
+ },
+ {
+  "id": "cpc-163bis",
+  "urn": "regio.decreto:1940-10-28;1443:1~art163bis",
+  "calc": [
+   "scadenze"
+  ]
+ },
+ {
+  "id": "cpc-166",
+  "urn": "regio.decreto:1940-10-28;1443:1~art166",
+  "calc": [
+   "scadenze"
+  ]
+ },
+ {
+  "id": "cpc-171ter",
+  "urn": "regio.decreto:1940-10-28;1443:1~art171ter",
+  "calc": [
+   "scadenze"
+  ]
+ },
+ {
+  "id": "cpc-189",
+  "urn": "regio.decreto:1940-10-28;1443:1~art189",
+  "calc": [
+   "scadenze"
+  ]
+ },
+ {
+  "id": "cpc-325",
+  "urn": "regio.decreto:1940-10-28;1443:1~art325",
+  "calc": [
+   "scadenze"
+  ]
+ },
+ {
+  "id": "cpc-326",
+  "urn": "regio.decreto:1940-10-28;1443:1~art326",
+  "calc": [
+   "scadenze"
+  ]
+ },
+ {
+  "id": "cpc-327",
+  "urn": "regio.decreto:1940-10-28;1443:1~art327",
+  "calc": [
+   "scadenze"
+  ]
+ },
+ {
+  "id": "cpc-545",
+  "urn": "regio.decreto:1940-10-28;1443:1~art545",
+  "calc": [
+   "pignoramento"
+  ]
+ },
+ {
+  "id": "cpc-641",
+  "urn": "regio.decreto:1940-10-28;1443:1~art641",
+  "calc": [
+   "scadenze"
+  ]
+ },
+ {
+  "id": "l689-53",
+  "urn": "legge:1981-11-24;689~art53",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "l689-56quater",
+  "urn": "legge:1981-11-24;689~art56quater",
+  "calc": [
+   "pena"
+  ]
+ },
+ {
+  "id": "dlgs472-13",
+  "urn": "decreto.legislativo:1997-12-18;472~art13",
+  "calc": [
+   "ravvedimento"
+  ]
+ },
+ {
+  "id": "dlgs472-20",
+  "urn": "decreto.legislativo:1997-12-18;472~art20",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dlgs471-13",
+  "urn": "decreto.legislativo:1997-12-18;471~art13",
+  "calc": [
+   "ravvedimento"
+  ]
+ },
+ {
+  "id": "dlgs173-102",
+  "urn": "decreto.legislativo:2024-11-05;173~art102",
+  "calc": [
+   "ravvedimento"
+  ]
+ },
+ {
+  "id": "dlgs123-205",
+  "urn": "decreto.legislativo:2025-08-01;123~art205",
+  "calc": [
+   "compravendita",
+   "successione",
+   "usufrutto"
+  ]
+ },
+ {
+  "id": "dpr322-2",
+  "urn": "decreto.del.presidente.della.repubblica:1998-07-22;322~art2",
+  "calc": [
+   "ravvedimento",
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dpr322-8",
+  "urn": "decreto.del.presidente.della.repubblica:1998-07-22;322~art8",
+  "calc": [
+   "ravvedimento",
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dpr115-13",
+  "urn": "decreto.del.presidente.della.repubblica:2002-05-30;115~art13",
+  "calc": [
+   "contributo-unificato"
+  ]
+ },
+ {
+  "id": "dpr115-106bis",
+  "urn": "decreto.del.presidente.della.repubblica:2002-05-30;115~art106bis",
+  "calc": [
+   "parcella-penale"
+  ]
+ },
+ {
+  "id": "dlgs231-5",
+  "urn": "decreto.legislativo:2002-10-09;231~art5",
+  "calc": [
+   "interessi-mora"
+  ]
+ },
+ {
+  "id": "dlgs209-138",
+  "urn": "decreto.legislativo:2005-09-07;209~art138",
+  "calc": [
+   "danno-tun"
+  ]
+ },
+ {
+  "id": "dlgs209-139",
+  "urn": "decreto.legislativo:2005-09-07;209~art139",
+  "calc": [
+   "danno-micro"
+  ]
+ },
+ {
+  "id": "dm55-2",
+  "urn": "decreto.ministeriale:2014-03-10;55~art2",
+  "calc": [
+   "parcella",
+   "parcella-penale",
+   "preventivo"
+  ]
+ },
+ {
+  "id": "dm55-4",
+  "urn": "decreto.ministeriale:2014-03-10;55~art4",
+  "calc": [
+   "parcella",
+   "preventivo"
+  ]
+ },
+ {
+  "id": "dm55-12",
+  "urn": "decreto.ministeriale:2014-03-10;55~art12",
+  "calc": [
+   "parcella-penale"
+  ]
+ },
+ {
+  "id": "l247-13",
+  "urn": "legge:2012-12-31;247~art13",
+  "calc": [
+   "preventivo"
+  ]
+ },
+ {
+  "id": "l392-32",
+  "urn": "legge:1978-07-27;392~art32",
+  "calc": [
+   "canone"
+  ]
+ },
+ {
+  "id": "dlgs23-3",
+  "urn": "decreto.legislativo:2011-03-14;23~art3",
+  "calc": [
+   "cedolare"
+  ]
+ },
+ {
+  "id": "dpr600-43",
+  "urn": "decreto.presidente.repubblica:1973-09-29;600~art43",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dpr633-57",
+  "urn": "decreto.del.presidente.della.repubblica:1972-10-26;633~art57",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dpr602-25",
+  "urn": "decreto.del.presidente.della.repubblica:1973-09-29;602~art25",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dl18-67",
+  "urn": "decreto.legge:2020-03-17;18~art67",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dl18-68",
+  "urn": "decreto.legge:2020-03-17;18~art68",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dlgs159-12",
+  "urn": "decreto.legislativo:2015-09-24;159~art12",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dl953-5",
+  "urn": "decreto.legge:1982-12-30;953~art5",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dlgs446-25",
+  "urn": "decreto.legislativo:1997-12-15;446~art25",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dl78-29",
+  "urn": "decreto.legge:2010-05-31;78~art29",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dlgs141-368",
+  "urn": "decreto.legislativo:2026-08-05;141~art368",
+  "calc": [
+   "prescrizione-tributi",
+   "imu"
+  ]
+ }
+]

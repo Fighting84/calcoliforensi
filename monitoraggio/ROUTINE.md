@@ -20,6 +20,11 @@ Ignora quelle con etichetta `azione-richiesta` (sono per il titolare). Le altre 
   (`MICRO_ANNI`, `TUN_P1`, `ASSEGNO_SOCIALE`, `IRPEF`, `TASSI_LEGALI`, `TASSI_BCE`) mantenendo gli anni
   precedenti, aggiungi un caso in `app/tests/run_tests.js` calcolato a mano dalla fonte.
 - **Atto in Gazzetta**: il sito della Gazzetta non è raggiungibile dal cloud; il testo integrale degli atti segnalati è in `monitoraggio/gazzetta/<data>_<codice>.txt` (lo salva il controllo quotidiano; per un atto non ancora salvato chiedilo aggiungendo a `monitoraggio/gazzetta_richieste.json` una voce con i soli estremi, ad esempio `{"tipo":"DECRETO LEGISLATIVO","dataAtto":"2025-08-01","numero":123}` (oppure `{"data":"AAAA-MM-GG","codice":"…"}` se conosci data di pubblicazione e codice): il controllo quotidiano lo scarica entro il giorno dopo; se serve subito, lascia la segnalazione aperta e riprendila al giro successivo). Valuta se cambia un valore, una regola o una nota; se sì, applica con test.
+- **Norma sentinella variata** (sezione "Norme sentinella"): il testo vigente su Normattiva di un articolo usato da un
+  calcolatore è cambiato. Confronta "prima" e "ora" (il testo completo è in `monitoraggio/norme_stato.json`), individua
+  l'atto modificativo e la sua decorrenza, verifica se cambia un valore, una regola, una citazione o una data ("dal …")
+  nei calcolatori indicati e aggiorna con test. Una nuova nota di aggiornamento o una sentenza della Corte costituzionale
+  conta come variazione: leggila. Se la variazione non incide, annota "non rilevante" con il motivo.
 - **Codice tributo soppresso** (sezione "Codici tributo del ravvedimento"): cerca la risoluzione dell'Agenzia
   delle entrate che istituisce il codice sostitutivo (elenco annuale "risoluzioni istitutive di codici tributo" su
   agenziaentrate.gov.it), leggila, aggiorna `RAVV_TRIBUTI` in `app/index.html` e il test corrispondente in

@@ -49,6 +49,11 @@ jobs:
       # di GitHub (timeout). Il controllo gira sul PC con l'Utilità di pianificazione di Windows
       # (monitoraggio/cassazione_locale.cmd → app/scripts/locale_cassazione.js) e apre da lì le segnalazioni.
 
+      - name: Norme sentinella (testo vigente su Normattiva)
+        id: norme
+        run: |
+          set +e; node app/scripts/check_norme.js | tee norme.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+
       - name: Codici tributo del ravvedimento (banca dati Agenzia delle entrate)
         id: cod
         run: |
@@ -89,7 +94,7 @@ jobs:
 
       # ---- segnalazioni (email al titolare del repository) ----
       - name: Segnala le novità
-        if: steps.gu.outputs.code == '10' || steps.cod.outputs.code == '10' ||steps.cass.outputs.code == '10' || steps.cass.outputs.code == '1' || steps.scad.outputs.code == '10' || steps.bce.outputs.code == '2' || steps.foi.outputs.code == '1' || steps.bce.outputs.code == '1' || steps.saggio.outputs.code == '1'
+        if: steps.gu.outputs.code == '10' || steps.cod.outputs.code == '10' || steps.norme.outputs.code == '10' || steps.cass.outputs.code == '10' || steps.cass.outputs.code == '1' || steps.scad.outputs.code == '10' || steps.bce.outputs.code == '2' || steps.foi.outputs.code == '1' || steps.bce.outputs.code == '1' || steps.saggio.outputs.code == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
