@@ -188,6 +188,16 @@ ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, 
   ck("patrocinio a spese dello Stato: −1/3", PP({ gratuito: true }).compenso, r2(3592 - r2(3592 / 3)));
   ck("indagini difensive complesse +20%", ENGINES.parcellaPenale({ righe: [{ aut: "idif", fasi: "tutte" }], idCompl: true }).compenso, r2(851 * 1.2 + 1418 * 1.2));
   ck("Corte di Assise di Appello", ENGINES.parcellaPenale({ righe: [{ aut: "assapp", fasi: "tutte" }] }).compenso, 756 + 1985 + 2268 + 2336); }
+// Modello F24: raggruppamento per sezione, totali e saldo
+{ const F = ENGINES.f24([
+    { sez: "Erario", codice: "4001", anno: "2025", deb: 1000 }, { sez: "Erario", codice: "8901", anno: "2025", deb: 8.33 },
+    { sez: "Regioni", codice: "3801", ente: "20", anno: "2025", deb: 120.5 }, { sez: "Erario", codice: "6099", anno: "2025", cred: 200 },
+    { sez: "IMU e altri tributi locali", codice: "3918", ente: "G565", anno: "2026", deb: 506.91, ravv: true } ]);
+  ck("F24: totale Erario a debito", F.tot.erario.deb, 1008.33); ck("  credito compensato", F.tot.erario.cred, 200); ck("  saldo finale", F.saldo, r2(1008.33 - 200 + 120.5 + 506.91));
+  const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
+  eq("  righe per sezione", `${F.s.erario.length}/${F.s.regioni.length}/${F.s.imu.length}`, "3/1/1"); eq("  nessun avviso", F.avvisi.length, 0);
+  const G = ENGINES.f24(Array.from({ length: 7 }, () => ({ sez: "Regioni", codice: "38", anno: "", deb: 1 })));
+  eq("F24: avvisi su righe in eccesso, codice, anno e codice Regione", G.avvisi.length, 1 + 7 * 3); }
 // Ravvedimento operoso: casi calcolati a mano dalla norma (art. 13 D.Lgs. 471/1997 e 472/1997), saggi legali 2025 2%, 2026 1,6%
 { const rv = o => ENGINES.ravvedimento({ tributo: "irpef_saldo", imposta: 1000, ...o });
   const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };

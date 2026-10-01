@@ -154,6 +154,21 @@ function apri(licenza) {
   ck("ravvedimento ritenute: 1001 e 8947 con mese 12", /1001/.test(rrit) && /8947/.test(rrit) && !!$3("#rmese"));
   ck("ravvedimento: nessun errore", C.errori.length === 0, C.errori.join(" | "));
 
+  // F24: dal ravvedimento al modello stampabile
+  await set3("rtrib", "irpef_saldo"); await set3("rscad", "2026-06-30"); await set3("rpag", "2026-07-10");
+  ck("ravvedimento: pulsante «Aggiungi all'F24»", !!$3("#btnF24"));
+  $3("#btnF24").click(); await sleep(50);
+  await vai3("#/f24");
+  ck("F24: righe del ravvedimento nel prospetto", /4001/.test($3("#f24foglio").textContent) && /8901/.test($3("#f24foglio").textContent) && /1989/.test($3("#f24foglio").textContent));
+  ck("F24: saldo 1.008,77 €", /1\.008,77/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  await set3("fsez", "Regioni"); await set3("fcod", "3801"); await set3("fente", "20"); await set3("fanno", "2025"); await set3("fdeb", "100");
+  [...w3.document.querySelectorAll("button")].find(b => /Aggiungi la riga/.test(b.textContent)).click(); await sleep(120);
+  ck("F24: riga aggiunta a mano nella sezione Regioni", /3801/.test($3("#f24foglio").textContent) && /1\.108,77/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  [...w3.document.querySelectorAll("button")].filter(b => b.textContent === "Elimina").pop().click(); await sleep(120);
+  ck("F24: eliminazione di una riga", !/3801/.test($3("#f24foglio").textContent));
+  ck("F24: pulsante di stampa", [...w3.document.querySelectorAll("button")].some(b => /Stampa F24/.test(b.textContent)));
+  ck("F24: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+
   // pena: patteggiamento e abbreviato
   await vai3("#/pena");
   ck("pena: 2 anni con attenuanti generiche = 1 anno e 4 mesi", /1 anno e 4 mesi di reclusione/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);

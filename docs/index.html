@@ -200,7 +200,22 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
   .panel .ph{padding-left:0;padding-right:0}
   h1{font-size:19px}
   a[href]:after{content:""}
+  body.solo-f24 *{visibility:hidden}
+  body.solo-f24 #f24foglio,body.solo-f24 #f24foglio *{visibility:visible}
+  body.solo-f24 #f24foglio{position:absolute;left:0;top:0;width:100%}
+  body.solo-f24 #f24foglio .no-print{display:none}
 }
+.f24{font-family:var(--sans);font-size:12px;color:var(--ink);overflow-x:auto}
+.calc.largo{grid-template-columns:minmax(0,1fr)}
+.calc.largo .form{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.f24 h4{font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin:12px 0 4px;padding:3px 6px;background:var(--surface-2,#eef1ee);border:1px solid var(--line)}
+.f24 table{width:100%;border-collapse:collapse}
+.f24 th,.f24 td{border:1px solid var(--line);padding:4px 5px;text-align:left;vertical-align:top}
+.f24 th{font-weight:500;font-size:10.5px;color:var(--ink-2)}
+.f24 td.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+.f24 .cf{font-family:var(--mono);letter-spacing:.25em}
+.f24 .tot td{font-weight:600}
+@media print{.f24{overflow:visible;font-size:10.5px}.f24 th,.f24 td{border-color:#000;color:#000}.f24 h4{background:#eee;border-color:#000}}
 .print-head,.print-foot{display:none;font-family:var(--serif)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -248,7 +263,7 @@ const TITOLARE = {
   email:"studiolegaleometto@gmail.com", ordine:"Ordine degli Avvocati di Venezia"
 };
 const CONFIG = {
-  version: "0.11.0 — 1 ottobre 2026",
+  version: "0.12.0 — 1 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -917,6 +932,21 @@ const ENGINES = {
     const iva=r2(imponibile*(o.ivaPct??22)/100), totale=r2(imponibile+iva), ritenuta=o.ritenuta?r2((compenso+speseGen)*0.20):0;
     return {righe,v,base,agg,compenso,speseGen,cpa,imponibile,iva,totale,ritenuta,netto:r2(totale-ritenuta),n};
   },
+  // Modello F24: righe raggruppate per sezione, totali a debito e a credito, saldo (struttura del modello approvato
+  // dall'Agenzia delle entrate: Erario 6 righe, Regioni 4, IMU e altri tributi locali 4)
+  f24(righe){
+    const SEZ={"Erario":"erario","Regioni":"regioni","IMU e altri tributi locali":"imu"}, MAX={erario:6,regioni:4,imu:4};
+    const s={erario:[],regioni:[],imu:[]}, avvisi=[];
+    (righe||[]).forEach((r,i)=>{ const k=SEZ[r.sez]; if(!k) return; s[k].push({...r,i,deb:r2(+r.deb||0),cred:r2(+r.cred||0)}); });
+    const tot={}; let saldo=0;
+    for(const k of Object.keys(s)){ const deb=r2(s[k].reduce((a,r)=>a+r.deb,0)), cred=r2(s[k].reduce((a,r)=>a+r.cred,0)); tot[k]={deb,cred,saldo:r2(deb-cred)}; saldo+=deb-cred;
+      if(s[k].length>MAX[k]) avvisi.push(`La sezione ${k==="imu"?"IMU e altri tributi locali":k[0].toUpperCase()+k.slice(1)} ha ${s[k].length} righe: il modello ne contiene ${MAX[k]}, servono più deleghe.`);
+      for(const r of s[k]){ if(!/^[A-Z0-9]{4}$/.test(r.codice||"")) avvisi.push(`Riga ${r.i+1}: codice tributo «${r.codice||""}» non valido.`);
+        if(!/^\d{4}$/.test(String(r.anno||""))) avvisi.push(`Riga ${r.i+1}: anno di riferimento mancante.`);
+        if(k!=="erario"&&!r.ente) avvisi.push(`Riga ${r.i+1}: manca il codice ${k==="regioni"?"della Regione":"del Comune"}.`); } }
+    saldo=r2(saldo); if(saldo<0) avvisi.push("Il saldo finale è negativo: i crediti compensati superano i debiti.");
+    return {s,tot,saldo,avvisi,n:(righe||[]).length};
+  },
   // Ravvedimento operoso per omesso o tardivo versamento (art. 13 D.Lgs. 471/1997 e art. 13 D.Lgs. 472/1997; regime del D.Lgs. 87/2024
   // per le violazioni dal 1/9/2024). o = {tributo, imposta, scadenza, pagamento, pvc, ente, cod, anno, mese, dich}
   ravvedimento(o){
@@ -1021,6 +1051,24 @@ const STORICO = {
   elimina(id){ try{ localStorage.setItem("cf_storico",JSON.stringify(this.lista().filter(x=>x.id!==id))); }catch(e){} },
   svuota(){ try{ localStorage.removeItem("cf_storico"); }catch(e){} }
 };
+// Modello F24 in preparazione: righe raccolte dai calcolatori o inserite a mano; restano su questo dispositivo.
+const F24 = {
+  KEY:"cf_f24", ultime:[],
+  lista(){ try{ return JSON.parse(localStorage.getItem(this.KEY)||"[]"); }catch(e){ return []; } },
+  salva(l){ try{ localStorage.setItem(this.KEY,JSON.stringify(l)); return true; }catch(e){ return false; } },
+  aggiorna(){ if(typeof state!=="undefined"&&state.calc==="f24") renderCalc("f24"); },
+  daRavvedimento(){ if(!this.ultime.length) return; const ok=this.salva(this.lista().concat(this.ultime));
+    toast(ok?`${this.ultime.length===1?"Riga aggiunta":this.ultime.length+" righe aggiunte"} al modello F24`:"Salvataggio non disponibile in questo browser"); },
+  daModulo(){ if(!LIC.valid){ location.hash="#/piani"; return; }
+    const v=id=>((document.getElementById(id)||{}).value||"").trim();
+    const r={sez:v("fsez"),codice:v("fcod").toUpperCase(),ente:v("fente").toUpperCase(),rat:v("frat"),anno:v("fanno"),deb:+v("fdeb")||0,cred:+v("fcred")||0,immob:v("fimm"),voce:"inserita a mano"};
+    if(!/^[A-Z0-9]{4}$/.test(r.codice)||!(r.deb>0||r.cred>0)){ toast("Indica codice tributo e importo"); return; }
+    if(r.sez==="IMU e altri tributi locali"){ r.ravv=v("fravv")==="si"; r.accSaldo=v("facc"); }
+    this.salva(this.lista().concat([r])); ["fcod","frat","fdeb","fcred"].forEach(id=>{ state.inputs[id]=""; }); this.aggiorna(); },
+  elimina(i){ const l=this.lista(); l.splice(i,1); this.salva(l); this.aggiorna(); },
+  svuota(){ if(typeof confirm==="function"&&!confirm("Eliminare tutte le righe del modello F24?")) return; this.salva([]); this.aggiorna(); },
+  stampa(){ document.body.classList.add("solo-f24"); try{ window.print(); }finally{ setTimeout(()=>document.body.classList.remove("solo-f24"),500); } }
+};
 /* ===================== LICENZA ===================== */
 const LIC = {
   key:null, valid:false,
@@ -1080,7 +1128,8 @@ const CATALOG = [
     {id:"cedolare", title:"Cedolare secca o IRPEF?", desc:"Confronto tra cedolare 21%/10% e tassazione ordinaria (IRPEF su 95% del canone, addizionali, registro e bollo).", refs:"Art. 3 D.Lgs. 23/2011 — art. 37 TUIR (dal 1° gennaio 2027 art. 39 D.Lgs. 117/2026) — art. 8 L. 392/1978", status:"free"},
   ]},
   {group:"Fisco e tributi", items:[
-    {id:"ravvedimento", title:"Ravvedimento operoso con righe F24", desc:"Omesso o tardivo versamento di IRPEF, addizionali, IVA, IRES, IRAP, cedolare, forfetario, ritenute e IMU: sanzione ridotta, interessi legali giorno per giorno e righe del modello F24 con i codici tributo in vigore.", refs:"Art. 13 D.Lgs. 471/1997 e art. 13 D.Lgs. 472/1997 (D.Lgs. 87/2024 per le violazioni dal 1/9/2024; dal 1° gennaio 2027 artt. 14 e 38 D.Lgs. 173/2024) — ris. AdE 35/E/2012, 12/E/2023, 18/E/2023", status:"free"},
+    {id:"ravvedimento", title:"Ravvedimento operoso — sanzioni, interessi e F24", desc:"Omesso o tardivo versamento di IRPEF, addizionali, IVA, IRES, IRAP, cedolare, forfetario, ritenute e IMU: sanzione ridotta, interessi legali giorno per giorno e righe del modello F24 con i codici tributo in vigore.", refs:"Art. 13 D.Lgs. 471/1997 e art. 13 D.Lgs. 472/1997 (D.Lgs. 87/2024 per le violazioni dal 1/9/2024; dal 1° gennaio 2027 artt. 14 e 38 D.Lgs. 173/2024) — ris. AdE 35/E/2012, 12/E/2023, 18/E/2023", status:"free"},
+    {id:"f24", title:"Modello F24 — compilazione e stampa", desc:"Raccoglie le righe dei ravvedimenti e quelle inserite a mano, le ordina nelle sezioni Erario, Regioni e IMU e altri tributi locali con totali e saldo, e stampa il prospetto da riportare sul modello o nell'home banking.", refs:"Art. 17 D.Lgs. 241/1997 — art. 37, c. 49, DL 223/2006 — art. 11, c. 2, DL 66/2014 — modello F24 dell'Agenzia delle entrate", status:"free"},
   ]},
 ];
 const findCalc = id=>CATALOG.flatMap(g=>g.items).find(i=>i.id===id);
@@ -1277,7 +1326,7 @@ function renderCalc(id){
   $("#main").innerHTML=`<div class="head"><div class="eyebrow">${esc(CATALOG.find(g=>g.items.includes(c)).group)}</div><h1>${esc(c.title)}</h1><p>${esc(c.desc)}</p><div class="refs">${esc(c.refs||"")}</div></div>
   <div class="print-head">${testata}<b>${esc(c.title)}</b> — relazione del ${fmtD(todayISO())}${prat?` — pratica: ${esc(prat)}`:""}<div style="font-size:11px;font-family:var(--sans);margin-top:3px">${esc(c.refs||"")} · fonti verificate al ${MONITOR.fonti} · elaborazione con calcoliforensi.it</div></div>
   ${datiScaduti().filter(x=>x.calc.includes(id)).map(x=>`<div class="warn" style="margin:0 0 12px;padding:8px 12px;border:1px solid var(--warn);border-radius:var(--radius)">Aggiornamento in corso: ${esc(x.msg)}. Il calcolo usa l'ultimo valore disponibile: verificalo prima dell'uso.</div>`).join("")}
-  <div class="calc">
+  <div class="calc${V.largo?" largo":""}">
     <div class="panel"><div class="ph"><h2>Dati</h2><span class="pill free">calcolo immediato</span></div><div class="pb">
       ${LIC.valid?`<div class="field full" style="margin-bottom:12px"><label for="rifPratica">Riferimento della pratica (compare sulla relazione)</label><input id="rifPratica" data-in type="text" value="${esc(state.inputs.rifPratica||"")}" placeholder="es. Rossi / Assicurazioni Generali — sinistro 12.05.2023"></div>`:""}
       <div class="form">${V.form()}</div></div></div>
@@ -1686,6 +1735,7 @@ const VIEWS = {
         `<div class="fieldset-title">Dati del modello F24 (facoltativi: se vuoti sono calcolati in automatico)</div>`,
         testo("rcod","Codice tributo dell'imposta","automatico",""),
         testo("ranno","Anno di riferimento","automatico","periodo d'imposta (AAAA)"),
+        T.int==="stesso"?testo("rimmob","Numero immobili (IMU)","es. 1",""):"",
         T.mese?testo("rmese","Mese di riferimento delle ritenute","automatico","MM: mese di pagamento dei compensi"):"",
         field("rdich","Termine della dichiarazione (per la riduzione a 1/8)","date",state.inputs.rdich??"",{hint:"lascia vuoto per il termine ordinario"}),
       ].join("");
@@ -1695,12 +1745,14 @@ const VIEWS = {
       if(!R) return empty("Inserisci l'importo, la scadenza e una data di versamento successiva alla scadenza.");
       if(R.errore) return empty(esc(R.errore));
       const imu=R.T.int==="stesso";
+      F24.ultime=R.righe.map(x=>({sez:x.sez,codice:x.codice,ente:x.ente,rat:x.rat,anno:x.anno,deb:x.importo,cred:0,ravv:!!x.ravv,accSaldo:x.accSaldo||"",immob:imu?(val("rimmob")||""):"",voce:`Ravvedimento ${R.T.label}: ${x.voce}`}));
       return `<div class="total"><div class="eyebrow">Totale da versare con F24</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">imposta ${fmt.format(R.imp)} · sanzione ${fmt.format(R.sanzione)} (${fmtN(R.pct,4)}%) · interessi ${fmt.format(R.interessi)} · ${R.giorni} giorni di ritardo · riduzione a 1/${R.fr}</div>${R.avvisi.map(a=>`<div class="warn">${esc(a)}</div>`).join("")}</div>
       <div class="pb">${gate(`
         <div class="eyebrow" style="margin-bottom:6px">Righe del modello F24 — sezione «${esc(R.T.sez)}»</div>
         <div class="tblwrap"><table class="rows"><tr><th>Codice tributo</th>${R.T.ente?`<th>${R.T.ente==="regione"?"Cod. Regione":"Cod. ente/Comune"}</th>`:""}<th>${imu?"Ravv. / periodo":"Rateaz./mese rif."}</th><th>Anno rif.</th><th class="r">Importo a debito</th><th>Contenuto</th></tr>
         ${R.righe.map(x=>`<tr><td><b>${esc(x.codice||"????")}</b></td>${R.T.ente?`<td>${esc(x.ente||"…")}</td>`:""}<td>${imu?`☒ Ravv. · ☒ ${x.accSaldo}`:esc(x.rat)}</td><td>${esc(x.anno)}</td><td class="r">${fmt.format(x.importo)}</td><td>${esc(x.voce)}</td></tr>`).join("")}
         <tr class="sum"><td colspan="${R.T.ente?4:3}">Saldo della delega</td><td class="r">${fmt.format(R.totale)}</td><td></td></tr></table></div>
+        <div class="no-print" style="margin:8px 0 4px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn" type="button" id="btnF24" onclick="F24.daRavvedimento()">Aggiungi all'F24</button><a href="#/f24">Apri il modello F24 da stampare</a></div>
         <div class="eyebrow" style="margin:14px 0 6px">Sanzione</div>
         <table class="rows">
         <tr><td colspan="2">Regime: ${R.nuovo?"violazioni dal 1° settembre 2024 (D.Lgs. 87/2024)":"violazioni fino al 31 agosto 2024"}</td></tr>
@@ -1713,6 +1765,61 @@ const VIEWS = {
         <tr class="sum"><td colspan="4">Totale interessi</td><td class="r">${fmt.format(R.interessi)}</td></tr></table></div>
         <div class="note">Sanzione per omesso o tardivo versamento (art. 13 D.Lgs. 471/1997): per le violazioni dal 1° settembre 2024 il 25%, ridotto al 12,5% per ritardi fino a 90 giorni e a 1/15 per ogni giorno di ritardo fino a 15 giorni (D.Lgs. 87/2024, art. 5); per le violazioni precedenti il 30%, ridotto al 15% e, fino a 15 giorni, all'1% per giorno. Riduzioni per ravvedimento (art. 13 D.Lgs. 472/1997): 1/10 entro 30 giorni, 1/9 entro 90 giorni, 1/8 entro il termine della dichiarazione relativa all'anno della violazione (o entro un anno se non è prevista dichiarazione); oltre, 1/7 per le violazioni dal 1° settembre 2024; per quelle precedenti 1/7 entro il termine della dichiarazione dell'anno successivo (o due anni) e 1/6 oltre. Dopo la constatazione con processo verbale la riduzione è a 1/5; dopo lo schema d'atto (art. 6-bis L. 212/2000) 1/6 o 1/4, qui non calcolate. Il ravvedimento si perfeziona versando insieme imposta, sanzione e interessi legali giorno per giorno (c. 2); è ammesso anche per una parte dell'imposta (art. 13-bis). Per i tributi dell'Agenzia delle entrate è precluso solo dalla notifica di atti di liquidazione o accertamento, comprese le comunicazioni degli esiti dei controlli automatizzati (c. 1-ter). Dal 1° gennaio 2027 la disciplina è negli artt. 14 e 38 del TU sanzioni D.Lgs. 173/2024 (rinvio disposto dall'art. 4 DL 200/2025). Codici tributo verificati sulla banca dati dell'Agenzia delle entrate; ${R.T.int==="cumulati"?"per le ritenute gli interessi si sommano al tributo e la sanzione si versa con il codice dedicato, con il mese di riferimento (ris. 18/E/2023)":imu?"per l'IMU imposta, sanzione e interessi si versano insieme con il codice dell'imposta, barrando «Ravv.» e acconto o saldo (ris. 35/E/2012); il numero degli immobili va indicato nell'F24":"sanzione e interessi hanno codici propri"}. Il termine della dichiarazione applicato è il ${fmtD(R.t1)}${R.t1!==R.auto1?" (indicato da te)":""}.</div>`)}
       </div>${actions()}`;
+    }
+  },
+  "f24":{
+    largo:true,
+    form:()=>{
+      const imu=(state.inputs.fsez||"Erario")==="IMU e altri tributi locali", ent=(state.inputs.fsez||"Erario")!=="Erario";
+      const testo=(id,label,ph)=>`<div class="field"><label for="${id}">${label}</label><input id="${id}" data-in type="text" value="${esc(state.inputs[id]??"")}" placeholder="${esc(ph)}"></div>`;
+      return [
+        `<div class="fieldset-title">Contribuente (facoltativo: i dati restano su questo dispositivo)</div>`,
+        testo("fcf","Codice fiscale",""), testo("fcogn","Cognome, denominazione o ragione sociale",""), testo("fnome","Nome",""),
+        field("fdata","Data del versamento","date",todayISO()),
+        `<div class="fieldset-title">Aggiungi una riga a mano</div>`,
+        field("fsez","Sezione","select","Erario",{rerender:true,options:[["Erario","Erario"],["Regioni","Regioni"],["IMU e altri tributi locali","IMU e altri tributi locali"]]}),
+        testo("fcod","Codice tributo","es. 4001"),
+        ent?testo("fente",imu?"Codice ente / Comune":"Codice Regione",imu?"es. G565":"es. 20"):"",
+        testo("frat",imu?"Rateazione / mese rif.":"Rateazione / regione / prov. / mese rif.",""),
+        testo("fanno","Anno di riferimento","AAAA"),
+        field("fdeb","Importo a debito (€)","number","",{min:0,step:0.01}), field("fcred","Importo a credito compensato (€)","number","",{min:0,step:0.01}),
+        imu?field("fravv","Ravvedimento","select","no",{options:[["no","No"],["si","Sì"]]}):"",
+        imu?field("facc","Periodo","select","saldo",{options:[["acconto","Acconto"],["saldo","Saldo"],["entrambi","Acconto e saldo"]]}):"",
+        imu?testo("fimm","Numero immobili",""):"",
+        `<div class="field full"><button class="btn" type="button" onclick="F24.daModulo()">Aggiungi la riga al modello</button></div>`,
+      ].join("");
+    },
+    result:()=>{
+      const F=ENGINES.f24(F24.lista());
+      if(!F.n) return `<div class="total"><div class="eyebrow">Saldo della delega F24</div><div class="big">${fmt.format(0)}</div><div class="sub">nessuna riga nel modello</div></div>${empty(`Aggiungi le righe dal calcolatore del ravvedimento («Aggiungi all'F24») oppure inseriscile qui a mano${LIC.valid?"":" (funzione Pro)"}.`)}`;
+      const imp=x=>x?fmtN(x,2):"", vuote=(n,c)=>Array.from({length:Math.max(0,n)},()=>`<tr>${"<td>&nbsp;</td>".repeat(c)}</tr>`).join("");
+      const tot=(t,c)=>`<tr class="tot"><td colspan="${c}">Totale A (debito) e B (credito) — saldo A − B: ${fmtN(t.saldo,2)}</td><td class="n">${fmtN(t.deb,2)}</td><td class="n">${fmtN(t.cred,2)}</td></tr>`;
+      const cf=(val("fcf")||"").toUpperCase().replace(/\s/g,"");
+      const foglio=`<div id="f24foglio" class="f24">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap"><b style="font-size:14px">MODELLO F24 — prospetto di compilazione</b><span>Data del versamento: ${val("fdata")?fmtD(val("fdata")):"____/____/________"}</span></div>
+        <h4>Contribuente</h4>
+        <table><tr><th style="width:30%">Codice fiscale</th><td class="cf">${esc(cf||"________________")}</td></tr>
+        <tr><th>Cognome, denominazione o ragione sociale</th><td>${esc(val("fcogn")||"")}&nbsp;</td></tr><tr><th>Nome</th><td>${esc(val("fnome")||"")}&nbsp;</td></tr></table>
+        <h4>Sezione Erario</h4>
+        <table><tr><th>Codice tributo</th><th>Rateazione / regione / prov. / mese rif.</th><th>Anno di riferimento</th><th>Importi a debito versati</th><th>Importi a credito compensati</th></tr>
+        ${F.s.erario.map(r=>`<tr><td>${esc(r.codice)}</td><td>${esc(r.rat||"")}</td><td>${esc(r.anno||"")}</td><td class="n">${imp(r.deb)}</td><td class="n">${imp(r.cred)}</td></tr>`).join("")}${vuote(6-F.s.erario.length,5)}${tot(F.tot.erario,3)}</table>
+        <h4>Sezione Regioni</h4>
+        <table><tr><th>Codice Regione</th><th>Codice tributo</th><th>Rateazione / mese rif.</th><th>Anno di riferimento</th><th>Importi a debito versati</th><th>Importi a credito compensati</th></tr>
+        ${F.s.regioni.map(r=>`<tr><td>${esc(r.ente||"")}</td><td>${esc(r.codice)}</td><td>${esc(r.rat||"")}</td><td>${esc(r.anno||"")}</td><td class="n">${imp(r.deb)}</td><td class="n">${imp(r.cred)}</td></tr>`).join("")}${vuote(4-F.s.regioni.length,6)}${tot(F.tot.regioni,4)}</table>
+        <h4>Sezione IMU e altri tributi locali</h4>
+        <table><tr><th>Codice ente / Comune</th><th>Ravv.</th><th>Immob. variati</th><th>Acc.</th><th>Saldo</th><th>Numero immobili</th><th>Codice tributo</th><th>Rateazione / mese rif.</th><th>Anno di riferimento</th><th>Importi a debito versati</th><th>Importi a credito compensati</th></tr>
+        ${F.s.imu.map(r=>`<tr><td>${esc(r.ente||"")}</td><td>${r.ravv?"X":""}</td><td></td><td>${/acconto|entrambi/.test(r.accSaldo||"")?"X":""}</td><td>${/saldo|entrambi/.test(r.accSaldo||"")?"X":""}</td><td>${esc(r.immob||"")}</td><td>${esc(r.codice)}</td><td>${esc(r.rat||"")}</td><td>${esc(r.anno||"")}</td><td class="n">${imp(r.deb)}</td><td class="n">${imp(r.cred)}</td></tr>`).join("")}${vuote(4-F.s.imu.length,11)}${tot(F.tot.imu,9)}</table>
+        <h4>Saldo finale</h4>
+        <table><tr class="tot"><td>Saldo della delega (Erario + Regioni + IMU e altri tributi locali)</td><td class="n">EURO ${fmtN(F.saldo,2)}</td></tr></table>
+        <p style="font-size:10.5px;margin-top:8px">Prospetto da riportare sul modello F24 approvato dall'Agenzia delle entrate o nei servizi di pagamento telematico (F24 web, home banking): non sostituisce il modello ufficiale. I titolari di partita IVA versano con modalità telematiche (art. 37, c. 49, DL 223/2006); se la delega contiene crediti in compensazione si usano esclusivamente i servizi telematici dell'Agenzia delle entrate (art. 11, c. 2, lett. a, DL 66/2014, come modificato dalla L. 213/2023, dal 1° luglio 2024).</p>
+      </div>`;
+      return `<div class="total"><div class="eyebrow">Saldo della delega F24</div><div class="big">${fmt.format(F.saldo)}</div><div class="sub">${F.n} ${F.n===1?"riga":"righe"} · Erario ${fmt.format(F.tot.erario.saldo)} · Regioni ${fmt.format(F.tot.regioni.saldo)} · IMU e tributi locali ${fmt.format(F.tot.imu.saldo)}</div>${F.avvisi.map(a=>`<div class="warn">${esc(a)}</div>`).join("")}</div>
+      <div class="pb">${gate(`${foglio}
+        <div class="no-print" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:6px">Righe inserite</div>
+        <div class="tblwrap"><table class="rows"><tr><th>#</th><th>Sezione</th><th>Codice</th><th>Contenuto</th><th class="r">Importo</th><th></th></tr>
+        ${F24.lista().map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.sez)}</td><td>${esc(r.codice)}</td><td>${esc(r.voce||"")}</td><td class="r">${fmt.format(r.deb||-(r.cred||0))}</td><td class="r"><button class="btn" style="padding:3px 8px" onclick="F24.elimina(${i})">Elimina</button></td></tr>`).join("")}</table></div>
+        <div class="actions" style="padding:12px 0 0"><button class="btn primary" type="button" onclick="F24.stampa()">Stampa F24</button><button class="btn" type="button" onclick="F24.svuota()">Svuota il modello</button></div></div>`)}
+      </div>`;
     }
   },
   "cedolare":{
