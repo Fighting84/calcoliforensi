@@ -32,7 +32,13 @@ function estrai(testo, art, max = 60000) {
   const novita = [], errori = [];
   for (const x of elenco) {
     try {
-      const r = await fetch(BASE + x.urn, { headers: H }); if (!r.ok) throw new Error("HTTP " + r.status);
+      // fino a 3 tentativi: un errore di rete momentaneo non deve generare una segnalazione
+      let r;
+      for (let k = 1; ; k++) {
+        try { r = await fetch(BASE + x.urn, { headers: H }); if (r.ok) break; if (k >= 3) throw new Error("HTTP " + r.status); }
+        catch (e) { if (k >= 3) throw e; }
+        await new Promise(z => setTimeout(z, 3000 * k));
+      }
       const html = await r.text(), art = x.urn.split("~").pop();
       let t = x.commi ? null : estrai(pulisci(html), art);
       // articoli lunghissimi divisi da Normattiva in blocchi di 100 commi: si carica il blocco che contiene i commi sorvegliati
