@@ -219,6 +219,35 @@ ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, 
   eq("fine mese: 31/08/2020 + 6 anni", PR({ data: "2020-08-31", maxA: 3 }).ordinaria, "2026-08-31");
   eq("29 febbraio + 4 anni (contravvenzione)", PR({ tipo: "contravvenzione", data: "2020-02-29", maxA: 1 }).ordinaria, "2024-02-29");
   eq("29 febbraio + 6 anni → 28 febbraio", PR({ data: "2020-02-29", maxA: 3 }).ordinaria, "2026-02-28"); }
+// Prescrizione e decadenza tributaria: casi calcolati a mano dai testi vigenti
+{ const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
+  const T = o => ENGINES.prescrizioneTributi({ oggi: "2026-10-01", ...o });
+  const piuG = (iso, g) => new Date(Date.parse(iso + "T00:00:00Z") + g * 864e5).toISOString().slice(0, 10);
+  const A = o => T({ modo: "accertamento", ente: "ade", dich: "presentata", ...o });
+  let R = A({ anno: 2020, annoPres: 2021 }); eq("IRPEF 2020, dichiarazione 2021: 31/12/2026 senza 85 giorni (art. 22 D.Lgs. 81/2025)", `${R.base}/${R.alt.length}/${R.stato}`, "2026-12-31/0/no");
+  eq("dichiarazione omessa 2020: 31/12/2028", A({ anno: 2020, dich: "omessa" }).base, "2028-12-31");
+  R = A({ anno: 2018, annoPres: 2019 }); eq("periodo 2018: 31/12/2024 e, con 85 giorni, 26/03/2025", `${R.base}/${R.alt[0].data}`, "2024-12-31/2025-03-26");
+  eq("periodo 2019 (scadenza 31/12/2025): niente 85 giorni", A({ anno: 2019, annoPres: 2020 }).alt.length, 0);
+  eq("periodo 2015: regime anteriore (4 anni)", A({ anno: 2015, annoPres: 2016 }).base, "2020-12-31");
+  R = A({ anno: 2020, annoPres: 2022 }); eq("dichiarazione tardiva: termine dall'anno di presentazione", `${R.base}/${R.avvisi.some(a => /tardivamente/.test(a))}`, "2027-12-31/true");
+  R = T({ modo: "accertamento", ente: "locale", anno: 2021 }); eq("IMU 2021: 31/12/2026, con 85 giorni 26/03/2027", `${R.base}/${R.alt[0].data}`, "2026-12-31/2027-03-26");
+  const C = o => T({ modo: "cartella", ...o });
+  eq("cartella 36-bis dichiarazione 2023: 31/12/2026", C({ tipoCartella: "36bis", annoPres: 2023 }).base, "2026-12-31");
+  eq("36-bis dichiarazione 2018: +14 mesi → 28/02/2023", C({ tipoCartella: "36bis", annoPres: 2018 }).base, "2023-02-28");
+  eq("36-bis dichiarazione 2019: +1 anno → 31/12/2023", C({ tipoCartella: "36bis", annoPres: 2019 }).base, "2023-12-31");
+  eq("36-bis periodo 2019 (dichiarazione 2020): +1 anno → 31/12/2024", C({ tipoCartella: "36bis", annoPres: 2020 }).base, "2024-12-31");
+  eq("36-ter dichiarazione 2017: 31/12/2021 +14 mesi", C({ tipoCartella: "36ter", annoPres: 2017 }).base, "2023-02-28");
+  eq("accertamento definitivo 2024: 31/12/2026", C({ tipoCartella: "definitivo", annoPres: 2024 }).base, "2026-12-31");
+  eq("tributi locali, definitivo 2024: 31/12/2027", C({ tipoCartella: "locale", annoPres: 2024 }).base, "2027-12-31");
+  eq("carico affidato 2020-2021: +24 mesi in alternativa", C({ tipoCartella: "36bis", annoPres: 2023, affidato2021: true }).alt[0].data, "2028-12-31");
+  const S = o => T({ modo: "riscossione", ...o });
+  R = S({ dataNotifica: "2019-05-15", tipoCredito: "erariali" }); eq("erariali notificati 15/5/2019: 10 anni + 542 giorni di sospensione", `${R.base}/${R.alt[0].data}`, `2029-05-15/${piuG("2029-05-15", 542)}`);
+  R = S({ dataNotifica: "2019-05-15", tipoCredito: "locali" }); eq("tributi locali 2019: prescritti anche con la sospensione", `${R.base}/${R.stato}`, "2024-05-15/sempre");
+  R = S({ dataNotifica: "2021-04-15", tipoCredito: "locali", oggi: "2026-06-01" }); eq("notifica nel periodo di sospensione: decorre dal 1/9/2021", `${R.base}/${R.alt[0].data}/${R.stato}`, "2026-04-15/2026-08-31/dipende");
+  eq("bollo notificato nel 2023: 3 anni, nessuna sospensione", `${S({ dataNotifica: "2023-02-01", tipoCredito: "bollo" }).base}/${S({ dataNotifica: "2023-02-01", tipoCredito: "bollo" }).alt.length}`, "2026-02-01/0");
+  eq("sanzioni 5 anni", S({ dataNotifica: "2022-10-10", tipoCredito: "sanzioni" }).base, "2027-10-10");
+  eq("giudicato: avviso sulla SU 23397/2016", S({ dataNotifica: "2022-10-10", tipoCredito: "giudicato" }).avvisi.length, 1);
+  eq("dati mancanti: nessun calcolo", S({ dataNotifica: "" }), null); }
 // Modello F24: raggruppamento per sezione, totali e saldo
 { const F = ENGINES.f24([
     { sez: "Erario", codice: "4001", anno: "2025", deb: 1000 }, { sez: "Erario", codice: "8901", anno: "2025", deb: 8.33 },

@@ -573,5 +573,68 @@
    "prescrizione-tributi",
    "imu"
   ]
+ },
+ {
+  "id": "l296-1-c161",
+  "urn": "legge:2006-12-27;296~art1",
+  "calc": [
+   "prescrizione-tributi"
+  ],
+  "commi": [
+   "161",
+   "165"
+  ]
+ },
+ {
+  "id": "dlgs141-293",
+  "urn": "decreto.legislativo:2026-08-05;141~art293",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dlgs81-22",
+  "urn": "decreto.legislativo:2025-06-12;81~art22",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "dl34-157",
+  "urn": "decreto.legge:2020-05-19;34~art157",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "l335-3",
+  "urn": "legge:1995-08-08;335~art3",
+  "calc": [
+   "prescrizione-tributi",
+   "prescrizione"
+  ]
+ },
+ {
+  "id": "l689-28",
+  "urn": "legge:1981-11-24;689~art28",
+  "calc": [
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "cc-2943",
+  "urn": "regio.decreto:1942-03-16;262:2~art2943",
+  "calc": [
+   "prescrizione",
+   "prescrizione-tributi"
+  ]
+ },
+ {
+  "id": "cc-2944",
+  "urn": "regio.decreto:1942-03-16;262:2~art2944",
+  "calc": [
+   "prescrizione",
+   "prescrizione-tributi"
+  ]
  }
 ]

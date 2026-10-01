@@ -191,6 +191,15 @@ function apri(licenza) {
   await set3("pzpena", "ergastolo");
   ck("prescrizione reato: ergastolo imprescrittibile", /Imprescrittibile/.test($3("#result .total .big").textContent));
   ck("prescrizione reato: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+  // prescrizione e decadenza tributaria
+  await vai3("#/prescrizione-tributi");
+  ck("tributi: erariali notificati il 15/05/2019 → 15/05/2029", /15\/05\/2029/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  ck("tributi: data con la sospensione Covid mostrata a parte", /31\/8\/2021/.test($3("#result").textContent));
+  await set3("ptmodo", "accertamento"); await set3("ptanno", "2018"); await set3("ptpres", "2019");
+  ck("tributi: accertamento periodo 2018 → 31/12/2024 e 26/03/2025", /31\/12\/2024/.test($3("#result .total .big").textContent) && /26\/03\/2025/.test($3("#result").textContent));
+  await set3("ptmodo", "cartella"); await set3("pttipo", "36bis"); await set3("ptpres", "2018");
+  ck("tributi: cartella 36-bis dichiarazione 2018 → 28/02/2023", /28\/02\/2023/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  ck("tributi: nessun errore", C.errori.length === 0, C.errori.join(" | "));
   // parcella penale
   await vai3("#/parcella-penale");
   ck("parcella penale: monocratico 5.241,16 €", /5\.241,16/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);

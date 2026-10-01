@@ -376,6 +376,31 @@
         "prescrizione AND sospensione AND \"103 del 2017\""
       ],
       "note": "Regimi per data del fatto: ex Cirielli; L. 103/2017 per i fatti dal 3/8/2017 al 31/12/2019 (Cass. SU 20989/2025, dep. 5/6/2025); art. 161-bis e 344-bis dal 1/1/2020. A giugno 2025 era in Parlamento un disegno di legge di riforma della prescrizione: se approvato, rivedere il calcolatore."
+    },
+    {
+      "id": "prescrizione-tributi",
+      "calcolatore": "prescrizione-tributi",
+      "keywords": [
+        "prescrizione cartella",
+        "decadenza accertamento",
+        "sospensione Covid",
+        "85 giorni",
+        "art. 68 c. 4-bis"
+      ],
+      "gu": [
+        "termini di decadenza",
+        "termini di prescrizione",
+        "cartelle di pagamento",
+        "definizione agevolata"
+      ],
+      "cass": [
+        "prescrizione AND cartella AND (decennale OR quinquennale) AND erariali",
+        "\"85 giorni\" AND sospensione AND (decadenza OR prescrizione)",
+        "\"68, comma 4-bis\" OR \"comma 4-bis dell'art. 68\"",
+        "\"art. 22\" AND \"81 del 2025\"",
+        "\"articolo 12\" AND \"159 del 2015\" AND prescrizione"
+      ],
+      "note": "MASSIMA ATTENZIONE (richiesta del titolare). Sospensioni Covid con orientamenti non uniformi: art. 67 (85 giorni; Cass. 960/2025, decreto PP 1630/2025; contra Cass. 21765/2025; stop per AdE dal 31/12/2025 art. 22 D.Lgs. 81/2025) e art. 68 c. 1 (542 giorni) / c. 4-bis (24 mesi). Erariali 10 anni (Cass. 33213/2023, 25631/2026), locali/sanzioni/interessi 5. Ogni pronuncia nuova su questi punti va letta; una sentenza delle Sezioni Unite si recepisce subito."
     }
   ],
   "ultima_verifica_gu": "2026-10-01"

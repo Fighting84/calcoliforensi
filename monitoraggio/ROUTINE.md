@@ -25,6 +25,14 @@ Ignora quelle con etichetta `azione-richiesta` (sono per il titolare). Le altre 
   l'atto modificativo e la sua decorrenza, verifica se cambia un valore, una regola, una citazione o una data ("dal …")
   nei calcolatori indicati e aggiorna con test. Una nuova nota di aggiornamento o una sentenza della Corte costituzionale
   conta come variazione: leggila. Se la variazione non incide, annota "non rilevante" con il motivo.
+- **Prescrizione e decadenza tributaria (massima attenzione, richiesta del titolare)**: ogni segnalazione sul tema
+  `prescrizione-tributi` (Gazzetta, Cassazione o norme sentinella) va esaminata nella stessa settimana leggendo il
+  testo integrale. Punti sensibili: sospensione di 85 giorni (art. 67 DL 18/2020), sospensione dall'8/3/2020 al 31/8/2021
+  e proroga di 24 mesi (art. 68, c. 1 e 4-bis), termini decennali per le imposte erariali e quinquennali per tributi
+  locali, sanzioni e interessi, nuove definizioni agevolate che sospendono i termini. Una pronuncia delle Sezioni Unite o
+  una norma nuova si recepisce subito nel calcolatore (con test); un orientamento difforme di una sezione semplice si
+  annota nella nota del calcolatore citando gli estremi esatti. Se non sei certo dell'effetto, apri una richiesta al
+  titolare in `azioni_utente.json` invece di modificare il calcolo.
 - **Codice tributo soppresso** (sezione "Codici tributo del ravvedimento"): cerca la risoluzione dell'Agenzia
   delle entrate che istituisce il codice sostitutivo (elenco annuale "risoluzioni istitutive di codici tributo" su
   agenziaentrate.gov.it), leggila, aggiorna `RAVV_TRIBUTI` in `app/index.html` e il test corrispondente in

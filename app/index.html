@@ -239,7 +239,7 @@ const TITOLARE = {
   email:"studiolegaleometto@gmail.com", ordine:"Ordine degli Avvocati di Venezia"
 };
 const CONFIG = {
-  version: "0.13.0 — 1 ottobre 2026",
+  version: "0.14.0 — 1 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -953,6 +953,67 @@ const ENGINES = {
     return {del,data:D,passi,mesi,split,mesiMax,lim,sosp,ordinaria,massima,int,effettiva,regime,dopo,avvisi,giorni,riferimento,
       cessata:regime==="cartabia"&&dopo.cessata,prescritto:!(regime==="cartabia"&&dopo.cessata)&&giorni<0};
   },
+  // Prescrizione e decadenza tributaria. Tre verifiche: termine di accertamento (art. 43 DPR 600/1973 e art. 57 DPR 633/1972,
+  // dal 2027 art. 293 D.Lgs. 141/2026; art. 1, c. 161, L. 296/2006), notifica della cartella (art. 25 DPR 602/1973; c. 163
+  // L. 296/2006) e prescrizione dopo la notifica. Le sospensioni Covid discusse in giurisprudenza danno una seconda data.
+  prescrizioneTributi(o){
+    const oggi=o.oggi||todayISO(), d31=y=>`${y}-12-31`, ok=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||"");
+    const addG=(iso,g)=>{ const t=new Date(pd(iso)+g*86400000); return t.toISOString().slice(0,10); };
+    const addM=(iso,m)=>{ const [y,mm,dd]=iso.split("-").map(Number); const t=new Date(Date.UTC(y,mm-1+m,dd)); if(t.getUTCDate()!==dd) t.setUTCDate(0); return t.toISOString().slice(0,10); };
+    const passi=[], alt=[], avvisi=[]; let base, norma;
+    if(o.modo==="accertamento"){
+      const Y=Math.floor(+o.anno||0); if(!(Y>=2000&&Y<=2100)) return null;
+      if(o.ente==="locale"){
+        base=d31(Y+5); norma="art. 1, c. 161, L. 296/2006";
+        passi.push([`Anno in cui la dichiarazione o il versamento sono stati o avrebbero dovuto essere effettuati: ${Y}`,""],[`31 dicembre del quinto anno successivo`,base]);
+        if(base>="2020-03-08") alt.push({voce:"Con la sospensione di 85 giorni (art. 67, c. 1 e 4, DL 18/2020; Cass. n. 960/2025 e decreto della Prima Presidente n. 1630/2025): orientamento non uniforme",data:addG(base,85)});
+      } else {
+        const omessa=o.dich==="omessa", P=omessa?Y+1:Math.max(Y+1,Math.floor(+o.annoPres||Y+1));
+        if(Y<2016){ base=d31((omessa?Y+1:P)+(omessa?5:4)); norma="art. 43 DPR 600/1973 e art. 57 DPR 633/1972 nel testo anteriore alla L. 208/2015 (art. 1, c. 132)";
+          avvisi.push("Periodo d'imposta anteriore al 2016: termini di 4 anni (5 se la dichiarazione è omessa), raddoppiati in caso di denuncia per reati tributari presentata entro il termine ordinario."); }
+        else { base=d31(omessa?Y+1+7:P+5); norma="art. 43, c. "+(omessa?"2":"1")+", DPR 600/1973 e art. 57, c. "+(omessa?"2":"1")+", DPR 633/1972 (dal 1° gennaio 2027 art. 293 D.Lgs. 141/2026)"; }
+        passi.push([`Periodo d'imposta ${Y}: dichiarazione ${omessa?`omessa o nulla (andava presentata nel ${Y+1})`:`presentata nel ${P}`}`,""],[`31 dicembre del ${omessa?"settimo":Y<2016?"quarto":"quinto"} anno successivo`,base]);
+        if(base>="2020-03-08"&&base<"2025-12-31") alt.push({voce:"Con la sospensione di 85 giorni (art. 67 DL 18/2020; Cass. n. 960/2025, decreto PP n. 1630/2025; esclusa dal 31/12/2025 dall'art. 22 D.Lgs. 81/2025)",data:addG(base,85)});
+        if(base>="2025-12-31") passi.push(["Sospensione di 85 giorni non applicabile agli atti dell'Agenzia delle entrate dal 31/12/2025 (art. 22 D.Lgs. 81/2025)",""]);
+        if(!omessa&&P>Y+1) avvisi.push("Dichiarazione presentata tardivamente: il termine decorre dall'anno di effettiva presentazione (se entro 90 giorni è valida; oltre si considera omessa: art. 2, c. 7, DPR 322/1998).");
+        avvisi.push("Termini speciali da verificare: adesione al concordato preventivo biennale (art. 2-quater, c. 14, DL 113/2024: 31/12/2025 o 31/12/2027 per le annualità con ravvedimento speciale 2018-2021), riduzione di 2 anni con fatturazione elettronica e tracciabilità dei pagamenti (art. 3 D.Lgs. 127/2015), riduzione di 1 anno per i contribuenti ISA premiati, aiuti di Stato (8 anni, art. 43, c. 2-bis).");
+      }
+    } else if(o.modo==="cartella"){
+      const t=o.tipoCartella||"36bis", P=Math.floor(+o.annoPres||0);
+      if(!(P>=2000&&P<=2100)) return null;
+      if(t==="36bis"){ base=d31(P+3); norma="art. 25, c. 1, lett. a), DPR 602/1973"; passi.push([`Liquidazione automatica (art. 36-bis DPR 600/1973) della dichiarazione presentata nel ${P}: 31 dicembre del terzo anno successivo`,base]);
+        if(P===2018){ base=addM(base,14); passi.push(["Proroga di 14 mesi per le dichiarazioni presentate nel 2018 (art. 157, c. 3, lett. a, DL 34/2020)",base]); }
+        if(P===2019){ base=d31(P+4); passi.push(["Proroga di un anno per le dichiarazioni presentate nel 2019 (art. 5, c. 8, DL 41/2021)",base]); }
+        if(P===2020){ base=d31(P+4); passi.push(["Proroga di un anno per le dichiarazioni del periodo d'imposta 2019 (art. 1, c. 158, L. 197/2022)",base]); } }
+      else if(t==="36ter"){ base=d31(P+4); norma="art. 25, c. 1, lett. b), DPR 602/1973"; passi.push([`Controllo formale (art. 36-ter DPR 600/1973) della dichiarazione presentata nel ${P}: 31 dicembre del quarto anno successivo`,base]);
+        if(P===2017||P===2018){ base=addM(base,14); passi.push([`Proroga di 14 mesi per le dichiarazioni presentate nel ${P} (art. 157, c. 3, lett. c, DL 34/2020)`,base]); } }
+      else if(t==="definitivo"){ base=d31(P+2); norma="art. 25, c. 1, lett. c), DPR 602/1973"; passi.push([`Accertamento divenuto definitivo nel ${P}: 31 dicembre del secondo anno successivo`,base]); }
+      else { base=d31(P+3); norma="art. 1, c. 163, L. 296/2006"; passi.push([`Tributi locali: accertamento divenuto definitivo nel ${P}, titolo esecutivo entro il 31 dicembre del terzo anno successivo`,base]); }
+      if(o.affidato2021&&t!=="locale") alt.push({voce:"Con la proroga di 24 mesi per i carichi affidati all'agente della riscossione dall'8/3/2020 al 31/12/2021 o relativi alle dichiarazioni dell'art. 157, c. 3, DL 34/2020 (art. 68, c. 4-bis, DL 18/2020)",data:addM(base,24)});
+      if(t==="36bis"||t==="36ter") avvisi.push("Dal 2011 gli accertamenti dell'Agenzia delle entrate sono esecutivi (art. 29 DL 78/2010): per le somme accertate non c'è cartella, ma l'affidamento del carico all'agente della riscossione.");
+    } else {
+      const N=o.dataNotifica; if(!ok(N)) return null;
+      const C={erariali:[10,"imposte erariali (IRPEF, IRES, IVA, IRAP, registro…): prescrizione ordinaria decennale, art. 2946 c.c. (Cass. n. 33213/2023; n. 25631/2026)"],
+        locali:[5,"tributi locali (IMU, TARI, TASI…): prestazioni periodiche, art. 2948, n. 4, c.c. (Cass. SU n. 23397/2016)"],
+        sanzioni:[5,"sanzioni tributarie irrogate: art. 20, c. 3, D.Lgs. 472/1997"],
+        interessi:[5,"interessi: art. 2948, n. 4, c.c."],
+        bollo:[3,"tassa automobilistica: art. 5, c. 51, DL 953/1982"],
+        contributi:[5,"contributi previdenziali e assistenziali: art. 3, c. 9, L. 335/1995"],
+        amministrative:[5,"sanzioni amministrative (anche codice della strada): art. 28 L. 689/1981"],
+        giudicato:[10,"credito accertato con sentenza passata in giudicato: art. 2953 c.c."]};
+      const c=C[o.tipoCredito]||C.erariali; base=addM(N,c[0]*12); norma=c[1];
+      passi.push([`Ultimo atto notificato o interruttivo: ${fmtD(N)}`,""],[`Prescrizione di ${c[0]} anni — ${c[1]}`,base]);
+      // sospensione dei termini dall'8/3/2020 al 31/8/2021 per i carichi affidati (art. 68, c. 1, DL 18/2020 e art. 12, c. 1, D.Lgs. 159/2015)
+      const da=N>="2020-03-08"?addG(N,1):"2020-03-08", a="2021-08-31";   // il giorno della notifica non si computa
+      if(base>="2020-03-08"&&da<=a){ const g=Math.round((pd(a)-pd(da))/86400000)+1;
+        alt.push({voce:`Con la sospensione dall'8/3/2020 al 31/8/2021 (${g} giorni: art. 68, c. 1, DL 18/2020 e art. 12, c. 1, D.Lgs. 159/2015; Cass. n. 960/2025): orientamento non uniforme`,data:addG(base,g)}); }
+      if(o.affidato2021) alt.push({voce:"Con la proroga di 24 mesi per i carichi affidati dall'8/3/2020 al 31/12/2021 (art. 68, c. 4-bis, lett. b, DL 18/2020)",data:addM(base,24)});
+      if(o.tipoCredito==="giudicato") avvisi.push("La sola mancata opposizione alla cartella non trasforma il termine in decennale: la conversione dell'art. 2953 c.c. richiede un titolo giudiziale definitivo (Cass. SU n. 23397/2016).");
+    }
+    const tutte=[base,...alt.map(x=>x.data)].sort(), prudente=tutte[tutte.length-1];
+    const stato=oggi>prudente?"sempre":oggi>base?"dipende":"no";
+    return {modo:o.modo,base,alt,prudente,stato,passi,norma,avvisi,giorni:Math.round((pd(base)-pd(oggi))/86400000)};
+  },
   // Modello F24: righe raggruppate per sezione, totali a debito e a credito, saldo (struttura del modello approvato
   // dall'Agenzia delle entrate: Erario 6 righe, Regioni 4, IMU e altri tributi locali 4)
   f24(righe){
@@ -1151,6 +1212,7 @@ const CATALOG = [
   ]},
   {group:"Fisco e tributi", items:[
     {id:"ravvedimento", title:"Ravvedimento operoso — sanzioni, interessi e F24", desc:"Omesso o tardivo versamento di IRPEF, addizionali, IVA, IRES, IRAP, cedolare, forfetario, ritenute e IMU: sanzione ridotta, interessi legali giorno per giorno e righe del modello F24 con i codici tributo in vigore.", refs:"Art. 13 D.Lgs. 471/1997 e art. 13 D.Lgs. 472/1997 (D.Lgs. 87/2024 per le violazioni dal 1/9/2024; dal 1° gennaio 2027 artt. 14 e 38 D.Lgs. 173/2024) — ris. AdE 35/E/2012, 12/E/2023, 18/E/2023", status:"free"},
+    {id:"prescrizione-tributi", title:"Prescrizione e decadenza di imposte, tributi e cartelle", desc:"Termine per l'accertamento (Agenzia delle entrate e tributi locali), per la notifica della cartella e prescrizione dopo la notifica per tipo di credito, con le proroghe di legge e le sospensioni Covid indicate a parte.", refs:"Art. 43 DPR 600/1973, art. 57 DPR 633/1972 (dal 2027 art. 293 D.Lgs. 141/2026) — art. 1, c. 161 e 163, L. 296/2006 — art. 25 DPR 602/1973 — artt. 67-68 DL 18/2020 — art. 22 D.Lgs. 81/2025 — artt. 2946-2948 c.c. — Cass. SU 23397/2016, Cass. 960/2025, 25631/2026", status:"free"},
     {id:"f24", title:"Modello F24 — compilazione e stampa", desc:"Raccoglie le righe dei ravvedimenti e quelle inserite a mano, le ordina nelle sezioni Erario, Regioni e IMU e altri tributi locali con totali e saldo, e stampa il prospetto da riportare sul modello o nell'home banking.", refs:"Art. 17 D.Lgs. 241/1997 — art. 37, c. 49, DL 223/2006 — art. 11, c. 2, DL 66/2014 — modello F24 dell'Agenzia delle entrate", status:"free"},
   ]},
 ];
@@ -1841,6 +1903,48 @@ const VIEWS = {
         ${R.periodi.map(p=>`<tr><td>${p.anno}</td><td>${p.anno===+R.scadenza.slice(0,4)?"dal giorno dopo il "+fmtD(p.dal):"dal "+fmtD(p.dal)} al ${fmtD(p.al)}</td><td class="r">${p.giorni}</td><td class="r">${fmtN(p.tasso,2)}%</td><td class="r">${fmt.format(p.interessi)}</td></tr>`).join("")}
         <tr class="sum"><td colspan="4">Totale interessi</td><td class="r">${fmt.format(R.interessi)}</td></tr></table></div>
         <div class="note">Sanzione per omesso o tardivo versamento (art. 13 D.Lgs. 471/1997): per le violazioni dal 1° settembre 2024 il 25%, ridotto al 12,5% per ritardi fino a 90 giorni e a 1/15 per ogni giorno di ritardo fino a 15 giorni (D.Lgs. 87/2024, art. 5); per le violazioni precedenti il 30%, ridotto al 15% e, fino a 15 giorni, all'1% per giorno. Riduzioni per ravvedimento (art. 13 D.Lgs. 472/1997): 1/10 entro 30 giorni, 1/9 entro 90 giorni, 1/8 entro il termine della dichiarazione relativa all'anno della violazione (o entro un anno se non è prevista dichiarazione); oltre, 1/7 per le violazioni dal 1° settembre 2024; per quelle precedenti 1/7 entro il termine della dichiarazione dell'anno successivo (o due anni) e 1/6 oltre. Dopo la constatazione con processo verbale la riduzione è a 1/5; dopo lo schema d'atto (art. 6-bis L. 212/2000) 1/6 o 1/4, qui non calcolate. Il ravvedimento si perfeziona versando insieme imposta, sanzione e interessi legali giorno per giorno (c. 2); è ammesso anche per una parte dell'imposta (art. 13-bis). Per i tributi dell'Agenzia delle entrate è precluso solo dalla notifica di atti di liquidazione o accertamento, comprese le comunicazioni degli esiti dei controlli automatizzati (c. 1-ter). Dal 1° gennaio 2027 la disciplina è negli artt. 14 e 38 del TU sanzioni D.Lgs. 173/2024 (rinvio disposto dall'art. 4 DL 200/2025). Codici tributo verificati sulla banca dati dell'Agenzia delle entrate; ${R.T.int==="cumulati"?"per le ritenute gli interessi si sommano al tributo e la sanzione si versa con il codice dedicato, con il mese di riferimento (ris. 18/E/2023)":imu?"per l'IMU imposta, sanzione e interessi si versano insieme con il codice dell'imposta, barrando «Ravv.» e acconto o saldo (ris. 35/E/2012); il numero degli immobili va indicato nell'F24":"sanzione e interessi hanno codici propri"}. Il termine della dichiarazione applicato è il ${fmtD(R.t1)}${R.t1!==R.auto1?" (indicato da te)":""}.</div>`)}
+      </div>${actions()}`;
+    }
+  },
+  "prescrizione-tributi":{
+    form:()=>{
+      const modo=state.inputs.ptmodo||"riscossione", ente=state.inputs.ptente||"ade", tipo=state.inputs.pttipo||"36bis", dich=state.inputs.ptdich||"presentata";
+      const aff=field("ptaff","Carico affidato all'agente della riscossione tra l'8/3/2020 e il 31/12/2021","select","no",{full:true,options:[["no","No / non so"],["si","Sì: considera anche la proroga di 24 mesi (art. 68, c. 4-bis, DL 18/2020)"]]});
+      return [
+        field("ptmodo","Cosa vuoi verificare","select","riscossione",{full:true,rerender:true,options:[["riscossione","Prescrizione dopo la notifica (cartella, avviso, intimazione)"],["accertamento","Termine per l'accertamento (decadenza)"],["cartella","Termine per notificare la cartella di pagamento"]]}),
+        ...(modo==="accertamento"?[
+          field("ptente","Ente","select","ade",{full:true,rerender:true,options:[["ade","Agenzia delle entrate: imposte sui redditi, IRAP, IVA"],["locale","Comune o altro ente locale: IMU, TARI, TASI e altri tributi locali"]]}),
+          field("ptanno",ente==="locale"?"Anno in cui il versamento o la dichiarazione erano dovuti":"Periodo d'imposta","number",ente==="locale"?2021:2020,{min:2000,max:2100,step:1}),
+          ente==="ade"?field("ptdich","Dichiarazione","select","presentata",{rerender:true,options:[["presentata","Presentata"],["omessa","Omessa o nulla"]]}):"",
+          ente==="ade"&&dich==="presentata"?field("ptpres","Anno di presentazione","number",(+(state.inputs.ptanno||2020))+1,{min:2000,max:2100,step:1}):"",
+        ]:[]),
+        ...(modo==="cartella"?[
+          field("pttipo","Somme richieste con la cartella","select","36bis",{full:true,rerender:true,options:[["36bis","Liquidazione automatica della dichiarazione (art. 36-bis)"],["36ter","Controllo formale della dichiarazione (art. 36-ter)"],["definitivo","Accertamento divenuto definitivo"],["locale","Tributi locali: titolo esecutivo dopo accertamento definitivo"]]}),
+          field("ptpres",/36/.test(tipo)?"Anno di presentazione della dichiarazione":"Anno in cui l'accertamento è divenuto definitivo","number",2021,{min:2000,max:2100,step:1}),
+          tipo!=="locale"?aff:"",
+        ]:[]),
+        ...(modo==="riscossione"?[
+          field("ptnot","Data di notifica dell'ultimo atto (cartella, avviso, intimazione, pignoramento…)","date","2019-05-15",{full:true}),
+          field("ptcred","Tipo di credito","select","erariali",{full:true,options:[["erariali","Imposte erariali (IRPEF, IRES, IVA, IRAP, registro): 10 anni"],["locali","Tributi locali (IMU, TARI, TASI): 5 anni"],["sanzioni","Sanzioni tributarie: 5 anni"],["interessi","Interessi: 5 anni"],["bollo","Bollo auto: 3 anni"],["contributi","Contributi INPS / INAIL: 5 anni"],["amministrative","Multe e sanzioni amministrative: 5 anni"],["giudicato","Credito accertato con sentenza passata in giudicato: 10 anni"]]}),
+          aff,
+        ]:[]),
+      ].join("");
+    },
+    result:()=>{
+      const R=ENGINES.prescrizioneTributi({modo:val("ptmodo")||"riscossione",ente:val("ptente"),anno:num("ptanno"),dich:val("ptdich"),annoPres:num("ptpres"),tipoCartella:val("pttipo"),dataNotifica:val("ptnot"),tipoCredito:val("ptcred"),affidato2021:val("ptaff")==="si"});
+      if(!R) return empty("Completa i dati richiesti.");
+      const cosa={accertamento:"Decadenza dall'accertamento",cartella:"Termine per notificare la cartella",riscossione:"Prescrizione del credito"}[R.modo];
+      const esito=R.stato==="sempre"?"Termine scaduto, anche considerando le sospensioni":R.stato==="dipende"?"Scaduto solo senza le sospensioni Covid: verifica":"Termine in corso";
+      const sub=R.stato==="no"?`mancano ${R.giorni} giorni`:R.stato==="dipende"?`con le sospensioni scadrebbe il ${fmtD(R.prudente)}`:`scaduto il ${fmtD(R.base)}${R.prudente!==R.base?` (con le sospensioni: ${fmtD(R.prudente)})`:""}`;
+      const NOTE={accertamento:"Gli avvisi devono essere notificati entro il 31 dicembre del quinto anno successivo a quello di presentazione della dichiarazione, o del settimo in caso di dichiarazione omessa o nulla (art. 43 DPR 600/1973; art. 57 DPR 633/1972; per l'IRAP art. 25 D.Lgs. 446/1997; dal 1° gennaio 2027 art. 293 D.Lgs. 141/2026). Tributi locali: 31 dicembre del quinto anno successivo a quello in cui la dichiarazione o il versamento erano dovuti; nello stesso termine vanno contestate le sanzioni (art. 1, c. 161, L. 296/2006). La sospensione di 85 giorni dell'art. 67 DL 18/2020 è stata ritenuta dalla Cassazione uno spostamento in avanti di tutti i termini (ord. n. 960/2025; decreto della Prima Presidente n. 1630/2025), con pronunce di segno diverso; per gli atti impositivi dell'Agenzia delle entrate non si applica dal 31 dicembre 2025 (art. 22 D.Lgs. 81/2025).",
+        cartella:"Termini di decadenza per la notifica della cartella (art. 25 DPR 602/1973): 31 dicembre del terzo anno successivo alla presentazione della dichiarazione per la liquidazione automatica, del quarto per il controllo formale, del secondo successivo alla definitività dell'accertamento. Proroghe di legge: 14 mesi per le dichiarazioni presentate nel 2018 (e nel 2017 per il controllo formale), un anno per quelle presentate nel 2019 e per il periodo d'imposta 2019 (art. 157, c. 3, DL 34/2020; art. 5, c. 8, DL 41/2021; art. 1, c. 158, L. 197/2022), non applicabili alle entrate degli enti territoriali. Tributi locali: titolo esecutivo entro il 31 dicembre del terzo anno successivo alla definitività dell'accertamento (art. 1, c. 163, L. 296/2006).",
+        riscossione:"Dopo la notifica, la prescrizione si interrompe con ogni atto di riscossione notificato (intimazione di pagamento, pignoramento, iscrizione di ipoteca, comunicazione preventiva di fermo) e con il riconoscimento del debito, come l'istanza di rateizzazione (artt. 2943-2945 c.c.): indica la data dell'ultimo atto. Le definizioni agevolate («rottamazioni») prevedono sospensioni proprie: verificale per il caso concreto. La sospensione dei versamenti dall'8/3/2020 al 31/8/2021 comporta, secondo Cass. n. 960/2025, uno spostamento in avanti dei termini di prescrizione per lo stesso periodo (art. 12, c. 1, D.Lgs. 159/2015), ma l'orientamento non è uniforme. La prescrizione maturata dopo una notifica valida della cartella si fa valere impugnando il primo atto successivo che pretende il pagamento, non l'estratto di ruolo (Cass. n. 25422/2026)."};
+      return `<div class="total"><div class="eyebrow">${esc(cosa)} — ${esc(esito)}</div><div class="big">${fmtD(R.base)}</div><div class="sub">${esc(sub)}</div>${R.avvisi.map(a=>`<div class="warn">${esc(a)}</div>`).join("")}</div>
+      <div class="pb">${gate(`<table class="rows">${R.passi.map(([v,d])=>`<tr><td>${esc(v)}</td><td class="r">${d?fmtD(d):""}</td></tr>`).join("")}
+        <tr class="sum"><td>Scadenza (${esc(R.norma)})</td><td class="r">${fmtD(R.base)}</td></tr>
+        ${R.alt.map(x=>`<tr><td>${esc(x.voce)}</td><td class="r">${fmtD(x.data)}</td></tr>`).join("")}</table>
+        ${R.alt.length?`<div class="warn" style="margin-top:8px">Data prudenziale (la più lontana): ${fmtD(R.prudente)}. Prima di eccepire la decadenza o la prescrizione verifica le sospensioni applicabili al caso concreto.</div>`:""}
+        <div class="note">${esc(NOTE[R.modo])} Testi vigenti e giurisprudenza verificati al ${MONITOR.fonti}; le date seguono il calendario comune senza computare il giorno iniziale.</div>`)}
       </div>${actions()}`;
     }
   },

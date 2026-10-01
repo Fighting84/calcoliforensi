@@ -94,7 +94,7 @@ jobs:
 
       # ---- segnalazioni (email al titolare del repository) ----
       - name: Segnala le novità
-        if: steps.gu.outputs.code == '10' || steps.cod.outputs.code == '10' || steps.norme.outputs.code == '10' || steps.cass.outputs.code == '10' || steps.cass.outputs.code == '1' || steps.scad.outputs.code == '10' || steps.bce.outputs.code == '2' || steps.foi.outputs.code == '1' || steps.bce.outputs.code == '1' || steps.saggio.outputs.code == '1'
+        if: steps.gu.outputs.code == '10' || steps.cod.outputs.code == '10' || steps.norme.outputs.code == '10' || steps.norme.outputs.code == '1' || steps.cod.outputs.code == '1' || steps.cass.outputs.code == '10' || steps.cass.outputs.code == '1' || steps.scad.outputs.code == '10' || steps.bce.outputs.code == '2' || steps.foi.outputs.code == '1' || steps.bce.outputs.code == '1' || steps.saggio.outputs.code == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
