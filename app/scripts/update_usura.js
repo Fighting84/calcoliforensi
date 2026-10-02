@@ -37,7 +37,8 @@ async function daCsv() {
 // comunicato trimestrale: titolo "... SOGLIA VALIDI PER IL QUARTO TRIMESTRE 2026" e righe "<categoria> <classe> <tegm> <soglia>"
 function daPdf(buf) {
   const tmp = path.join(os.tmpdir(), "usura_" + Date.now() + ".pdf"); fs.writeFileSync(tmp, buf);
-  const t = execFileSync("pdftotext", ["-raw", tmp, "-"], { encoding: "latin1" }); fs.unlinkSync(tmp);
+  // UTF-8 esplicito e apostrofi tipografici uniformati: stesso risultato su Windows e sui server Linux
+  const t = execFileSync("pdftotext", ["-raw", "-enc", "UTF-8", tmp, "-"], { encoding: "utf8" }).replace(/[‘’]/g, "'"); fs.unlinkSync(tmp);
   const piatto = t.replace(/\s+/g, " ");
   const m = piatto.match(/VALIDI PER IL (PRIMO|SECONDO|TERZO|QUARTO) TRIMESTRE (\d{4})/i); if (!m) throw new Error("trimestre non trovato nel comunicato");
   const n = ["PRIMO", "SECONDO", "TERZO", "QUARTO"].indexOf(m[1].toUpperCase()), y = +m[2];
