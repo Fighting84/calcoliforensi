@@ -60,6 +60,11 @@ jobs:
         run: |
           set +e; node app/scripts/check_norme.js | tee norme.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
+      - name: Servizio dei cambi della Banca d'Italia
+        id: cambi
+        run: |
+          set +e; node app/scripts/check_cambi.js | tee cambi.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+
       - name: Codici tributo del ravvedimento (banca dati Agenzia delle entrate)
         id: cod
         run: |
@@ -101,7 +106,7 @@ jobs:
 
       # ---- segnalazioni (email al titolare del repository) ----
       - name: Segnala le novità
-        if: steps.gu.outputs.code == '10' || steps.cod.outputs.code == '10' || steps.norme.outputs.code == '10' || steps.norme.outputs.code == '1' || steps.usura.outputs.code == '1' || steps.usura.outputs.code == '2' || steps.cod.outputs.code == '1' || steps.cass.outputs.code == '10' || steps.cass.outputs.code == '1' || steps.scad.outputs.code == '10' || steps.bce.outputs.code == '2' || steps.foi.outputs.code == '1' || steps.bce.outputs.code == '1' || steps.saggio.outputs.code == '1'
+        if: steps.gu.outputs.code == '10' || steps.cod.outputs.code == '10' || steps.norme.outputs.code == '10' || steps.norme.outputs.code == '1' || steps.usura.outputs.code == '1' || steps.usura.outputs.code == '2' || steps.cambi.outputs.code == '1' || steps.cod.outputs.code == '1' || steps.cass.outputs.code == '10' || steps.cass.outputs.code == '1' || steps.scad.outputs.code == '10' || steps.bce.outputs.code == '2' || steps.foi.outputs.code == '1' || steps.bce.outputs.code == '1' || steps.saggio.outputs.code == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

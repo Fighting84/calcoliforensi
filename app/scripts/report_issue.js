@@ -21,7 +21,7 @@ if (norme) { out.push("## Norme sentinella variate (testo vigente su Normattiva)
 const cod = leggi("codici.json");
 if (cod) { out.push("## Codici tributo del ravvedimento da sostituire"); for (const x of cod) out.push(`- **${x.codice}**: ${x.esito}${x.dal ? " dal " + x.dal : ""} ${x.descrizione || ""} — cercare la risoluzione dell'Agenzia che lo sostituisce e aggiornare \`RAVV_TRIBUTI\``); out.push(""); }
 
-const errori = ["foi.log", "bce.log", "saggio.log", "norme.log", "cod.log", "gu.log", "usura.log"].map(log).filter(l => /ERRORE|DISCORDANZA/.test(l));
+const errori = ["foi.log", "bce.log", "saggio.log", "norme.log", "cod.log", "gu.log", "usura.log", "cambi.log"].map(log).filter(l => /ERRORE|DISCORDANZA/.test(l));
 if (errori.length) { out.push("## Controlli non riusciti o discordanze"); for (const e of errori) out.push(`- ${e}`); out.push(""); }
 
 out.push("---\nRegola: nessuna modifica ai calcoli viene pubblicata senza lettura della fonte e test superati.");

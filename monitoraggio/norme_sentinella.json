@@ -799,5 +799,26 @@
    "calendario-processo",
    "scadenze"
   ]
+ },
+ {
+  "id": "dpr633-13",
+  "urn": "decreto.del.presidente.della.repubblica:1972-10-26;633~art13",
+  "calc": [
+   "cambi"
+  ]
+ },
+ {
+  "id": "tuir-9",
+  "urn": "decreto.del.presidente.della.repubblica:1986-12-22;917~art9",
+  "calc": [
+   "cambi"
+  ]
+ },
+ {
+  "id": "cc-1278",
+  "urn": "regio.decreto:1942-03-16;262:2~art1278",
+  "calc": [
+   "cambi"
+  ]
  }
 ]

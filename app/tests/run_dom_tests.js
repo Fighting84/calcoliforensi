@@ -17,6 +17,8 @@ function apri(licenza) {
   const dom = new JSDOM(HTML, { runScripts: "dangerously", pretendToBeVisual: true, url: "https://calcoliforensi.it/", virtualConsole: vc,
     beforeParse(w) {
       w.scrollTo = () => {}; w.print = () => {};
+      // servizio dei cambi della Banca d'Italia simulato: domenica 27/09/2026 senza quotazioni
+      w.fetch = async url => ({ json: async () => /tassidicambio/.test(url) ? (/2026-09-27/.test(url) ? { resultsInfo: { totalRecords: 0 }, rates: [] } : { rates: [{ isoCode: "USD", currency: "Dollaro USA", avgRate: "1.1355", referenceDate: (url.match(/referenceDate=([d-]+)/) || [])[1] }, { isoCode: "GBP", currency: "Sterlina", avgRate: "0.8400" }] }) : {} });
       if (licenza) { try { w.localStorage.setItem("cf_license", licenza); } catch (e) {} }
       w.addEventListener("error", e => errori.push(e.message || String(e.error)));
     } });
@@ -191,6 +193,16 @@ function apri(licenza) {
   await set3("pzpena", "ergastolo");
   ck("prescrizione reato: ergastolo imprescrittibile", /Imprescrittibile/.test($3("#result .total .big").textContent));
   ck("prescrizione reato: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+  // cambi
+  await vai3("#/cambi");
+  await set3("cbdata", "2026-09-30"); await set3("cbimp", "1135.5"); await sleep(60);
+  ck("cambi: 1.135,50 USD al cambio 1,1355 = 1.000,00 €", /1\.000,00/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  await set3("cbdata", "2026-09-27"); await sleep(60);
+  ck("cambi: domenica senza quotazione → giorno antecedente più prossimo", /giorno antecedente più prossimo, 26\/09\/2026/.test($3("#result").textContent), $3("#result .total").textContent.replace(/\s+/g, " ").slice(0, 200));
+  await set3("cbmodo", "lire"); await set3("cbimp", "1936270");
+  ck("cambi: 1.936.270 lire = 1.000,00 €", /1\.000,00/.test($3("#result .total .big").textContent));
+  ck("cambi: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+
   // calendario del processo
   await vai3("#/calendario-processo");
   ck("calendario: terza memoria anticipata al venerdì 26/02/2027", /26\/02\/2027/.test($3("#result").textContent));

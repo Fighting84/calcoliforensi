@@ -219,6 +219,11 @@ ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, 
   eq("fine mese: 31/08/2020 + 6 anni", PR({ data: "2020-08-31", maxA: 3 }).ordinaria, "2026-08-31");
   eq("29 febbraio + 4 anni (contravvenzione)", PR({ tipo: "contravvenzione", data: "2020-02-29", maxA: 1 }).ordinaria, "2024-02-29");
   eq("29 febbraio + 6 anni → 28 febbraio", PR({ data: "2020-02-29", maxA: 3 }).ordinaria, "2026-02-28"); }
+// Cambi e lire-euro
+ck("cambi: 1.135,50 USD a 1,1355 = 1.000 €", ENGINES.convValuta(1135.5, 1.1355, "val2eur"), 1000);
+ck("cambi: 1.000 € a 1,1355 = 1.135,50 USD", ENGINES.convValuta(1000, 1.1355, "eur2val"), 1135.5);
+ck("lire: 1.000.000 lire = 516,46 €", ENGINES.lireEuro(1000000, "lire2eur"), 516.46);
+ck("lire: 1.000 € = 1.936.270 lire", ENGINES.lireEuro(1000, "eur2lire"), 1936270);
 // Calendario del processo: prima udienza 10/03/2027 (mercoledì), calcolo a mano a ritroso con giorni liberi
 { const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
   const R = ENGINES.calendarioProcesso({ udienza: "2027-03-10", oggi: "2026-10-02" }), d = re => (R.ev.find(e => re.test(e.titolo)) || {}).data;

@@ -242,7 +242,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.18.0 — 2 ottobre 2026",
+  version: "0.19.0 — 2 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -842,6 +842,10 @@ const ENGINES = {
     const ritenuta=o.ritenuta? r2((compenso+speseGen)*0.20):0;
     return {tab,label:T.label,valore,scaglione:i,scLim:T.sc[i],over,bands,fattore6,oltreDett,oltreImp,fasi,agg,compenso,speseGen,cpa,imponibile,iva,esenti,totale,ritenuta,netto:r2(totale-ritenuta)};
   },
+  // Cambi: conversione con il cambio di riferimento (quantità di valuta per 1 euro) e lire-euro (1 € = 1.936,27 lire,
+  // Reg. CE n. 2866/98)
+  convValuta(importo, cambio, verso){ const x=+importo||0, c=+cambio||0; if(!(x>0)||!(c>0)) return null; return verso==="eur2val"?r2(x*c):r2(x/c); },
+  lireEuro(importo, verso){ const x=+importo||0; if(!(x>0)) return null; return verso==="eur2lire"?Math.round(x*1936.27):r2(x/1936.27); },
   // Calendario del processo ordinario di cognizione (riforma Cartabia, D.Lgs. 149/2022 e correttivo D.Lgs. 164/2024):
   // tutte le scadenze dalla data della prima udienza, con le regole del calcolatore delle scadenze (art. 155 c.p.c.,
   // sospensione feriale, giorni liberi, festivi e sabati).
@@ -1248,6 +1252,22 @@ const STORICO = {
   svuota(){ try{ localStorage.removeItem("cf_storico"); }catch(e){} }
 };
 // Modello F24 in preparazione: righe raccolte dai calcolatori o inserite a mano; restano su questo dispositivo.
+// Cambi di riferimento dal servizio pubblico della Banca d'Italia (tassidicambio.bancaditalia.it): si inviano solo data e
+// valuta; risultati in memoria per la sessione. Nei giorni senza quotazione si usa il giorno antecedente più prossimo.
+const CAMBI = {
+  API:"https://tassidicambio.bancaditalia.it/terzevalute-wf-web/rest/v1.0/", cache:{}, attesa:{},
+  async giorno(d){ for(let i=0;i<10;i++){ const g=new Date(pd(d)-i*86400000).toISOString().slice(0,10);
+      const j=await (await fetch(`${this.API}dailyRates?referenceDate=${g}&currencyIsoCode=EUR&lang=it`,{headers:{Accept:"application/json"}})).json();
+      if(j.rates&&j.rates.length) return {data:g,rates:j.rates}; } throw new Error("nessuna quotazione nei dieci giorni precedenti"); },
+  async mese(y,m){ const j=await (await fetch(`${this.API}monthlyAverageRates?month=${m}&year=${y}&currencyIsoCode=EUR&lang=it`,{headers:{Accept:"application/json"}})).json();
+      if(!j.rates||!j.rates.length) throw new Error("media mensile non ancora pubblicata"); return {data:`${y}-${String(m).padStart(2,"0")}`,rates:j.rates}; },
+  // restituisce i dati se già in memoria; altrimenti avvia la richiesta e ridisegna il risultato quando arriva
+  leggi(chiave, fn){ if(this.cache[chiave]) return this.cache[chiave]; if(!this.attesa[chiave]){ this.attesa[chiave]=true;
+      Promise.resolve().then(fn).then(v=>{ this.cache[chiave]=v; },e=>{ this.cache[chiave]={errore:e.message||"servizio non raggiungibile"}; })
+        .finally(()=>{ delete this.attesa[chiave]; if(typeof state!=="undefined"&&state.calc==="cambi"&&typeof VIEWS!=="undefined"){ const r=document.getElementById("result"); if(r){ r.innerHTML=VIEWS.cambi.result(); bindResult(); } } }); }
+    return null; }
+};
+const VALUTE=[["USD","Dollaro USA"],["GBP","Sterlina britannica"],["CHF","Franco svizzero"],["JPY","Yen giapponese"],["CNY","Renminbi cinese"],["CAD","Dollaro canadese"],["AUD","Dollaro australiano"],["SEK","Corona svedese"],["NOK","Corona norvegese"],["DKK","Corona danese"],["PLN","Zloty polacco"],["CZK","Corona ceca"],["HUF","Fiorino ungherese"],["RON","Leu rumeno"],["BGN","Lev bulgaro"],["TRY","Lira turca"],["ALL","Lek albanese"],["RSD","Dinaro serbo"],["MAD","Dirham marocchino"],["TND","Dinaro tunisino"],["EGP","Lira egiziana"],["AED","Dirham degli Emirati"],["SAR","Riyal saudita"],["INR","Rupia indiana"],["BRL","Real brasiliano"],["ARS","Peso argentino"],["MXN","Peso messicano"],["ZAR","Rand sudafricano"],["HKD","Dollaro di Hong Kong"],["SGD","Dollaro di Singapore"],["KRW","Won sudcoreano"],["ILS","Nuovo siclo israeliano"],["UAH","Grivnia ucraina"]];
 const F24 = {
   KEY:"cf_f24", ultime:[],
   lista(){ try{ return JSON.parse(localStorage.getItem(this.KEY)||"[]"); }catch(e){ return []; } },
@@ -1331,6 +1351,7 @@ const CATALOG = [
   {group:"Fisco e tributi", items:[
     {id:"ravvedimento", title:"Ravvedimento operoso — sanzioni, interessi e F24", desc:"Omesso o tardivo versamento di IRPEF, addizionali, IVA, IRES, IRAP, cedolare, forfetario, ritenute e IMU: sanzione ridotta, interessi legali giorno per giorno e righe del modello F24 con i codici tributo in vigore.", refs:"Art. 13 D.Lgs. 471/1997 e art. 13 D.Lgs. 472/1997 (D.Lgs. 87/2024 per le violazioni dal 1/9/2024; dal 1° gennaio 2027 artt. 14 e 38 D.Lgs. 173/2024) — ris. AdE 35/E/2012, 12/E/2023, 18/E/2023", status:"free"},
     {id:"prescrizione-tributi", title:"Prescrizione e decadenza di imposte, tributi e cartelle", desc:"Termine per l'accertamento (Agenzia delle entrate e tributi locali), per la notifica della cartella e prescrizione dopo la notifica per tipo di credito, con le proroghe di legge e le sospensioni Covid indicate a parte.", refs:"Art. 43 DPR 600/1973, art. 57 DPR 633/1972 (dal 2027 art. 293 D.Lgs. 141/2026) — art. 1, c. 161 e 163, L. 296/2006 — art. 25 DPR 602/1973 — artt. 67-68 DL 18/2020 — art. 22 D.Lgs. 81/2025 — artt. 2946-2948 c.c. — Cass. SU 23397/2016, Cass. 960/2025, 25631/2026", status:"free"},
+    {id:"cambi", title:"Cambi delle valute e lire-euro", desc:"Conversione con il cambio ufficiale della Banca d'Italia di un giorno (o del giorno antecedente più prossimo) o con la media mensile, e conversione lire-euro.", refs:"Art. 13, c. 4, DPR 633/1972 — art. 9, c. 2, TUIR — art. 1278 c.c. — Reg. CE 2866/98 — cambi di riferimento Banca d'Italia", status:"free"},
     {id:"f24", title:"Modello F24 — compilazione e stampa", desc:"Raccoglie le righe dei ravvedimenti e quelle inserite a mano, le ordina nelle sezioni Erario, Regioni e IMU e altri tributi locali con totali e saldo, e stampa il prospetto da riportare sul modello o nell'home banking.", refs:"Art. 17 D.Lgs. 241/1997 — art. 37, c. 49, DL 223/2006 — art. 11, c. 2, DL 66/2014 — modello F24 dell'Agenzia delle entrate", status:"free"},
   ]},
 ];
@@ -1432,7 +1453,7 @@ function renderInfo(){
     <p class="just">Trattandosi di contenuto digitale fornito immediatamente, l'acquirente che agisca come consumatore, chiedendo l'attivazione immediata, riconosce la perdita del diritto di recesso ai sensi dell'art. 59, lett. o), del Codice del consumo. Resta ferma la possibilità di chiedere il rimborso entro quattordici giorni dall'acquisto se il servizio non ha funzionato come descritto: in tal caso scrivere all'indirizzo di contatto.</p>
 
     <div class="eyebrow" style="margin:18px 0 6px">Dati personali e cookie</div>
-    <p class="just">Il sito non utilizza cookie di profilazione né strumenti di analisi o tracciamento di terze parti. I dati inseriti nei calcolatori (importi, date, percentuali, riferimenti di pratica) restano nel browser dell'utente e non vengono trasmessi ad alcun server: il calcolo avviene interamente sul dispositivo. La chiave di licenza, le impostazioni dello studio e lo storico dei calcoli sono conservati nella memoria locale del browser e possono essere cancellati in ogni momento dalle impostazioni del browser o dalla pagina Impostazioni. Il solo trattamento effettuato dal titolare riguarda i dati di contatto e di acquisto comunicati dall'utente (nome, email, dati di fatturazione), trattati per eseguire il contratto e adempiere agli obblighi fiscali, ai sensi dell'art. 6, par. 1, lett. b) e c), del Regolamento UE 2016/679, e conservati per i termini di legge. Il fornitore di pagamento tratta i dati necessari alla transazione in qualità di autonomo titolare. La pubblicazione del sito comporta la registrazione tecnica degli accessi da parte del fornitore di hosting per finalità di sicurezza. L'interessato può esercitare i diritti previsti dagli artt. 15-22 del Regolamento scrivendo all'indirizzo di contatto e proporre reclamo al Garante per la protezione dei dati personali.</p>
+    <p class="just">Il sito non utilizza cookie di profilazione né strumenti di analisi o tracciamento di terze parti. I dati inseriti nei calcolatori (importi, date, percentuali, riferimenti di pratica) restano nel browser dell'utente e non vengono trasmessi ad alcun server: il calcolo avviene interamente sul dispositivo. La chiave di licenza, le impostazioni dello studio e lo storico dei calcoli sono conservati nella memoria locale del browser e possono essere cancellati in ogni momento dalle impostazioni del browser o dalla pagina Impostazioni. Il solo trattamento effettuato dal titolare riguarda i dati di contatto e di acquisto comunicati dall'utente (nome, email, dati di fatturazione), trattati per eseguire il contratto e adempiere agli obblighi fiscali, ai sensi dell'art. 6, par. 1, lett. b) e c), del Regolamento UE 2016/679, e conservati per i termini di legge. Il fornitore di pagamento tratta i dati necessari alla transazione in qualità di autonomo titolare. Il calcolatore dei cambi interroga il servizio pubblico della Banca d'Italia inviando soltanto la data (o il mese) richiesta, senza importi né altri dati. La pubblicazione del sito comporta la registrazione tecnica degli accessi da parte del fornitore di hosting per finalità di sicurezza. L'interessato può esercitare i diritti previsti dagli artt. 15-22 del Regolamento scrivendo all'indirizzo di contatto e proporre reclamo al Garante per la protezione dei dati personali.</p>
 
     <div class="eyebrow" style="margin:18px 0 6px">Aggiornamento delle fonti e responsabilità</div>
     <p class="just">I valori applicati sono aggiornati con verifiche automatiche quotidiane sulle fonti ufficiali (indici ISTAT e Gazzetta Ufficiale) e con controlli periodici sulla giurisprudenza; le date dell'ultima verifica sono riportate in fondo a ogni pagina e nelle relazioni stampate. Nonostante la cura impiegata, il titolare non garantisce l'assenza di errori o l'aggiornamento istantaneo rispetto a ogni modifica normativa, e non risponde delle decisioni assunte sulla base dei risultati, che l'utente professionale è tenuto a verificare. Eventuali errori segnalati all'indirizzo di contatto vengono esaminati con priorità.</p>
@@ -1835,6 +1856,37 @@ const VIEWS = {
         <tr><td>Canone attuale</td><td class="r">${fmt.format(R.canone)}</td></tr>
         <tr class="sum"><td>Canone aggiornato</td><td class="r">${fmt.format(R.nuovo)}</td></tr></table>
         <div class="note">Art. 32 L. 392/1978: per le locazioni abitative l'aggiornamento non può superare il 75% della variazione FOI; per le locazioni a canone concordato l'aggiornamento è escluso se il locatore ha optato per la cedolare secca (art. 3, c. 11, D.Lgs. 23/2011: la rinuncia vale per tutto il periodo dell'opzione). L'aggiornamento va richiesto per iscritto e decorre dalla richiesta (art. 32, c. 2). Le variazioni negative non riducono il canone.</div>`)}</div>${actions()}`;
+    }
+  },
+  "cambi":{
+    form:()=>{
+      const m=state.inputs.cbmodo||"giorno";
+      return [
+        field("cbmodo","Conversione","select","giorno",{full:true,rerender:true,options:[["giorno","Cambio di un giorno (fatture, pagamenti, debiti in valuta)"],["mese","Cambio medio mensile (redditi esteri, dichiarazioni)"],["lire","Lire ↔ euro"]]}),
+        m==="lire"?field("cblverso","Verso","select","lire2eur",{options:[["lire2eur","Da lire a euro"],["eur2lire","Da euro a lire"]]}):field("cbval","Valuta","select","USD",{options:VALUTE.map(([c,n])=>[c,`${c} — ${n}`])}),
+        m!=="lire"?field("cbverso","Verso","select","val2eur",{options:[["val2eur","Da valuta a euro"],["eur2val","Da euro a valuta"]]}):"",
+        m==="giorno"?field("cbdata","Data","date",new Date(Date.now()-86400000).toISOString().slice(0,10)):"",
+        m==="mese"?field("cbmese","Mese","month",(()=>{ const d=new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth()-1); return d.toISOString().slice(0,7); })()):"",
+        field("cbimp","Importo","number",1000,{min:0,step:0.01,full:true}),
+      ].join("");
+    },
+    result:()=>{
+      const m=val("cbmodo")||"giorno", imp=num("cbimp");
+      if(m==="lire"){ const verso=val("cblverso"), r=ENGINES.lireEuro(imp,verso); if(r==null) return empty("Inserisci l'importo.");
+        return `<div class="total"><div class="eyebrow">Conversione lire – euro</div><div class="big">${verso==="eur2lire"?`${fmtN(r,0)} lire`:fmt.format(r)}</div><div class="sub">${verso==="eur2lire"?fmt.format(imp):`${fmtN(imp,0)} lire`} al tasso fisso di 1.936,27 lire per euro</div></div>
+        <div class="pb"><div class="note">Tasso di conversione irrevocabile fissato dal Regolamento (CE) n. 2866/98 del Consiglio, in vigore dal 1° gennaio 1999; arrotondamento al centesimo di euro. Per riportare a oggi il valore di un importo in lire usa la rivalutazione ISTAT.</div></div>${actions([{to:"rivalutazione",val:verso==="eur2lire"?imp:r,label:"Conversione lire-euro",testo:"Rivaluta l'importo in euro →"}])}`; }
+      const cod=val("cbval")||"USD", verso=val("cbverso");
+      let chiave, fn, rif;
+      if(m==="giorno"){ const d=val("cbdata"); if(!/^\d{4}-\d{2}-\d{2}$/.test(d||"")) return empty("Indica la data."); if(d>todayISO()) return empty("La data è nel futuro."); chiave="g"+d; fn=()=>CAMBI.giorno(d); rif=d; }
+      else { const mm=val("cbmese"); if(!/^\d{4}-\d{2}$/.test(mm||"")) return empty("Indica il mese."); chiave="m"+mm; fn=()=>CAMBI.mese(+mm.slice(0,4),+mm.slice(5)); rif=mm; }
+      const D=CAMBI.leggi(chiave,fn);
+      if(!D) return `<div class="total"><div class="eyebrow">Cambio della Banca d'Italia</div><div class="big" style="font-size:22px">lettura in corso…</div><div class="sub">collegamento al servizio dei cambi di riferimento</div></div>`;
+      if(D.errore) return empty(`Cambio non disponibile: ${esc(D.errore)}. Il servizio della Banca d'Italia potrebbe non essere raggiungibile: riprova più tardi.`);
+      const x=D.rates.find(r=>r.isoCode===cod); if(!x) return empty(`Nessuna quotazione per ${esc(cod)} nel periodo indicato.`);
+      const c=+x.avgRate, r=ENGINES.convValuta(imp,c,verso); if(r==null) return empty("Inserisci l'importo.");
+      const diverso=m==="giorno"&&D.data!==rif;
+      return `<div class="total"><div class="eyebrow">${m==="giorno"?"Cambio del giorno":"Cambio medio mensile"} — ${esc(x.currency)}</div><div class="big">${verso==="eur2val"?`${fmtN(r,2)} ${esc(cod)}`:fmt.format(r)}</div><div class="sub">${verso==="eur2val"?fmt.format(imp):`${fmtN(imp,2)} ${esc(cod)}`} · 1 € = ${fmtN(c,4)} ${esc(cod)} · ${m==="giorno"?`cambio del ${fmtD(D.data)}`:`media di ${D.data.slice(5)}/${D.data.slice(0,4)}`}</div>${diverso?`<div class="warn">Nessuna quotazione il ${fmtD(rif)} (festivo o non lavorativo): usato il giorno antecedente più prossimo, ${fmtD(D.data)}.</div>`:""}</div>
+      <div class="pb"><div class="note">Cambi di riferimento pubblicati dalla Banca d'Italia (per le valute quotate dalla BCE coincidono con i tassi BCE), espressi come quantità di valuta per 1 euro. IVA: corrispettivi e spese in valuta si convertono al cambio del giorno di effettuazione dell'operazione o di emissione della fattura, in mancanza del giorno antecedente più prossimo; in alternativa, per tutto l'anno solare, al tasso BCE (art. 13, c. 4, DPR 633/1972). Imposte sui redditi: cambio del giorno di percezione o sostenimento o del giorno antecedente più prossimo e, in mancanza, del mese (art. 9, c. 2, TUIR). Debiti in moneta estera: art. 1278 c.c. (pagamento in moneta legale al corso del cambio del giorno della scadenza). La Banca d'Italia precisa che i cambi pubblicati hanno valore indicativo, salvo i casi previsti dalla normativa italiana.</div></div>${actions()}`;
     }
   },
   "calendario-processo":{
