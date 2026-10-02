@@ -419,6 +419,21 @@
         "\"riunione fittizia\" AND \"556\""
       ],
       "note": "Quote fisse del codice civile; norme sentinella sugli artt. 537-583."
+    },
+    {
+      "id": "precetto",
+      "calcolatore": "precetto",
+      "keywords": [
+        "atto di precetto",
+        "480 c.p.c."
+      ],
+      "gu": [
+        "codice di procedura civile"
+      ],
+      "cass": [
+        "precetto AND \"480\" AND (nullità OR interessi) AND spese"
+      ],
+      "note": "Riusa interessi legali/mora e tab. 6 DM 55/2014."
     }
   ],
   "ultima_verifica_gu": "2026-10-01"

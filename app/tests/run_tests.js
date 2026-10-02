@@ -219,6 +219,16 @@ ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, 
   eq("fine mese: 31/08/2020 + 6 anni", PR({ data: "2020-08-31", maxA: 3 }).ordinaria, "2026-08-31");
   eq("29 febbraio + 4 anni (contravvenzione)", PR({ tipo: "contravvenzione", data: "2020-02-29", maxA: 1 }).ordinaria, "2024-02-29");
   eq("29 febbraio + 6 anni → 28 febbraio", PR({ data: "2020-02-29", maxA: 3 }).ordinaria, "2026-02-28"); }
+// Atto di precetto: calcolo a mano (legali 2,5% nel 2024 e 2% nel 2025; tab. 6 (GU 236/2022): 0-5.200 = 142, 5.200,01-26.000 = 236, 26.000,01-52.000 = 331, 52.000,01-260.000 = 425 €)
+{ const R = ENGINES.precetto({ capitale: 10000, data: "2025-01-15", tipoInt: "legali", daInt: "2024-01-15", compensi: 2500, esborsi: 264, speseVive: 30 });
+  ck("precetto: interessi legali 351 gg al 2,5% + 15 gg al 2%", R.interessi, r2(r2(10000 * 0.025 * 351 / 365) + r2(10000 * 0.02 * 15 / 365)));
+  ck("  spese del titolo (2.500 + 15% + 4% + IVA 22% + 264)", R.speseTitolo, 3911.8);
+  ck("  compenso precetto tab. 6 (valore 14.160,43)", R.P.compenso, 236); ck("  precetto con accessori (236 + 35,40 + 10,86 + IVA 62,10)", R.P.totale, 344.36);
+  ck("  totale intimato", R.totale, 14534.79);
+  const S = ENGINES.precetto({ capitale: 10000, data: "2025-01-15", tipoInt: "no", compensi: 2500, esborsi: 0, creditoreIva: true });
+  ck("precetto: creditore soggetto IVA, senza interessi", S.totale, r2(10000 + 2500 + 375 + 115 + r2(236 + 35.4 + r2(271.4 * 0.04))));
+  ck("precetto: interessi convenzionali 5% per 365 giorni", ENGINES.precetto({ capitale: 10000, data: "2025-01-15", tipoInt: "conv", tassoConv: 5, daInt: "2024-01-16" }).interessi, 500);
+  ck("precetto: tra 52.000 e 260.000 € compenso 425", ENGINES.precetto({ capitale: 60000, data: "2025-01-15", tipoInt: "no" }).P.compenso, 425); }
 // Quote ereditarie e legittima: casi del codice civile
 { const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
   const Q = o => ENGINES.quoteEreditarie({ coniuge: "no", figli: 0, genitori: 0, germani: 0, unilaterali: 0, ...o });

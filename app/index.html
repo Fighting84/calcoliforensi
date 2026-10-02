@@ -242,7 +242,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.15.0 — 2 ottobre 2026",
+  version: "0.16.0 — 2 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -839,6 +839,25 @@ const ENGINES = {
     const ritenuta=o.ritenuta? r2((compenso+speseGen)*0.20):0;
     return {tab,label:T.label,valore,scaglione:i,scLim:T.sc[i],over,bands,fattore6,oltreDett,oltreImp,fasi,agg,compenso,speseGen,cpa,imponibile,iva,esenti,totale,ritenuta,netto:r2(totale-ritenuta)};
   },
+  // Atto di precetto (art. 480 c.p.c.): capitale, interessi fino alla data del precetto, spese liquidate nel titolo
+  // (compensi + spese generali + CPA + IVA + esborsi), compenso del precetto (DM 55/2014, tab. 6) e spese successive.
+  precetto(o){
+    const cap=r2(+o.capitale||0), da=o.daInt, a=o.data; if(!(cap>0)||!/^\d{4}-\d{2}-\d{2}$/.test(a||"")) return null;
+    let interessi=0, notaInt="nessun interesse richiesto", dettInt=null;
+    if(o.tipoInt&&o.tipoInt!=="no"&&/^\d{4}-\d{2}-\d{2}$/.test(da||"")&&pd(a)>pd(da)){
+      if(o.tipoInt==="legali"){ const R=ENGINES.interessiLegali(cap,da,a); interessi=R.totale; dettInt=R.periodi; notaInt="interessi legali (art. 1284, c. 1, c.c.)"; }
+      else if(o.tipoInt==="mora"){ const R=ENGINES.interessiMora(cap,da,a); interessi=R.totale; dettInt=R.periodi; notaInt="interessi al tasso dell'art. 1284, c. 4, c.c. (D.Lgs. 231/2002: BCE + 8 punti)"; }
+      else if(o.tipoInt==="conv"){ const t=Math.max(0,+o.tassoConv||0), g=daysBetween(da,a); interessi=r2(cap*t/100*g/365); notaInt=`interessi convenzionali al ${fmtN(t,2)}% annuo per ${g} giorni`; }
+    }
+    const iva=o.creditoreIva?0:22, comp=Math.max(0,+o.compensi||0);
+    const sg=r2(comp*0.15), cpa=r2((comp+sg)*0.04), ivaL=r2((comp+sg+cpa)*iva/100), esborsi=r2(Math.max(0,+o.esborsi||0));
+    const speseTitolo=r2(comp+sg+cpa+ivaL+esborsi);
+    const valore=r2(cap+interessi+speseTitolo);
+    const P=ENGINES.parcella("6",valore,{C:Math.max(-50,Math.min(50,+o.varPrecetto||0))},{speseGenPct:15,cpaPct:4,ivaPct:iva});
+    const speseVive=r2(Math.max(0,+o.speseVive||0));
+    const totale=r2(valore+P.totale+speseVive);
+    return {cap,interessi,notaInt,dettInt,iva,comp,sg,cpa,ivaL,esborsi,speseTitolo,valore,P,speseVive,totale,data:a};
+  },
   // Quote ereditarie: successione legittima (artt. 565-586 c.c., rappresentazione artt. 467-469) e quote di riserva
   // (artt. 536-548 c.c.), con frazioni esatte. Unione civile equiparata al matrimonio (L. 76/2016, art. 1, c. 21).
   quoteEreditarie(o){
@@ -1237,6 +1256,7 @@ const CATALOG = [
     {id:"contributo-unificato", title:"Contributo unificato", desc:"Scaglioni DPR 115/2002 per rito e grado.", refs:"DPR 115/2002, art. 13", status:"free"},
     {id:"parcella", title:"Parcella avvocato — parametri forensi", desc:"DM 55/2014 (tabelle DM 147/2022): 27 tabelle civili, amministrative, tributarie e stragiudiziali, per fase e scaglione, con aumenti, spese generali, CPA, IVA e ritenuta.", refs:"DM 10/03/2014 n. 55, artt. 2, 4, 6, 19, 22 — tabelle sostituite dal DM 13/08/2022 n. 147 (GU n. 236 del 8/10/2022), in vigore dal 23/10/2022", status:"free"},
     {id:"preventivo", title:"Preventivo ex art. 13 L. 247/2012", desc:"Preventivo scritto obbligatorio: compensi per fase, spese generali, contributo unificato, anticipazioni, CPA e IVA, con le avvertenze di legge. Pronto da stampare.", refs:"Art. 13, c. 5, L. 247/2012 — DM 55/2014 — DPR 115/2002", status:"free"},
+    {id:"precetto", title:"Atto di precetto", desc:"Capitale, interessi legali, art. 1284 c. 4 o convenzionali fino alla data del precetto, spese liquidate nel titolo con accessori e compenso del precetto: prospetto pronto per l'atto.", refs:"Artt. 480-481 c.p.c. — art. 1284 c.c. — D.Lgs. 231/2002 — DM 55/2014, tab. 6 (DM 147/2022)", status:"free"},
     {id:"prescrizione", title:"Prescrizione dei diritti", desc:"Termini del codice civile (ordinaria, illecito, RC auto, canoni, retribuzioni, professionisti, vizi, appalto…): data di prescrizione e giorni residui.", refs:"Artt. 2946-2956, 1495, 1667 c.c. — L. 335/1995", status:"free"},
     {id:"pignoramento", title:"Pignoramento di stipendio e pensione", desc:"Quote pignorabili ex art. 545 c.p.c.: crediti ordinari, alimentari, fiscali, concorso; minimo impignorabile delle pensioni e somme sul conto.", refs:"Art. 545 c.p.c. (DL 83/2015, DL 115/2022) — art. 72-ter DPR 602/1973", status:"free"},
   ]},
@@ -1764,6 +1784,48 @@ const VIEWS = {
         <tr><td>Canone attuale</td><td class="r">${fmt.format(R.canone)}</td></tr>
         <tr class="sum"><td>Canone aggiornato</td><td class="r">${fmt.format(R.nuovo)}</td></tr></table>
         <div class="note">Art. 32 L. 392/1978: per le locazioni abitative l'aggiornamento non può superare il 75% della variazione FOI; per le locazioni a canone concordato l'aggiornamento è escluso se il locatore ha optato per la cedolare secca (art. 3, c. 11, D.Lgs. 23/2011: la rinuncia vale per tutto il periodo dell'opzione). L'aggiornamento va richiesto per iscritto e decorre dalla richiesta (art. 32, c. 2). Le variazioni negative non riducono il canone.</div>`)}</div>${actions()}`;
+    }
+  },
+  "precetto":{
+    form:()=>{
+      const ti=state.inputs.prtint||"legali";
+      return [
+        field("prcap","Capitale dovuto in base al titolo (€)","number",10000,{min:0,step:0.01}),
+        field("prdata","Data del precetto","date",todayISO()),
+        field("prtint","Interessi sul capitale","select","legali",{rerender:true,options:[["legali","Legali (art. 1284, c. 1)"],["mora","Art. 1284, c. 4 / D.Lgs. 231/2002 (BCE + 8)"],["conv","Convenzionali a tasso fisso"],["no","Nessuno"]]}),
+        ti!=="no"?field("prda","Interessi dal","date","2024-01-15"):"",
+        ti==="conv"?field("prtasso","Tasso convenzionale annuo (%)","number",5,{min:0,max:30,step:0.01}):"",
+        `<div class="fieldset-title">Spese liquidate nel titolo</div>`,
+        field("prcomp","Compensi liquidati (€)","number",2500,{min:0,step:0.01,hint:"si aggiungono spese generali 15%, CPA 4% e IVA"}),
+        field("presb","Esborsi liquidati (contributo unificato, marche…) (€)","number",264,{min:0,step:0.01}),
+        field("priva","Il creditore detrae l'IVA (soggetto IVA)?","select","no",{full:true,options:[["no","No: IVA sulle spese legali a carico del debitore"],["si","Sì: IVA esclusa"]]}),
+        `<div class="fieldset-title">Precetto</div>`,
+        field("prvar","Variazione sul compenso medio del precetto (%)","number",0,{min:-50,max:50,step:5}),
+        field("prvive","Spese di notifica e copie (€)","number",0,{min:0,step:0.01}),
+      ].join("");
+    },
+    result:()=>{
+      const R=ENGINES.precetto({capitale:num("prcap"),data:val("prdata"),tipoInt:val("prtint"),daInt:val("prda"),tassoConv:num("prtasso"),compensi:num("prcomp"),esborsi:num("presb"),creditoreIva:val("priva")==="si",varPrecetto:num("prvar"),speseVive:num("prvive")});
+      if(!R) return empty("Inserisci il capitale e la data del precetto.");
+      return `<div class="total"><div class="eyebrow">Totale intimato con il precetto</div><div class="big">${fmt.format(R.totale)}</div><div class="sub">capitale ${fmt.format(R.cap)} · interessi ${fmt.format(R.interessi)} · spese del titolo ${fmt.format(R.speseTitolo)} · precetto ${fmt.format(r2(R.P.totale+R.speseVive))}</div></div>
+      <div class="pb">${gate(`<table class="rows">
+        <tr><td>Capitale</td><td class="r">${fmt.format(R.cap)}</td></tr>
+        <tr><td>Interessi al ${fmtD(R.data)}: ${esc(R.notaInt)}</td><td class="r">${fmt.format(R.interessi)}</td></tr>
+        ${R.dettInt?R.dettInt.map(p=>`<tr class="muted"><td>${p.anno?p.anno:`dal ${fmtD(p.dal)} al ${fmtD(p.al)}`} — ${p.giorni} giorni al ${fmtN(p.tasso,2)}%</td><td class="r">${fmt.format(p.interessi)}</td></tr>`).join(""):""}
+        <tr><td>Compensi liquidati nel titolo</td><td class="r">${fmt.format(R.comp)}</td></tr>
+        <tr><td>Spese generali 15%</td><td class="r">${fmt.format(R.sg)}</td></tr>
+        <tr><td>CPA 4%</td><td class="r">${fmt.format(R.cpa)}</td></tr>
+        <tr><td>IVA ${R.iva}%${R.iva?"":" (creditore soggetto IVA)"}</td><td class="r">${fmt.format(R.ivaL)}</td></tr>
+        <tr><td>Esborsi liquidati</td><td class="r">${fmt.format(R.esborsi)}</td></tr>
+        <tr class="sum"><td>Credito portato dal titolo (valore per il compenso del precetto)</td><td class="r">${fmt.format(R.valore)}</td></tr>
+        <tr><td>Compenso per il precetto (DM 55/2014, tab. 6${R.P.fasi[0].varPct?`, ${R.P.fasi[0].varPct>0?"+":""}${R.P.fasi[0].varPct}%`:""})</td><td class="r">${fmt.format(R.P.compenso)}</td></tr>
+        <tr><td>Spese generali 15%</td><td class="r">${fmt.format(R.P.speseGen)}</td></tr>
+        <tr><td>CPA 4%</td><td class="r">${fmt.format(R.P.cpa)}</td></tr>
+        <tr><td>IVA ${R.iva}%</td><td class="r">${fmt.format(R.P.iva)}</td></tr>
+        <tr><td>Spese di notifica e copie</td><td class="r">${fmt.format(R.speseVive)}</td></tr>
+        <tr class="sum"><td>Totale intimato</td><td class="r">${fmt.format(R.totale)}</td></tr></table>
+        <div class="note">Il precetto intima di adempiere entro un termine non minore di dieci giorni, con l'avvertimento che in mancanza si procederà a esecuzione forzata, e deve contenere a pena di nullità l'indicazione delle parti, della data di notifica del titolo (o la sua trascrizione) e l'avvertimento sulla possibilità di rimedi al sovraindebitamento con un accordo di composizione della crisi o un piano del consumatore (art. 480 c.p.c.). Diventa inefficace se l'esecuzione non inizia entro novanta giorni dalla notifica (art. 481). Gli interessi sono calcolati sul solo capitale fino alla data del precetto e continuano a maturare fino al saldo; quelli sulle spese liquidate decorrono di regola dalla pubblicazione del provvedimento. Il compenso del precetto segue la tabella 6 del DM 55/2014 (DM 147/2022) per lo scaglione del credito; l'IVA sulle spese legali non è dovuta dal debitore se il creditore la detrae.</div>`)}
+      </div>${actions()}`;
     }
   },
   "quote-ereditarie":{

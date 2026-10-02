@@ -191,6 +191,15 @@ function apri(licenza) {
   await set3("pzpena", "ergastolo");
   ck("prescrizione reato: ergastolo imprescrittibile", /Imprescrittibile/.test($3("#result .total .big").textContent));
   ck("prescrizione reato: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+  // atto di precetto
+  await vai3("#/precetto");
+  await set3("prdata", "2025-01-15"); await set3("prvive", "30");
+  ck("precetto: totale 14.534,79 € (caso calcolato a mano)", /14\.534,79/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  await set3("prtint", "conv");
+  ck("precetto: campo tasso convenzionale", !!$3("#prtasso"));
+  ck("precetto: avvertenze dell'art. 480", /sovraindebitamento/.test($3("#result").textContent));
+  ck("precetto: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+
   // quote ereditarie
   await vai3("#/quote-ereditarie");
   ck("eredità: coniuge e due figli 1/3 ciascuno", /Coniuge 1\/3/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);

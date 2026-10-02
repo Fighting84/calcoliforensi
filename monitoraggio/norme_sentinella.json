@@ -727,5 +727,19 @@
   "calc": [
    "quote-ereditarie"
   ]
+ },
+ {
+  "id": "cpc-480",
+  "urn": "regio.decreto:1940-10-28;1443:1~art480",
+  "calc": [
+   "precetto"
+  ]
+ },
+ {
+  "id": "cpc-481",
+  "urn": "regio.decreto:1940-10-28;1443:1~art481",
+  "calc": [
+   "precetto"
+  ]
  }
 ]
