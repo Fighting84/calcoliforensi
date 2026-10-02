@@ -636,5 +636,96 @@
    "prescrizione",
    "prescrizione-tributi"
   ]
+ },
+ {
+  "id": "cc-537",
+  "urn": "regio.decreto:1942-03-16;262:2~art537",
+  "calc": [
+   "quote-ereditarie"
+  ]
+ },
+ {
+  "id": "cc-538",
+  "urn": "regio.decreto:1942-03-16;262:2~art538",
+  "calc": [
+   "quote-ereditarie"
+  ]
+ },
+ {
+  "id": "cc-540",
+  "urn": "regio.decreto:1942-03-16;262:2~art540",
+  "calc": [
+   "quote-ereditarie"
+  ]
+ },
+ {
+  "id": "cc-542",
+  "urn": "regio.decreto:1942-03-16;262:2~art542",
+  "calc": [
+   "quote-ereditarie"
+  ]
+ },
+ {
+  "id": "cc-544",
+  "urn": "regio.decreto:1942-03-16;262:2~art544",
+  "calc": [
+   "quote-ereditarie"
+  ]
+ },
+ {
+  "id": "cc-556",
+  "urn": "regio.decreto:1942-03-16;262:2~art556",
+  "calc": [
+   "quote-ereditarie"
+  ]
+ },
+ {
+  "id": "cc-566",
+  "urn": "regio.decreto:1942-03-16;262:2~art566",
+  "calc": [
+   "quote-ereditarie"
+  ]
+ },
+ {
+  "id": "cc-568",
+  "urn": "regio.decreto:1942-03-16;262:2~art568",
+  "calc": [
+   "quote-ereditarie"
+  ]
+ },
+ {
+  "id": "cc-570",
+  "urn": "regio.decreto:1942-03-16;262:2~art570",
+  "calc": [
+   "quote-ereditarie"
+  ]
+ },
+ {
+  "id": "cc-571",
+  "urn": "regio.decreto:1942-03-16;262:2~art571",
+  "calc": [
+   "quote-ereditarie"
+  ]
+ },
+ {
+  "id": "cc-581",
+  "urn": "regio.decreto:1942-03-16;262:2~art581",
+  "calc": [
+   "quote-ereditarie"
+  ]
+ },
+ {
+  "id": "cc-582",
+  "urn": "regio.decreto:1942-03-16;262:2~art582",
+  "calc": [
+   "quote-ereditarie"
+  ]
+ },
+ {
+  "id": "cc-583",
+  "urn": "regio.decreto:1942-03-16;262:2~art583",
+  "calc": [
+   "quote-ereditarie"
+  ]
  }
 ]

@@ -219,6 +219,25 @@ ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, 
   eq("fine mese: 31/08/2020 + 6 anni", PR({ data: "2020-08-31", maxA: 3 }).ordinaria, "2026-08-31");
   eq("29 febbraio + 4 anni (contravvenzione)", PR({ tipo: "contravvenzione", data: "2020-02-29", maxA: 1 }).ordinaria, "2024-02-29");
   eq("29 febbraio + 6 anni → 28 febbraio", PR({ data: "2020-02-29", maxA: 3 }).ordinaria, "2026-02-28"); }
+// Quote ereditarie e legittima: casi del codice civile
+{ const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
+  const Q = o => ENGINES.quoteEreditarie({ coniuge: "no", figli: 0, genitori: 0, germani: 0, unilaterali: 0, ...o });
+  const s = R => R.eredi.map(e => `${e.q[0]}/${e.q[1]}|${e.r[0]}/${e.r[1]}`).join(" ") + ` disp ${R.disp[0]}/${R.disp[1]}`;
+  eq("coniuge + 1 figlio: 1/2 e 1/2; riserva 1/3 e 1/3", s(Q({ coniuge: "si", figli: 1 })), "1/2|1/3 1/2|1/3 disp 1/3");
+  eq("coniuge + 2 figli: 1/3 e 1/3 ciascuno; riserva 1/4 e 1/4 ciascuno", s(Q({ coniuge: "si", figli: 2 })), "1/3|1/4 1/3|1/4 1/3|1/4 disp 1/4");
+  eq("3 figli soli: 1/3 ciascuno; riserva 2/9 ciascuno", s(Q({ figli: 3 })), "1/3|2/9 1/3|2/9 1/3|2/9 disp 1/3");
+  eq("1 figlio solo: intero; riserva 1/2", s(Q({ figli: 1 })), "1/1|1/2 disp 1/2");
+  eq("coniuge solo: intero; riserva 1/2", s(Q({ coniuge: "si" })), "1/1|1/2 disp 1/2");
+  eq("coniuge + 2 genitori: 2/3, 1/6, 1/6; riserva 1/2, 1/8, 1/8", s(Q({ coniuge: "si", genitori: 2 })), "2/3|1/2 1/6|1/8 1/6|1/8 disp 1/4");
+  eq("coniuge + 1 genitore + 1 fratello: 2/3, 1/4 (minimo), 1/12", s(Q({ coniuge: "si", genitori: 1, germani: 1 })), "2/3|1/2 1/4|1/4 1/12|0/1 disp 1/4");
+  eq("coniuge + 2 fratelli: 2/3, 1/6, 1/6; fratelli non legittimari", s(Q({ coniuge: "si", germani: 2 })), "2/3|1/2 1/6|0/1 1/6|0/1 disp 1/2");
+  eq("2 genitori + 1 fratello: per capi 1/3; riserva genitori 1/6 ciascuno", s(Q({ genitori: 2, germani: 1 })), "1/3|1/6 1/3|1/6 1/3|0/1 disp 2/3");
+  eq("1 genitore + 3 fratelli: genitore almeno 1/2, fratelli 1/6", s(Q({ genitori: 1, germani: 3 })), "1/2|1/3 1/6|0/1 1/6|0/1 1/6|0/1 disp 2/3");
+  eq("1 germano + 1 unilaterale: 2/3 e 1/3", s(Q({ germani: 1, unilaterali: 1 })), "2/3|0/1 1/3|0/1 disp 1/1");
+  eq("rappresentazione: coniuge + 1 figlio + figlio premorto con 2 nipoti", s(Q({ coniuge: "si", figli: 1, stirpi: [2] })), "1/3|1/4 1/3|1/4 1/6|1/8 1/6|1/8 disp 1/4");
+  let R = Q({ coniuge: "si", figli: 2, attivo: 600000, debiti: 60000, donazioni: 60000 });
+  eq("importi: asse netto 540.000, massa 600.000; quota 180.000, riserva 150.000", `${R.netto}/${R.massa}/${R.eredi[0].qEuro}/${R.eredi[0].rEuro}/${R.dispEuro}`, "540000/600000/180000/150000/150000");
+  eq("nessun familiare indicato", Q({}).vuota, true); }
 // Prescrizione e decadenza tributaria: casi calcolati a mano dai testi vigenti
 { const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
   const T = o => ENGINES.prescrizioneTributi({ oggi: "2026-10-01", ...o });

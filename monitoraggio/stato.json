@@ -401,6 +401,24 @@
         "\"articolo 12\" AND \"159 del 2015\" AND prescrizione"
       ],
       "note": "MASSIMA ATTENZIONE (richiesta del titolare). Sospensioni Covid con orientamenti non uniformi: art. 67 (85 giorni; Cass. 960/2025, decreto PP 1630/2025; contra Cass. 21765/2025; stop per AdE dal 31/12/2025 art. 22 D.Lgs. 81/2025) e art. 68 c. 1 (542 giorni) / c. 4-bis (24 mesi). Erariali 10 anni (Cass. 33213/2023, 25631/2026), locali/sanzioni/interessi 5. Ogni pronuncia nuova su questi punti va letta; una sentenza delle Sezioni Unite si recepisce subito."
+    },
+    {
+      "id": "quote-ereditarie",
+      "calcolatore": "quote-ereditarie",
+      "keywords": [
+        "successione legittima",
+        "legittima",
+        "quota disponibile"
+      ],
+      "gu": [
+        "successioni",
+        "codice civile"
+      ],
+      "cass": [
+        "\"quota di riserva\" AND legittimari AND calcolo",
+        "\"riunione fittizia\" AND \"556\""
+      ],
+      "note": "Quote fisse del codice civile; norme sentinella sugli artt. 537-583."
     }
   ],
   "ultima_verifica_gu": "2026-10-01"

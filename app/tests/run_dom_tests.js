@@ -191,6 +191,15 @@ function apri(licenza) {
   await set3("pzpena", "ergastolo");
   ck("prescrizione reato: ergastolo imprescrittibile", /Imprescrittibile/.test($3("#result .total .big").textContent));
   ck("prescrizione reato: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+  // quote ereditarie
+  await vai3("#/quote-ereditarie");
+  ck("eredità: coniuge e due figli 1/3 ciascuno", /Coniuge 1\/3/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  ck("eredità: riserva 150.000 € su massa di 600.000", /150\.000,00/.test($3("#result").textContent));
+  await set3("qestirpi", "2");
+  ck("eredità: rappresentazione dei nipoti", /per rappresentazione/.test($3("#result").textContent));
+  ck("eredità: passaggio all'imposta di successione", !!$3('[data-next="successione"]'));
+  ck("eredità: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+
   // prescrizione e decadenza tributaria
   await vai3("#/prescrizione-tributi");
   ck("tributi: erariali notificati il 15/05/2019 → 15/05/2029", /15\/05\/2029/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);

@@ -242,7 +242,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.14.0 — 1 ottobre 2026",
+  version: "0.15.0 — 2 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -253,7 +253,7 @@ const CONFIG = {
 const impronta = s=>{ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h; };
 
 // Registro delle verifiche (aggiornato dagli script di monitoraggio: vedi app/scripts e monitoraggio/README.md)
-const MONITOR = { fonti:"01/10/2026", dati:"01/10/2026" };   // fonti = verifica normativa/giurisprudenziale; dati = verifica automatica serie ISTAT e test
+const MONITOR = { fonti:"02/10/2026", dati:"01/10/2026" };   // fonti = verifica normativa/giurisprudenziale; dati = verifica automatica serie ISTAT e test
 /* ===================== DATI NORMATIVI ===================== */
 // Art. 1284 c.c. — saggio legale per anno (DM MEF). Dal 1991 in poi.
 const TASSI_LEGALI = {
@@ -839,6 +839,49 @@ const ENGINES = {
     const ritenuta=o.ritenuta? r2((compenso+speseGen)*0.20):0;
     return {tab,label:T.label,valore,scaglione:i,scLim:T.sc[i],over,bands,fattore6,oltreDett,oltreImp,fasi,agg,compenso,speseGen,cpa,imponibile,iva,esenti,totale,ritenuta,netto:r2(totale-ritenuta)};
   },
+  // Quote ereditarie: successione legittima (artt. 565-586 c.c., rappresentazione artt. 467-469) e quote di riserva
+  // (artt. 536-548 c.c.), con frazioni esatte. Unione civile equiparata al matrimonio (L. 76/2016, art. 1, c. 21).
+  quoteEreditarie(o){
+    const gcd=(a,b)=>b?gcd(b,a%b):a, F=(n,d=1)=>{ const g=gcd(Math.abs(n),Math.abs(d))||1; return [n/g,d/g]; };
+    const add=(a,b)=>F(a[0]*b[1]+b[0]*a[1],a[1]*b[1]), sub=(a,b)=>F(a[0]*b[1]-b[0]*a[1],a[1]*b[1]), mul=(a,b)=>F(a[0]*b[0],a[1]*b[1]), div=(a,b)=>F(a[0]*b[1],a[1]*b[0]);
+    const lt=(a,b)=>a[0]*b[1]<b[0]*a[1], max=(a,b)=>lt(a,b)?b:a, zero=[0,1];
+    const n=x=>Math.max(0,Math.min(50,Math.floor(+x||0)));
+    const con=o.coniuge==="si", figli=n(o.figli), stirpi=(o.stirpi||[]).map(n).filter(x=>x>0), gen=Math.min(2,n(o.genitori)), ger=n(o.germani), uni=n(o.unilaterali);
+    const S=figli+stirpi.length, eredi=[], avvisi=[];
+    const push=(nome,q,r,gruppo)=>eredi.push({nome,q,r:r||zero,gruppo});
+    const figliQuota=(tot,rTot)=>{ for(let i=1;i<=figli;i++) push(`Figlio ${i}`,div(tot,[S,1]),rTot?div(rTot,[S,1]):zero,"figli");
+      stirpi.forEach((k,j)=>{ for(let i=1;i<=k;i++) push(`Discendente ${i} del figlio premorto ${j+1} (per rappresentazione)`,div(div(tot,[S,1]),[k,1]),rTot?div(div(rTot,[S,1]),[k,1]):zero,"figli"); }); };
+    // ripartizione tra genitori e fratelli (artt. 570-571, 582): per capi, unilaterali a metà, genitori almeno metà (e almeno 1/4 dell'eredità col coniuge)
+    const genFrat=(R,minGen,rGen)=>{ const W=add(F(gen+ger,1),F(uni,2)); if(!W[0]) return;
+      let qg=gen?mul(R,div(F(gen),W)):zero; if(gen&&(ger||uni)) qg=max(qg,minGen);
+      const resto=sub(R,qg), Wf=add(F(ger),F(uni,2));
+      for(let i=1;i<=gen;i++) push(gen===1?"Genitore":`Genitore ${i}`,div(qg,[gen,1]),rGen?div(rGen,[gen,1]):zero,"ascendenti");
+      for(let i=1;i<=ger;i++) push(`Fratello o sorella germani ${i}`,mul(resto,div(F(1),Wf)),zero,"fratelli");
+      for(let i=1;i<=uni;i++) push(`Fratello o sorella unilaterali ${i}`,mul(resto,div(F(1,2),Wf)),zero,"fratelli"); };
+    let caso;
+    if(S){
+      const qc=con?(S===1?F(1,2):F(1,3)):zero, rc=con?(S===1?F(1,3):F(1,4)):zero, rf=con?(S===1?F(1,3):F(1,2)):(S===1?F(1,2):F(2,3));
+      if(con) push("Coniuge o unito civilmente",qc,rc,"coniuge");
+      figliQuota(sub(F(1),qc),rf);
+      caso=con?`coniuge e ${S===1?"un figlio":S+" figli (o stirpi)"} (artt. 566, 581; riserva art. ${con?542:537})`:`${S===1?"un figlio":S+" figli (o stirpi)"} (art. 566; riserva art. 537)`;
+    } else if(con){
+      if(gen||ger||uni){ push("Coniuge o unito civilmente",F(2,3),F(1,2),"coniuge"); genFrat(F(1,3),max(F(1,6),F(1,4)),gen?F(1,4):null);
+        caso="coniuge con ascendenti e/o fratelli (art. 582; riserva art. 544 se ci sono genitori, altrimenti art. 540)";
+        if(!gen) eredi[0].r=F(1,2); }
+      else { push("Coniuge o unito civilmente",F(1),F(1,2),"coniuge"); caso="solo coniuge (art. 583; riserva art. 540)"; }
+    } else if(gen||ger||uni){
+      genFrat(F(1),F(1,2),gen?F(1,3):null); caso=gen&&(ger||uni)?"genitori e fratelli (art. 571; riserva dei genitori art. 538)":gen?"solo genitori (art. 568; riserva art. 538)":"solo fratelli e sorelle (art. 570; nessuna riserva)";
+    } else return {vuota:true};
+    if(o.coniuge==="addebito") avvisi.push("Coniuge separato con addebito: non è erede né legittimario; ha diritto solo a un assegno vitalizio se godeva degli alimenti (art. 548, c. 2).");
+    // valori
+    const attivo=Math.max(0,+o.attivo||0), debiti=Math.max(0,+o.debiti||0), donazioni=Math.max(0,+o.donazioni||0);
+    const netto=Math.max(0,attivo-debiti), massa=netto+donazioni, val=(f,x)=>r2(x*f[0]/f[1]);
+    const totR=eredi.reduce((a,e)=>add(a,e.r),zero), disp=sub(F(1),totR);
+    const totQ=eredi.reduce((a,e)=>add(a,e.q),zero); if(totQ[0]!==totQ[1]) avvisi.push("Controllo interno: la somma delle quote non è pari all'intero.");
+    const NOMI={coniuge:"Coniuge",figli:"Figli e discendenti",ascendenti:"Genitori",fratelli:"Fratelli e sorelle"}, gruppi=[];
+    for(const g of Object.keys(NOMI)){ const l=eredi.filter(e=>e.gruppo===g); if(l.length) gruppi.push({nome:NOMI[g],q:l.reduce((a,e)=>add(a,e.q),zero)}); }
+    return {caso,gruppi,eredi:eredi.map(e=>({...e,qEuro:val(e.q,netto),rEuro:val(e.r,massa)})),disp,dispEuro:val(disp,massa),totR,netto,massa,attivo,debiti,donazioni,avvisi,con};
+  },
   // Determinazione della pena: tentativo, circostanze (artt. 63-69 c.p.), continuazione (art. 81), riti (artt. 442 e 444 c.p.p.),
   // sospensione condizionale (art. 163), pene sostitutive (art. 20-bis c.p., art. 53 L. 689/1981). Pene detentive in giorni.
   pena(o){
@@ -1208,6 +1251,7 @@ const CATALOG = [
   {group:"Immobili, locazioni e fisco", items:[
     {id:"imu", title:"IMU e valore catastale", desc:"Rendita rivalutata e moltiplicatori per IMU, registro e successione; IMU annua per aliquota, mesi e quota di possesso.", refs:"L. 160/2019, art. 1, c. 740-749 — DPR 131/1986, art. 52 (dal 1° gennaio 2027 art. 299 TU adempimenti e accertamento, D.Lgs. 141/2026) — DL 168/2004 — DL 262/2006", status:"free"},
     {id:"compravendita", title:"Imposte sull'acquisto di un immobile", desc:"Registro 2%/9% con prezzo-valore, ipotecaria e catastale, oppure IVA 4%/10%/22% da impresa; terreni.", refs:"DPR 131/1986 (dal 1° gennaio 2027 TU registro D.Lgs. 123/2025: DL 200/2025, art. 4) — L. 266/2005, art. 1, c. 497 — DPR 633/1972, art. 10, n. 8-bis (TU IVA D.Lgs. 10/2026, art. 37, dal 1° gennaio 2027)", status:"free"},
+    {id:"quote-ereditarie", title:"Quote ereditarie e legittima", desc:"Chi eredita e quanto senza testamento, quote di riserva dei legittimari e quota disponibile, con rappresentazione, fratelli unilaterali, donazioni e importi in euro.", refs:"Artt. 467-469, 536-548, 556, 565-586 c.c. — L. 76/2016 (unioni civili) — L. 219/2012", status:"free"},
     {id:"successione", title:"Imposta di successione e donazione", desc:"Aliquote 4/6/8%, franchigie per parentela e disabilità, imposte ipotecaria e catastale sugli immobili.", refs:"D.Lgs. 346/1990 (TUS), come modificato dal D.Lgs. 139/2024 (dal 1° gennaio 2027 TU registro D.Lgs. 123/2025, artt. 93 e 133) — DL 262/2006, art. 2, c. 48-49", status:"free"},
     {id:"usufrutto", title:"Usufrutto e nuda proprietà", desc:"Valore dell'usufrutto vitalizio per età dell'usufruttuario (prospetto dei coefficienti allegato al DPR 131/1986) e della nuda proprietà.", refs:"DPR 131/1986, artt. 46 e 48 e prospetto allegato (dal 1° gennaio 2027 TU registro D.Lgs. 123/2025, artt. 50 e 52 e allegato 4) — DM MEF sul saggio legale", status:"free"},
     {id:"canone", title:"Adeguamento ISTAT del canone", desc:"Aggiornamento annuale del canone di locazione al 75% o 100% della variazione FOI, con indici reali.", refs:"Art. 32 L. 392/1978 — L. 431/1998 — indici FOI ISTAT", status:"free"},
@@ -1658,6 +1702,7 @@ const VIEWS = {
   },
   "successione":{
     form:()=>[
+      (()=>{ if(PASSA.dato){ state.inputs.sval=String(PASSA.dato.importo); const d=PASSA.dato; PASSA.dato=null; return `<div class="field full"><div class="hint" style="color:var(--accent)">Importo ricevuto da: ${esc(d.da)} — ${fmt.format(d.importo)}</div></div>`; } return ""; })(),
       field("sval","Quota ereditaria (o donazione) di questo beneficiario (€)","number",1200000,{min:0,step:1000,full:true}),
       field("simm","di cui immobili (€)","number",500000,{min:0,step:1000}),
       field("spar","Rapporto con il defunto / donante","select","retta",{options:[["retta","Coniuge, figli, genitori (linea retta)"],["fratelli","Fratelli e sorelle"],["parenti4","Altri parenti fino al 4°, affini in linea retta e collaterali fino al 3°"],["altri","Altri soggetti"]]}),
@@ -1719,6 +1764,36 @@ const VIEWS = {
         <tr><td>Canone attuale</td><td class="r">${fmt.format(R.canone)}</td></tr>
         <tr class="sum"><td>Canone aggiornato</td><td class="r">${fmt.format(R.nuovo)}</td></tr></table>
         <div class="note">Art. 32 L. 392/1978: per le locazioni abitative l'aggiornamento non può superare il 75% della variazione FOI; per le locazioni a canone concordato l'aggiornamento è escluso se il locatore ha optato per la cedolare secca (art. 3, c. 11, D.Lgs. 23/2011: la rinuncia vale per tutto il periodo dell'opzione). L'aggiornamento va richiesto per iscritto e decorre dalla richiesta (art. 32, c. 2). Le variazioni negative non riducono il canone.</div>`)}</div>${actions()}`;
+    }
+  },
+  "quote-ereditarie":{
+    largo:true,
+    form:()=>[
+      field("qecon","Coniuge o unito civilmente","select","si",{full:true,options:[["si","Sì (anche separato senza addebito)"],["no","No (o divorziato)"],["addebito","Separato con addebito"]]}),
+      field("qefigli","Figli che vengono alla successione","number",2,{min:0,max:50,step:1}),
+      field("qestirpi","Figli premorti o rinuncianti con discendenti: numero di discendenti per ciascuno","text",state.inputs.qestirpi??"",{hint:"es. «2, 1» = due figli premorti, il primo con 2 discendenti, il secondo con 1 (rappresentazione)"}),
+      field("qegen","Genitori viventi","select","0",{options:[["0","Nessuno"],["1","Uno"],["2","Entrambi"]],hint:"contano solo in mancanza di figli"}),
+      field("qeger","Fratelli e sorelle germani","number",0,{min:0,max:50,step:1}),
+      field("qeuni","Fratelli e sorelle unilaterali","number",0,{min:0,max:50,step:1}),
+      `<div class="fieldset-title">Patrimonio (facoltativo, per gli importi)</div>`,
+      field("qeatt","Beni lasciati (relictum) (€)","number",600000,{min:0,step:1000}),
+      field("qedeb","Debiti (€)","number",0,{min:0,step:100}),
+      field("qedon","Donazioni fatte in vita (valore al momento dell'apertura) (€)","number",0,{min:0,step:1000,full:true}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.quoteEreditarie({coniuge:val("qecon"),figli:num("qefigli"),stirpi:(val("qestirpi")||"").split(/[,;\s]+/).filter(Boolean),genitori:val("qegen"),germani:num("qeger"),unilaterali:num("qeuni"),attivo:num("qeatt"),debiti:num("qedeb"),donazioni:num("qedon")});
+      if(!R) return empty("Completa i dati.");
+      if(R.vuota) return empty("Senza coniuge, figli, genitori o fratelli succedono gli altri parenti fino al sesto grado (art. 572 c.c.) e, in mancanza, lo Stato (art. 586): indica i familiari presenti.");
+      const fr=f=>f[0]===0?"—":f[0]===f[1]?"intero":`${f[0]}/${f[1]}`;
+      const quanti=R.eredi.length;
+      return `<div class="total"><div class="eyebrow">Successione legittima: ${esc(R.caso.split(" (")[0])}</div><div class="big" style="font-size:24px">${R.gruppi.map(g=>`${esc(g.nome)} ${fr(g.q)}`).join(" · ")}</div><div class="sub">quota disponibile ${fr(R.disp)}${R.massa?` = ${fmt.format(R.dispEuro)}`:""} · ${quanti} ${quanti===1?"erede":"eredi"}</div>${R.avvisi.map(a=>`<div class="warn">${esc(a)}</div>`).join("")}</div>
+      <div class="pb">${gate(`<div class="tblwrap"><table class="rows"><tr><th>Erede</th><th class="r">Quota senza testamento</th><th class="r">Importo</th><th class="r">Quota di riserva</th><th class="r">Importo</th></tr>
+        ${R.eredi.map(e=>`<tr><td>${esc(e.nome)}</td><td class="r">${fr(e.q)}</td><td class="r">${R.netto?fmt.format(e.qEuro):"—"}</td><td class="r">${fr(e.r)}</td><td class="r">${R.massa&&e.r[0]?fmt.format(e.rEuro):"—"}</td></tr>`).join("")}
+        <tr class="sum"><td>Quota disponibile (liberamente attribuibile con testamento o donazione)</td><td class="r"></td><td class="r"></td><td class="r">${fr(R.disp)}</td><td class="r">${R.massa?fmt.format(R.dispEuro):"—"}</td></tr></table></div>
+        <table class="rows" style="margin-top:10px"><tr><td>Asse ereditario netto (beni − debiti): base delle quote senza testamento</td><td class="r">${fmt.format(R.netto)}</td></tr>
+        <tr><td>Massa per il calcolo della legittima (beni − debiti + donazioni, art. 556 c.c.)</td><td class="r">${fmt.format(R.massa)}</td></tr></table>
+        <div class="note">Caso applicato: ${esc(R.caso)}. Successione legittima: con figli succedono solo il coniuge e i figli (al coniuge metà con un figlio, un terzo con più figli); senza figli il coniuge ha due terzi se concorre con genitori o fratelli, l'intero se è solo; genitori e fratelli succedono per capi, gli unilaterali per metà, ai genitori almeno metà della loro parte e, in concorso col coniuge, almeno un quarto dell'eredità (artt. 566-583 c.c.). I discendenti di un figlio premorto, indegno o rinunciante subentrano per stirpi (rappresentazione, artt. 467-469). Riserva (artt. 536-544): un figlio 1/2, più figli 2/3; coniuge e un figlio 1/3 ciascuno; coniuge e più figli 1/4 e 1/2; coniuge solo 1/2; coniuge e ascendenti 1/2 e 1/4; ascendenti soli 1/3; fratelli e sorelle non sono legittimari. Al coniuge spettano inoltre i diritti di abitazione sulla casa familiare e di uso dei mobili (art. 540, c. 2). La legittima si calcola sulla massa che comprende le donazioni (riunione fittizia, art. 556); tra figli e coniuge le donazioni ricevute si imputano con la collazione (art. 737). Non considera: ascendenti diversi dai genitori, parenti oltre i fratelli, accettazioni con beneficio d'inventario, legati e disposizioni testamentarie concrete.</div>`)}
+      </div>${actions([{to:"successione",val:R.eredi[0]?.qEuro||0,label:"Quota ereditaria",testo:"Calcola l'imposta di successione →"}])}`;
     }
   },
   "pena":{
