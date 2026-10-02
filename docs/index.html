@@ -266,7 +266,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.17.0 — 2 ottobre 2026",
+  version: "0.18.0 — 2 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -866,6 +866,33 @@ const ENGINES = {
     const ritenuta=o.ritenuta? r2((compenso+speseGen)*0.20):0;
     return {tab,label:T.label,valore,scaglione:i,scLim:T.sc[i],over,bands,fattore6,oltreDett,oltreImp,fasi,agg,compenso,speseGen,cpa,imponibile,iva,esenti,totale,ritenuta,netto:r2(totale-ritenuta)};
   },
+  // Calendario del processo ordinario di cognizione (riforma Cartabia, D.Lgs. 149/2022 e correttivo D.Lgs. 164/2024):
+  // tutte le scadenze dalla data della prima udienza, con le regole del calcolatore delle scadenze (art. 155 c.p.c.,
+  // sospensione feriale, giorni liberi, festivi e sabati).
+  calendarioProcesso(o){
+    const ok=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||""); if(!ok(o.udienza)) return null;
+    const P=SCAD_PRESET, run=(k,da)=>ENGINES.scadenza(da,P[k].n,P[k].unita,P[k].dir,P[k].feriale,P[k].liberi);
+    const ev=[], avvisi=[], add=(data,titolo,norma,nota,tipo)=>ev.push({data,titolo,norma,nota:(nota||"").replace(/Termine a giorni liberi: non si computano né il giorno iniziale né quello finale.s*/g,"").trim(),tipo:tipo||"parte"});
+    const ud=o.udienza, nComp=o.estero?150:120;
+    const comp=ENGINES.scadenza(ud,nComp,"giorni","ritroso",true,true);
+    add(comp.scadenza,"Ultimo giorno utile per notificare la citazione",`art. 163-bis c.p.c. (${nComp} giorni liberi)`,comp.note.join(" "),"attore");
+    if(ok(o.notifica)&&o.notifica>comp.scadenza) avvisi.push(`La notifica del ${fmtD(o.notifica)} non rispetta il termine a comparire di ${nComp} giorni liberi: la citazione è nulla (art. 164 c.p.c.), salvo costituzione del convenuto o rinnovazione.`);
+    const cost=run("cost_conv",ud); add(cost.scadenza,"Costituzione del convenuto (comparsa di risposta)","art. 166 c.p.c. (70 giorni prima dell'udienza)",cost.note.join(" "),"convenuto");
+    const ver=ENGINES.scadenza(cost.scadenza,15,"giorni","avanti",true,false);
+    add(ver.scadenza,"Decreto del giudice sulle verifiche preliminari (termine per il giudice)","art. 171-bis c.p.c. (15 giorni dalla scadenza del termine dell'art. 166)",ver.note.join(" "),"giudice");
+    const udM=ok(o.udienzaGiudice)?o.udienzaGiudice:ud;
+    if(udM!==ud){ if(udM<ud) avvisi.push("L'udienza indicata dal giudice è anteriore a quella della citazione: verifica la data."); if(Math.round((pd(udM)-pd(ud))/86400000)>45) avvisi.push("Il differimento disposto con il decreto dell'art. 171-bis non può superare 45 giorni, salvo i provvedimenti del secondo comma (nuova udienza)."); }
+    for(const [k,n] of [["m171_1","Prima memoria integrativa: domande ed eccezioni conseguenti, precisazioni e modifiche"],["m171_2","Seconda memoria integrativa: repliche, mezzi di prova e documenti"],["m171_3","Terza memoria integrativa: repliche alle eccezioni nuove e prova contraria"]]){
+      const r=run(k,udM); add(r.scadenza,n,`art. 171-ter c.p.c. (${P[k].n} giorni prima dell'udienza${udM!==ud?" fissata dal giudice":""})`,r.note.join(" ")); }
+    add(udM,"Prima udienza di comparizione e trattazione","art. 183 c.p.c.","","udienza");
+    if(ok(o.udDecisione)){
+      for(const [k,n] of [["m189_1","Note di precisazione delle conclusioni"],["m189_2","Comparse conclusionali"],["m189_3","Memorie di replica"]]){ const r=run(k,o.udDecisione); add(r.scadenza,n,`art. 189 c.p.c. (collegio) e art. 281-quinquies (giudice unico): ${P[k].n} giorni prima dell'udienza`,r.note.join(" ")); }
+      add(o.udDecisione,"Udienza di rimessione della causa in decisione","artt. 189 e 281-quinquies c.p.c.","","udienza");
+    }
+    ev.sort((a,b)=>a.data<b.data?-1:a.data>b.data?1:0);
+    const oggi=o.oggi||todayISO(); for(const e of ev) e.scaduto=e.data<oggi;
+    return {ev,avvisi,ud,udM,prossimo:ev.find(e=>!e.scaduto)};
+  },
   // Verifica antiusura: TEG del contratto confrontato con il tasso soglia del trimestre della pattuizione (art. 2 L. 108/1996;
   // art. 644 c.p.; art. 1815, c. 2, c.c.). Mora: soglia calcolata sul TEGM aumentato della maggiorazione media di mora
   // (Cass. SU n. 19597/2020; Cass. n. 11268/2024, n. 14615/2026).
@@ -1300,6 +1327,7 @@ const CATALOG = [
   ]},
   {group:"Processo, spese e compensi", items:[
     {id:"scadenze", title:"Scadenze processuali civili", desc:"Computo ex art. 155 c.p.c.: termini in giorni o mesi, in avanti o a ritroso, giorni liberi, sospensione feriale, festivi e sabato. Termini della riforma Cartabia preimpostati.", refs:"Art. 155 c.p.c. — L. 742/1969 (sospensione feriale 1–31 agosto) — artt. 166, 171-ter, 189, 325, 327, 641, 669-terdecies c.p.c.", status:"free"},
+    {id:"calendario-processo", title:"Calendario del processo civile (Cartabia)", desc:"Dalla prima udienza tutte le scadenze del rito ordinario: notifica, costituzione, verifiche preliminari, tre memorie integrative, udienza e scritti conclusivi, con esportazione nel calendario.", refs:"Artt. 155, 163-bis, 166, 171-bis, 171-ter, 183, 189, 281-quinquies c.p.c. — D.Lgs. 149/2022 e 164/2024 — L. 742/1969", status:"free"},
     {id:"contributo-unificato", title:"Contributo unificato", desc:"Scaglioni DPR 115/2002 per rito e grado.", refs:"DPR 115/2002, art. 13", status:"free"},
     {id:"parcella", title:"Parcella avvocato — parametri forensi", desc:"DM 55/2014 (tabelle DM 147/2022): 27 tabelle civili, amministrative, tributarie e stragiudiziali, per fase e scaglione, con aumenti, spese generali, CPA, IVA e ritenuta.", refs:"DM 10/03/2014 n. 55, artt. 2, 4, 6, 19, 22 — tabelle sostituite dal DM 13/08/2022 n. 147 (GU n. 236 del 8/10/2022), in vigore dal 23/10/2022", status:"free"},
     {id:"preventivo", title:"Preventivo ex art. 13 L. 247/2012", desc:"Preventivo scritto obbligatorio: compensi per fase, spese generali, contributo unificato, anticipazioni, CPA e IVA, con le avvertenze di legge. Pronto da stampare.", refs:"Art. 13, c. 5, L. 247/2012 — DM 55/2014 — DPR 115/2002", status:"free"},
@@ -1831,6 +1859,30 @@ const VIEWS = {
         <tr><td>Canone attuale</td><td class="r">${fmt.format(R.canone)}</td></tr>
         <tr class="sum"><td>Canone aggiornato</td><td class="r">${fmt.format(R.nuovo)}</td></tr></table>
         <div class="note">Art. 32 L. 392/1978: per le locazioni abitative l'aggiornamento non può superare il 75% della variazione FOI; per le locazioni a canone concordato l'aggiornamento è escluso se il locatore ha optato per la cedolare secca (art. 3, c. 11, D.Lgs. 23/2011: la rinuncia vale per tutto il periodo dell'opzione). L'aggiornamento va richiesto per iscritto e decorre dalla richiesta (art. 32, c. 2). Le variazioni negative non riducono il canone.</div>`)}</div>${actions()}`;
+    }
+  },
+  "calendario-processo":{
+    largo:true,
+    form:()=>[
+      field("cpud","Prima udienza indicata nella citazione","date","2027-03-10"),
+      field("cpnot","Data di notifica della citazione (facoltativa)","date",state.inputs.cpnot??""),
+      field("cpest","Luogo della notifica","select","no",{options:[["no","Italia (120 giorni liberi)"],["si","Estero (150 giorni liberi)"]]}),
+      field("cpudg","Udienza confermata o differita dal giudice (decreto 171-bis), se diversa","date",state.inputs.cpudg??"",{full:true}),
+      field("cpdec","Udienza di rimessione in decisione (facoltativa)","date",state.inputs.cpdec??"",{full:true}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.calendarioProcesso({udienza:val("cpud"),notifica:val("cpnot"),estero:val("cpest")==="si",udienzaGiudice:val("cpudg"),udDecisione:val("cpdec")});
+      if(!R) return empty("Inserisci la data della prima udienza.");
+      const g=["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"], gs=d=>g[new Date(pd(d)).getUTCDay()];
+      const ics=()=>{ const z=d=>d.replace(/-/g,""), righe=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//calcoliforensi.it//Calendario del processo//IT"];
+        for(const e of R.ev){ const fine=new Date(pd(e.data)+86400000).toISOString().slice(0,10); righe.push("BEGIN:VEVENT",`UID:${z(e.data)}-${e.titolo.length}-${Math.abs([...e.titolo].reduce((a,c)=>a*31+c.charCodeAt(0)|0,7))}@calcoliforensi.it`,`DTSTAMP:${z(todayISO())}T000000Z`,`DTSTART;VALUE=DATE:${z(e.data)}`,`DTEND;VALUE=DATE:${z(fine)}`,`SUMMARY:${e.titolo.replace(/[,;]/g," ")}`,`DESCRIPTION:${(e.norma+" "+e.nota).replace(/[,;\n]/g," ")}`,"END:VEVENT"); }
+        righe.push("END:VCALENDAR"); return "data:text/calendar;charset=utf-8,"+encodeURIComponent(righe.join("\r\n")); };
+      return `<div class="total"><div class="eyebrow">${R.prossimo?"Prossima scadenza":"Tutte le scadenze sono passate"}</div><div class="big" style="font-size:26px">${R.prossimo?`${fmtD(R.prossimo.data)} — ${esc(R.prossimo.titolo.split(":")[0])}`:fmtD(R.ev[R.ev.length-1].data)}</div><div class="sub">${R.ev.length} scadenze calcolate · prima udienza ${fmtD(R.udM)}</div>${R.avvisi.map(a=>`<div class="warn">${esc(a)}</div>`).join("")}</div>
+      <div class="pb">${gate(`<div class="tblwrap"><table class="rows"><tr><th>Data</th><th>Adempimento</th><th>Norma</th></tr>
+        ${R.ev.map(e=>`<tr${e.scaduto?' class="muted"':""}><td style="white-space:nowrap"><b>${fmtD(e.data)}</b><br><span style="font-size:11px">${gs(e.data)}</span></td><td>${esc(e.titolo)}${e.nota?`<div class="hint">${esc(e.nota)}</div>`:""}</td><td style="font-size:12px">${esc(e.norma)}</td></tr>`).join("")}</table></div>
+        <div class="no-print" style="margin:10px 0"><a class="btn" download="calendario-processo.ics" href="${ics()}">Esporta nel calendario (.ics)</a></div>
+        <div class="note">Processo ordinario di cognizione per i procedimenti introdotti dal 1° marzo 2023 (D.Lgs. 149/2022, correttivo D.Lgs. 164/2024). Ogni termine è calcolato con l'art. 155 c.p.c.: termini a ritroso anticipati al giorno non festivo precedente, sospensione feriale dal 1° al 31 agosto, termine a comparire e costituzione computati come giorni liberi secondo l'orientamento prevalente. Le memorie integrative decorrono dal decreto dell'art. 171-bis e si computano rispetto all'udienza della citazione o a quella fissata dal giudice: se il giudice ha confermato o differito l'udienza, indicala per ricalcolare le memorie. Se il convenuto ottiene l'anticipazione dell'udienza (art. 163-bis, c. 3), i termini decorrono dalla nuova udienza. Verifica sempre i provvedimenti del giudice nel fascicolo telematico.</div>`)}
+      </div>${actions()}`;
     }
   },
   "usura":{

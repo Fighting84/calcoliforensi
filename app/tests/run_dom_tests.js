@@ -191,6 +191,14 @@ function apri(licenza) {
   await set3("pzpena", "ergastolo");
   ck("prescrizione reato: ergastolo imprescrittibile", /Imprescrittibile/.test($3("#result .total .big").textContent));
   ck("prescrizione reato: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+  // calendario del processo
+  await vai3("#/calendario-processo");
+  ck("calendario: terza memoria anticipata al venerdì 26/02/2027", /26\/02\/2027/.test($3("#result").textContent));
+  ck("calendario: esportazione .ics", /BEGIN%3AVCALENDAR/.test($3('a[download="calendario-processo.ics"]')?.getAttribute("href") || ""));
+  await set3("cpdec", "2028-01-19");
+  ck("calendario: scritti conclusivi aggiunti", /Comparse conclusionali/.test($3("#result").textContent));
+  ck("calendario: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+
   // usura
   await vai3("#/usura");
   const optMutuo = [...$3("#uscat").options].find(o => /^Mutui.*tasso fisso/i.test(o.textContent));

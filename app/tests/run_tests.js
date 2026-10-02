@@ -219,6 +219,22 @@ ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, 
   eq("fine mese: 31/08/2020 + 6 anni", PR({ data: "2020-08-31", maxA: 3 }).ordinaria, "2026-08-31");
   eq("29 febbraio + 4 anni (contravvenzione)", PR({ tipo: "contravvenzione", data: "2020-02-29", maxA: 1 }).ordinaria, "2024-02-29");
   eq("29 febbraio + 6 anni → 28 febbraio", PR({ data: "2020-02-29", maxA: 3 }).ordinaria, "2026-02-28"); }
+// Calendario del processo: prima udienza 10/03/2027 (mercoledì), calcolo a mano a ritroso con giorni liberi
+{ const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
+  const R = ENGINES.calendarioProcesso({ udienza: "2027-03-10", oggi: "2026-10-02" }), d = re => (R.ev.find(e => re.test(e.titolo)) || {}).data;
+  eq("notifica entro il 09/11/2026 (121 giorni prima)", d(/notificare/), "2026-11-09");
+  eq("costituzione entro il 29/12/2026 (71 giorni prima)", d(/Costituzione/), "2026-12-29");
+  eq("verifiche preliminari entro il 13/01/2027", d(/verifiche/), "2027-01-13");
+  eq("prima memoria 28/01/2027", d(/Prima memoria/), "2027-01-28");
+  eq("seconda memoria 17/02/2027", d(/Seconda memoria/), "2027-02-17");
+  eq("terza memoria: 27/02/2027 è sabato → 26/02/2027", d(/Terza memoria/), "2027-02-26");
+  eq("prossima scadenza: notifica", R.prossimo.titolo.startsWith("Ultimo giorno utile"), true);
+  const S = ENGINES.calendarioProcesso({ udienza: "2027-03-10", udienzaGiudice: "2027-04-14", udDecisione: "2028-01-19", notifica: "2026-11-20", estero: false });
+  eq("udienza differita dal giudice: memorie sulla nuova udienza (41 giorni prima del 14/04/2027 = 04/03/2027)", (S.ev.find(e => /Prima memoria/.test(e.titolo)) || {}).data, "2027-03-04");
+  eq("notifica tardiva segnalata", S.avvisi.some(a => /164/.test(a)), true);
+  eq("note di precisazione 60 giorni liberi prima del 19/01/2028 → 19/11/2027", (S.ev.find(e => /precisazione/.test(e.titolo)) || {}).data, "2027-11-19");
+  eq("estero: 150 giorni liberi, 10/10/2026 sabato → 09/10/2026", ENGINES.calendarioProcesso({ udienza: "2027-03-10", estero: true }).ev[0].data, "2026-10-09");
+  eq("dati mancanti", ENGINES.calendarioProcesso({ udienza: "" }), null); }
 // Usura: tassi soglia ufficiali (Banca d'Italia) e formula di legge
 { const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
   const U = new Function(src + "\nreturn USURA;")();
