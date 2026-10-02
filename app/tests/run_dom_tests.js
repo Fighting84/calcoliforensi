@@ -41,6 +41,21 @@ function apri(licenza) {
     ck(`risultato ${id}`, !!big && /\d/.test(big.textContent), big ? big.textContent.trim().replace(/\s+/g, " ") : "NESSUN RISULTATO");
   }
 
+  // menu: ricerca e gruppi richiudibili
+  await vai("danno-tun");
+  const visibili = () => $$('.nav-list .group:not([hidden]) a[data-id]:not([hidden])').filter(a => a.closest(".group").classList.contains("aperto")).map(a => a.dataset.id);
+  ck("menu: aperto solo il gruppo in uso", visibili().every(id => /^danno-/.test(id)) && visibili().length === 4, visibili().join(","));
+  const cerca = $("#navCerca"); cerca.value = "cartella"; cerca.dispatchEvent(new w.Event("input", { bubbles: true }));
+  ck("menu: «cartella» trova la prescrizione tributaria", visibili().join() === "prescrizione-tributi", visibili().join(","));
+  cerca.value = "risarcimento"; cerca.dispatchEvent(new w.Event("input", { bubbles: true }));
+  ck("menu: «risarcimento» trova i quattro calcolatori del danno", visibili().length === 4 && visibili().every(id => /^danno-/.test(id)), visibili().join(","));
+  cerca.value = "xyzxyz"; cerca.dispatchEvent(new w.Event("input", { bubbles: true }));
+  ck("menu: nessun risultato segnalato", !$("#navVuoto").hidden);
+  $$(".nav-g")[2].click(); await sleep(20);
+  await vai(""); const hc = $("#homeCerca"); hc.value = "usura"; hc.dispatchEvent(new w.Event("input", { bubbles: true }));
+  ck("home: ricerca «usura» mostra una sola scheda", $$(".home-g:not([hidden]) a.card:not([hidden])").length === 1);
+  ck("home: una scorciatoia per ogni gruppo (7)", $$("[data-vai]").length === 7);
+
   // paywall: il prospetto (formule, riferimenti, note) non deve essere presente nel documento
   await vai("danno-tun");
   const testoLibero = $("#result").textContent;
