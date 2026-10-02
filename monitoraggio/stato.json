@@ -434,6 +434,23 @@
         "precetto AND \"480\" AND (nullità OR interessi) AND spese"
       ],
       "note": "Riusa interessi legali/mora e tab. 6 DM 55/2014."
+    },
+    {
+      "id": "usura",
+      "calcolatore": "usura",
+      "keywords": [
+        "usura",
+        "tasso soglia",
+        "TEGM"
+      ],
+      "gu": [
+        "tassi effettivi globali medi"
+      ],
+      "cass": [
+        "usura AND \"interessi moratori\" AND soglia",
+        "usura AND (\"commissione di massimo scoperto\" OR \"usura sopravvenuta\")"
+      ],
+      "note": "Dati aggiornati in automatico da update_usura.js (serie storica CSV + comunicati trimestrali Banca d'Italia). Mora: Cass. SU 19597/2020."
     }
   ],
   "ultima_verifica_gu": "2026-10-01"

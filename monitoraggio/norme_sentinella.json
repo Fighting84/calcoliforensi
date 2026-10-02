@@ -741,5 +741,26 @@
   "calc": [
    "precetto"
   ]
+ },
+ {
+  "id": "l108-2",
+  "urn": "legge:1996-03-07;108~art2",
+  "calc": [
+   "usura"
+  ]
+ },
+ {
+  "id": "cp-644",
+  "urn": "regio.decreto:1930-10-19;1398:1~art644",
+  "calc": [
+   "usura"
+  ]
+ },
+ {
+  "id": "cc-1815",
+  "urn": "regio.decreto:1942-03-16;262:2~art1815",
+  "calc": [
+   "usura"
+  ]
  }
 ]

@@ -191,6 +191,15 @@ function apri(licenza) {
   await set3("pzpena", "ergastolo");
   ck("prescrizione reato: ergastolo imprescrittibile", /Imprescrittibile/.test($3("#result .total .big").textContent));
   ck("prescrizione reato: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+  // usura
+  await vai3("#/usura");
+  const optMutuo = [...$3("#uscat").options].find(o => /^Mutui.*tasso fisso/i.test(o.textContent));
+  await set3("usdata", "2026-10-15"); await set3("uscat", optMutuo.value); await set3("usteg", "9.7");
+  ck("usura: mutuo fisso 4° trim. 2026, soglia 9,6500% e TEG 9,70% oltre", /9,6500/.test($3("#result .total .big").textContent) && /oltre la soglia/i.test($3("#result .total").textContent), $3("#result .total").textContent.replace(/\s+/g, " ").slice(0, 120));
+  await set3("usdata", "2008-03-10");
+  ck("usura: data del 2008 ricarica le categorie dell'epoca", [...$3("#uscat").options].some(o => /\(fino al 31 dicembre 2009\)|MUTUI/i.test(o.textContent)));
+  ck("usura: nessun errore", C.errori.length === 0, C.errori.join(" | "));
+
   // atto di precetto
   await vai3("#/precetto");
   await set3("prdata", "2025-01-15"); await set3("prvive", "30");

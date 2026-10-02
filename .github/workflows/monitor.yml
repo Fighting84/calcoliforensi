@@ -31,6 +31,12 @@ jobs:
         run: |
           set +e; node app/scripts/update_bce.js | tee bce.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
+      - name: Tassi soglia antiusura (Banca d'Italia)
+        id: usura
+        run: |
+          sudo apt-get install -y -qq poppler-utils >/dev/null 2>&1 || true
+          set +e; node app/scripts/update_usura.js | tee usura.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+
       - name: Saggio degli interessi legali dal decreto MEF
         id: saggio
         run: |
@@ -88,13 +94,14 @@ jobs:
           [ "${{ steps.foi.outputs.code }}" = "10" ] && msg="$msg — $(tail -n 1 foi.log)"
           [ "${{ steps.bce.outputs.code }}" = "10" ] && msg="$msg — $(tail -n 1 bce.log)"
           [ "${{ steps.saggio.outputs.code }}" = "10" ] && msg="$msg — $(tail -n 1 saggio.log)"
+          [ "${{ steps.usura.outputs.code }}" = "10" ] && msg="$msg — $(tail -n 1 usura.log)"
           git commit -m "$msg"
           git pull --rebase --autostash origin main || true
           git push
 
       # ---- segnalazioni (email al titolare del repository) ----
       - name: Segnala le novità
-        if: steps.gu.outputs.code == '10' || steps.cod.outputs.code == '10' || steps.norme.outputs.code == '10' || steps.norme.outputs.code == '1' || steps.cod.outputs.code == '1' || steps.cass.outputs.code == '10' || steps.cass.outputs.code == '1' || steps.scad.outputs.code == '10' || steps.bce.outputs.code == '2' || steps.foi.outputs.code == '1' || steps.bce.outputs.code == '1' || steps.saggio.outputs.code == '1'
+        if: steps.gu.outputs.code == '10' || steps.cod.outputs.code == '10' || steps.norme.outputs.code == '10' || steps.norme.outputs.code == '1' || steps.usura.outputs.code == '1' || steps.usura.outputs.code == '2' || steps.cod.outputs.code == '1' || steps.cass.outputs.code == '10' || steps.cass.outputs.code == '1' || steps.scad.outputs.code == '10' || steps.bce.outputs.code == '2' || steps.foi.outputs.code == '1' || steps.bce.outputs.code == '1' || steps.saggio.outputs.code == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

@@ -219,6 +219,26 @@ ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, 
   eq("fine mese: 31/08/2020 + 6 anni", PR({ data: "2020-08-31", maxA: 3 }).ordinaria, "2026-08-31");
   eq("29 febbraio + 4 anni (contravvenzione)", PR({ tipo: "contravvenzione", data: "2020-02-29", maxA: 1 }).ordinaria, "2024-02-29");
   eq("29 febbraio + 6 anni → 28 febbraio", PR({ data: "2020-02-29", maxA: 3 }).ordinaria, "2026-02-28"); }
+// Usura: tassi soglia ufficiali (Banca d'Italia) e formula di legge
+{ const eq = (name, got, exp) => { const ok = got === exp; ok ? pass++ : fail++; console.log(`${ok ? "OK  " : "DIFF"} ${name}: atteso ${exp}, ottenuto ${got}`); };
+  const U = new Function(src + "\nreturn USURA;")();
+  const ks = Object.keys(U.q).sort();
+  eq("usura: serie dal 2 aprile 1997 al 4° trimestre 2026", `${ks[0]}/${ks[ks.length - 1]}/${U.q[ks[ks.length - 1]][0]}`, "1997-04-02/2026-10-01/2026-12-31");
+  const ci = (k, re) => U.q[k][1].find(r => re.test(U.cat[r[0]]))[0];
+  let R = ENGINES.usura({ data: "2026-10-15", cat: ci("2026-10-01", /^Mutui.*tasso fisso/i), teg: 9 });
+  eq("mutuo fisso 4° trim. 2026: TEGM 4,52, soglia 9,65; TEG 9% entro soglia", `${R.tegm}/${R.soglia}/${R.usurario}`, "4.52/9.65/false");
+  eq("  TEG 9,70% oltre soglia", ENGINES.usura({ data: "2026-10-15", cat: R.ci, teg: 9.7 }).usurario, true);
+  R = ENGINES.usura({ data: "2026-10-15", cat: R.ci, teg: 5, mora: 12 });
+  eq("  mora: (4,52 + 1,9) × 1,25 + 4 = 12,025; mora 12% entro", `${R.magg}/${R.sogliaMora}/${R.moraUsuraria}`, "1.9/12.025/false");
+  eq("mutuo fisso 3° trim. 2026: soglia 9,2625", ENGINES.usura({ data: "2026-08-01", cat: ci("2026-07-01", /^Mutui.*tasso fisso/i), teg: 1 }).soglia, 9.2625);
+  R = ENGINES.usura({ data: "2026-10-15", cat: ci("2026-10-01", /Scoperti/i), cls: U.cls.indexOf("fino a 1.500"), teg: 1 });
+  eq("scoperti fino a 1.500: limite di 8 punti (16,08 + 8 = 24,08)", `${R.tegm}/${R.soglia}`, "16.08/24.08");
+  const k10 = ks.filter(k => k <= "2010-06-15").pop(); R = ENGINES.usura({ data: "2010-06-15", cat: U.q[k10][1][0][0], cls: U.q[k10][1][0][1], teg: 1 });
+  eq("prima del 14/5/2011 soglia = TEGM × 1,5", Math.abs(R.soglia - R.tegm * 1.5) < 0.006, true);
+  eq("refuso della fonte (3° trim. 2020 chiuso al 01/09): il 15/09/2020 resta nel trimestre", ENGINES.usura({ data: "2020-09-15", teg: 1 }).k, "2020-07-01");
+  eq("contratto anteriore al 1997: nessuna soglia", !!ENGINES.usura({ data: "1996-05-01", teg: 1 }).errore, true);
+  eq("trimestre non ancora pubblicato", !!ENGINES.usura({ data: "2027-02-01", teg: 1 }).errore, true);
+  eq("ogni soglia dal 2011 rispetta la formula di legge (tolleranza di arrotondamento della fonte)", ks.filter(k => k >= "2011-05-14").every(k => U.q[k][1].every(r => Math.abs(Math.min(r[2] * 1.25 + 4, r[2] + 8) - r[3]) < 0.0101)), true); }
 // Atto di precetto: calcolo a mano (legali 2,5% nel 2024 e 2% nel 2025; tab. 6 (GU 236/2022): 0-5.200 = 142, 5.200,01-26.000 = 236, 26.000,01-52.000 = 331, 52.000,01-260.000 = 425 €)
 { const R = ENGINES.precetto({ capitale: 10000, data: "2025-01-15", tipoInt: "legali", daInt: "2024-01-15", compensi: 2500, esborsi: 264, speseVive: 30 });
   ck("precetto: interessi legali 351 gg al 2,5% + 15 gg al 2%", R.interessi, r2(r2(10000 * 0.025 * 351 / 365) + r2(10000 * 0.02 * 15 / 365)));
