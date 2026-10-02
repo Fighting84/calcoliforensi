@@ -28,10 +28,14 @@ const TEMI = [
   [/prescrizione\s+del\s+reato|improcedibilit|articol[oi]\s+(?:157|158|159|160|161|161-bis)\s+del\s+codice\s+penale|articolo\s+344-bis/i, "prescrizione-reato", "Prescrizione del reato e improcedibilità"],
   [/termin[ei]\s+di\s+(?:decadenza|prescrizione)[^.;]{0,120}(?:accertament|riscossion|cartell|tribut)|cartell[ae]\s+di\s+pagamento|definizione\s+agevolata|articolo\s+43\s+del\s+decreto\s+del\s+Presidente\s+della\s+Repubblica\s+29\s+settembre\s+1973|articolo\s+57\s+del\s+decreto\s+del\s+Presidente\s+della\s+Repubblica\s+26\s+ottobre\s+1972|articolo\s+25\s+del\s+decreto\s+del\s+Presidente\s+della\s+Repubblica\s+29\s+settembre\s+1973,?\s+n\.\s*602|comma\s+16[13],?\s+della\s+legge\s+27\s+dicembre\s+2006/i, "prescrizione-tributi", "Decadenza e prescrizione tributaria, cartelle, definizioni agevolate"],
   [/ravvedimento|articolo\s+13\s+del\s+decreto\s+legislativo\s+18\s+dicembre\s+1997,?\s+n\.\s*47[12]|testo\s+unico\s+delle\s+sanzioni\s+tributarie/i, "ravvedimento", "Ravvedimento operoso e sanzioni tributarie"],
+  [/tassi\s+effettivi\s+globali\s+medi|legge\s+7\s+marzo\s+1996,?\s+n\.\s*108|tasso\s+soglia/i, "usura", "Usura (L. 108/1996, TEGM e tassi soglia)"],
+  [/atto\s+di\s+precetto|articolo\s+480\s+del\s+codice\s+di\s+procedura\s+civile/i, "precetto", "Atto di precetto"],
+  [/quota\s+di\s+riserva|legittimari|successione\s+legittima/i, "quote-ereditarie", "Quote ereditarie"],
   // i testi unici tributari possono essere rinviati da decreti successivi (es. art. 4 DL 200/2025): ogni modifica della decorrenza va letta
   [/testo\s+unico[^.;]{0,160}(?:1°|primo)\s+gennaio\s+20\d\d|decreto\s+legislativo\s+(?:5\s+novembre\s+2024,?\s+n\.\s*17[345]|1°?\s+agosto\s+2025,?\s+n\.\s*123|24\s+marzo\s+2025,?\s+n\.\s*33)\b/i, "compravendita", "Testi unici tributari (decorrenza e modifiche)"],
 ];
 
+const MODIFICA = /sono apportate le seguenti modificazioni|(?:e'|è|sono)\s+(?:sostituit|abrogat|inserit|aggiunt|soppress)[aeio]|(?:e'|è|sono)\s+(?:cos[iì]'?\s+)?modificat[aeio]|a\s+decorrere\s+dal|in\s+deroga/i;
 const { testoAtto } = require("./gu_testo");
 const testo = html => html.replace(/<[^>]+>/g, " ").replace(/&#\d+;/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ");
 
@@ -48,6 +52,9 @@ const testo = html => html.replace(/<[^>]+>/g, " ").replace(/&#\d+;/g, " ").repl
     if (!gazzette.length) { console.log(`GU: nessun nuovo fascicolo dopo il ${dal}`); process.exit(0); }
     console.log(`GU: ${gazzette.length} fascicoli da controllare (dopo il ${dal})`);
     const novita = [];
+    const LETTI = path.join(ROOT, "monitoraggio", "gu_atti_letti.json"), MAX_TESTI = +process.env.GU_TESTI_MAX || 25;
+    let letti = new Set(); try { letti = new Set(JSON.parse(fs.readFileSync(LETTI, "utf8"))); } catch (e) {}
+    if (prova) letti = new Set(); let lettiOra = 0;
     for (const g of gazzette.slice(-(+process.env.GU_MAX || 60))) {      // limite di sicurezza (GU_MAX per le verifiche straordinarie)
       const url = `https://www.gazzettaufficiale.it/gazzetta/serie_generale/caricaDettaglio?dataPubblicazioneGazzetta=${g.iso}&numeroGazzetta=${g.num}`;
       let t, grezzo;
@@ -67,13 +74,34 @@ const testo = html => html.replace(/<[^>]+>/g, " ").replace(/&#\d+;/g, " ").repl
         }
         novita.push({ gazzetta: g.num, data: g.iso, tema, calcolatore: calc, url, codice, testo: fileTesto, contesto: t.slice(i, m.index + 200).trim() });
       }
+      // Atti normativi (codice con la "G": leggi, decreti-legge, decreti legislativi, DPR): i temi si cercano anche nel TESTO
+      // INTEGRALE, perché le regole che interessano possono stare dentro atti con titoli generici (Milleproroghe, decreti fiscali).
+      const giaVisti = new Set(novita.filter(n => n.gazzetta === g.num).map(n => n.codice + "|" + n.tema));
+      for (const cod of [...new Set([...grezzo.matchAll(/codiceRedazionale=(\d{2}G\d{5})/g)].map(m => m[1]))]) {
+        if (letti.has(cod) || lettiOra >= MAX_TESTI) continue;
+        let tt; try { tt = (await testoAtto(g.iso, cod)).slice(0, 3000000); lettiOra++; letti.add(cod); } catch (e) { console.log(`  ! testo ${cod}: ${e.message}`); continue; }
+        const piatto = tt.replace(/\s+/g, " ");
+        for (const [re, calc, tema] of TEMI) {
+          if (giaVisti.has(cod + "|" + tema)) continue;
+          // nel testo integrale conta solo il tema citato vicino a una formula di modifica (non le semplici citazioni o i "Visto")
+          const reG = new RegExp(re.source, "gi"); let m = null;
+          for (const x of piatto.matchAll(reG)) { const fin = piatto.slice(Math.max(0, x.index - 400), x.index + 400); if (MODIFICA.test(fin)) { m = x; break; } }
+          if (!m) continue;
+          let fileTesto = null;
+          if (!prova) { const dir = path.join(ROOT, "monitoraggio", "gazzetta"); fs.mkdirSync(dir, { recursive: true }); fileTesto = `monitoraggio/gazzetta/${g.iso}_${cod}.txt`;
+            if (!fs.existsSync(path.join(ROOT, fileTesto))) fs.writeFileSync(path.join(ROOT, fileTesto), tt.slice(0, 400000) + "\n"); }
+          novita.push({ gazzetta: g.num, data: g.iso, tema, calcolatore: calc, url, codice: cod, testo: fileTesto, nelTesto: true, contesto: piatto.slice(Math.max(0, m.index - 260), m.index + 260).trim() });
+        }
+      }
+      console.log(`  GU ${g.iso} n. ${g.num}: letti ${lettiOra} testi, ${novita.length} segnalazioni`);
       await new Promise(r => setTimeout(r, 250));   // cortesia verso il server
     }
+    if (!prova) fs.writeFileSync(LETTI, JSON.stringify([...letti].slice(-3000)) + "\n");
     if (!prova) { stato.ultima_verifica_gu = new Date().toISOString().slice(0, 10); fs.writeFileSync(STATO, JSON.stringify(stato, null, 2) + "\n"); }
     if (!novita.length) { try { fs.unlinkSync(OUT); } catch (e) {} console.log("GU: nessun atto rilevante"); process.exit(0); }
     fs.writeFileSync(OUT, JSON.stringify(novita, null, 2) + "\n");
     console.log(`GU: ${novita.length} atti potenzialmente rilevanti`);
-    for (const n of novita) console.log(`  - GU ${n.data} n. ${n.gazzetta} → ${n.tema} (${n.calcolatore})`);
+    for (const n of novita) console.log(`  - GU ${n.data} n. ${n.gazzetta} → ${n.tema} (${n.calcolatore})${n.nelTesto ? " [nel testo di " + n.codice + "]" : ""}`);
     process.exit(10);
   } catch (e) { console.error("ERRORE check_gazzetta:", e.message); process.exit(1); }
 })();
