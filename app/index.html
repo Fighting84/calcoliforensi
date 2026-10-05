@@ -113,7 +113,8 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0;text-
 .field{display:flex;flex-direction:column;gap:4px}
 .field.full{grid-column:1/-1}
 .field label{font-size:12.5px;font-weight:500;color:var(--ink-2)}
-.field input,.field select{padding:8px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);font:inherit;font-size:15px;width:100%}
+.field input,.field select{padding:8px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);font:inherit;font-size:15px;width:100%;min-width:0;max-width:100%}
+.field select{overflow:hidden;text-overflow:ellipsis;contain:paint} /* Safari: le voci lunghe del menu non allargano la pagina */
 .field input[type=number]{font-family:var(--mono)}
 .field .hint{font-size:11.5px;color:var(--ink-3)}
 .fieldset-title{grid-column:1/-1;font-size:12px;font-weight:600;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;margin-top:6px;padding-top:10px;border-top:1px dashed var(--line)}
@@ -184,6 +185,9 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
   .wrap{display:block;padding:0}
   .calc{grid-template-columns:1fr}
   .panel{border:none;page-break-inside:avoid}
+  .calc>.panel:first-child{page-break-inside:auto} .field{break-inside:avoid}   /* i dati possono andare a pagina nuova: niente prima pagina vuota */
+  .main:has(.print-head)>.head,.field:has(#rifPratica){display:none!important}                  /* titolo, norme e pratica sono già nella testata di stampa */
+  ::placeholder{color:transparent}
   .gate .locked{filter:none;opacity:1}
   body{background:#fff;color:#000}
   .print-head{display:block!important;margin-bottom:16px;border-bottom:1px solid #000;padding-bottom:8px}
@@ -259,7 +263,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.20.0 — 2 ottobre 2026",
+  version: "0.20.1 — 5 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -2446,7 +2450,7 @@ const VIEWS = {
         <table class="rows">${CU?`<tr><td>Contributo unificato (DPR 115/2002)</td><td class="r">${fmt.format(CU.dovuto)}</td></tr><tr><td>Marca per notifiche d'ufficio (art. 30 DPR 115/2002)</td><td class="r">${fmt.format(marca)}</td></tr>`:""}<tr><td>Altre anticipazioni stimate</td><td class="r">${fmt.format(num("qspese"))}</td></tr><tr class="sum"><td>Totale anticipazioni</td><td class="r">${fmt.format(antic)}</td></tr></table>
         <table class="rows" style="margin-top:12px"><tr class="sum"><td>Costo complessivo presumibile della prestazione</td><td class="r">${fmt.format(totale)}</td></tr></table>
         <div class="note"><b>Avvertenze.</b> Il presente preventivo è redatto ai sensi dell'art. 13, c. 5, L. 247/2012 e indica la misura del compenso e la prevedibile misura del costo della prestazione, distinguendo oneri, spese anche forfettarie e compenso professionale. Gli importi sono determinati sui parametri del DM 55/2014 (tabelle DM 147/2022) per le fasi indicate e potranno variare in relazione alle attività effettivamente svolte, alla complessità della controversia e ai risultati conseguiti, nonché per fasi ulteriori (cautelari, incidentali, esecutive) e gradi successivi, oggetto di separato preventivo. Le anticipazioni sono stimate. In caso di soccombenza il giudice può porre a carico del cliente le spese di lite della controparte. Il cliente dichiara di aver ricevuto le informazioni sul grado di complessità dell'incarico e sugli oneri ipotizzabili.</div>
-        <div style="display:flex;justify-content:space-between;margin-top:22px;font-size:13px"><div>L'avvocato<br><br>__________________________</div><div>Per accettazione, il cliente<br><br>__________________________</div></div>`)}</div>${actions()}`;
+        <div style="display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;margin-top:22px;font-size:13px"><div>L'avvocato<br><br>__________________________</div><div>Per accettazione, il cliente<br><br>__________________________</div></div>`)}</div>${actions()}`;
     }
   },
   "scadenze":{
