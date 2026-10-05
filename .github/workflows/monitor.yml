@@ -24,29 +24,29 @@ jobs:
       - name: Indice FOI dall'API ISTAT
         id: foi
         run: |
-          set +e; node app/scripts/update_foi.js | tee foi.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+          set +e; node app/scripts/update_foi.js 2>&1 | tee foi.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
       - name: Tasso BCE per gli interessi di mora
         id: bce
         run: |
-          set +e; node app/scripts/update_bce.js | tee bce.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+          set +e; node app/scripts/update_bce.js 2>&1 | tee bce.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
       - name: Tassi soglia antiusura (Banca d'Italia)
         id: usura
         run: |
           sudo apt-get install -y -qq poppler-utils >/dev/null 2>&1 || true
-          set +e; node app/scripts/update_usura.js | tee usura.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+          set +e; node app/scripts/update_usura.js 2>&1 | tee usura.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
       - name: Saggio degli interessi legali dal decreto MEF
         id: saggio
         run: |
-          set +e; node app/scripts/update_saggio.js | tee saggio.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+          set +e; node app/scripts/update_saggio.js 2>&1 | tee saggio.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
       # ---- rilevamento delle novità da esaminare ----
       - name: Gazzetta Ufficiale
         id: gu
         run: |
-          set +e; node app/scripts/check_gazzetta.js | tee gu.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+          set +e; node app/scripts/check_gazzetta.js 2>&1 | tee gu.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
       - name: Testi della Gazzetta richiesti dalla routine
         run: node app/scripts/scarica_richieste.js || true
@@ -58,22 +58,22 @@ jobs:
       - name: Norme sentinella (testo vigente su Normattiva)
         id: norme
         run: |
-          set +e; node app/scripts/check_norme.js | tee norme.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+          set +e; node app/scripts/check_norme.js 2>&1 | tee norme.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
       - name: Servizio dei cambi della Banca d'Italia
         id: cambi
         run: |
-          set +e; node app/scripts/check_cambi.js | tee cambi.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+          set +e; node app/scripts/check_cambi.js 2>&1 | tee cambi.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
       - name: Codici tributo del ravvedimento (banca dati Agenzia delle entrate)
         id: cod
         run: |
-          set +e; node app/scripts/check_codici.js | tee cod.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+          set +e; node app/scripts/check_codici.js 2>&1 | tee cod.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
       - name: Scadenziario dei dati periodici
         id: scad
         run: |
-          set +e; node app/scripts/check_scadenze.js | tee scad.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
+          set +e; node app/scripts/check_scadenze.js 2>&1 | tee scad.log; echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"; exit 0
 
       # ---- collaudo: se fallisce non si pubblica ----
       - name: Test dei motori di calcolo

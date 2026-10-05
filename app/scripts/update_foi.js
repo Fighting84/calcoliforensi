@@ -7,7 +7,11 @@ const BASE = "https://esploradati.istat.it/SDMXWS/rest/data/IT1,";
 const H = { Accept: "application/vnd.sdmx.genericdata+xml;version=2.1", "User-Agent": "calcoliforensi.it monitor (node)" };
 
 async function serie(flow, start) {
-  const r = await fetch(`${BASE}${flow},1.0/M.IT..4.00ST?startPeriod=${start}`, { headers: H });
+  let r;
+  for (let i = 1; i <= 3; i++) {   // l'API ISTAT risponde talvolta con errori temporanei (HTTP 500): 3 tentativi
+    try { r = await fetch(`${BASE}${flow},1.0/M.IT..4.00ST?startPeriod=${start}`, { headers: H }); if (r.ok) break; } catch (e) { if (i === 3) throw e; }
+    if (i < 3) await new Promise(ok => setTimeout(ok, 20000 * i));
+  }
   if (!r.ok) throw new Error(`${flow}: HTTP ${r.status}`);
   const t = await r.text(); const out = {};
   for (const m of t.matchAll(/TIME_PERIOD" value="(\d{4}-\d{2})" \/><generic:ObsValue value="([\d.]+)"/g)) out[m[1]] = +m[2];

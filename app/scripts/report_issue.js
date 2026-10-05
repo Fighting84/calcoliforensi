@@ -2,7 +2,7 @@
 const fs = require("fs"), path = require("path");
 const M = path.join(__dirname, "..", "..", "monitoraggio");
 const leggi = f => { try { return JSON.parse(fs.readFileSync(path.join(M, f), "utf8")); } catch (e) { return null; } };
-const log = f => { try { return fs.readFileSync(f, "utf8").trim().split("\n").pop(); } catch (e) { return ""; } };
+const righe = f => { try { return fs.readFileSync(f, "utf8").trim().split("\n"); } catch (e) { return []; } };
 const out = [];
 out.push("Il monitoraggio automatico di calcoliforensi.it ha rilevato elementi che richiedono un esame. La routine settimanale li prende in carico; questa email è per conoscenza.\n");
 
@@ -21,7 +21,9 @@ if (norme) { out.push("## Norme sentinella variate (testo vigente su Normattiva)
 const cod = leggi("codici.json");
 if (cod) { out.push("## Codici tributo del ravvedimento da sostituire"); for (const x of cod) out.push(`- **${x.codice}**: ${x.esito}${x.dal ? " dal " + x.dal : ""} ${x.descrizione || ""} — cercare la risoluzione dell'Agenzia che lo sostituisce e aggiornare \`RAVV_TRIBUTI\``); out.push(""); }
 
-const errori = ["foi.log", "bce.log", "saggio.log", "norme.log", "cod.log", "gu.log", "usura.log", "cambi.log"].map(log).filter(l => /ERRORE|DISCORDANZA/.test(l));
+const errori = ["foi.log", "bce.log", "saggio.log", "norme.log", "cod.log", "gu.log", "usura.log", "cambi.log", "scad.log", "cass.log"].flatMap(f => righe(f).filter(l => /ERRORE|DISCORDANZA/.test(l)).map(l => `${f.replace(".log", "")}: ${l.trim()}`));
+// nessuna voce riconosciuta: la segnalazione non deve mai arrivare vuota
+if (out.length === 1 && !errori.length) errori.push("nessuna voce specifica: un controllo è terminato con un codice di errore senza messaggio; vedere il registro dell'esecuzione su GitHub Actions");
 if (errori.length) { out.push("## Controlli non riusciti o discordanze"); for (const e of errori) out.push(`- ${e}`); out.push(""); }
 
 out.push("---\nRegola: nessuna modifica ai calcoli viene pubblicata senza lettura della fonte e test superati.");
