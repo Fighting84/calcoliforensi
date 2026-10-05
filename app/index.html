@@ -263,7 +263,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.20.1 — 5 ottobre 2026",
+  version: "0.20.2 — 5 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -1342,7 +1342,7 @@ const CATALOG = [
     {id:"interessi-mora", title:"Interessi di mora commerciali", desc:"D.Lgs. 231/2002: tasso BCE + 8 punti, per semestre.", refs:"D.Lgs. 231/2002, art. 5 — tassi BCE semestrali", status:"free"},
     {id:"rivalutazione", title:"Rivalutazione monetaria ISTAT", desc:"Indici FOI mensili con raccordo tra basi; interessi legali sul capitale rivalutato anno per anno (Cass. SU 1712/1995).", refs:"Indice FOI senza tabacchi ISTAT (serie dal 1996; ultimo dato agosto 2026) — art. 1224 c.c. — Cass. SU 17/02/1995 n. 1712", status:"free"},
   ]},
-  {group:"Processo, spese e compensi", items:[
+  {group:"Processo civile, spese e compensi", items:[
     {id:"scadenze", title:"Scadenze processuali civili", desc:"Computo ex art. 155 c.p.c.: termini in giorni o mesi, in avanti o a ritroso, giorni liberi, sospensione feriale, festivi e sabato. Termini della riforma Cartabia preimpostati.", refs:"Art. 155 c.p.c. — L. 742/1969 (sospensione feriale 1–31 agosto) — artt. 166, 171-ter, 189, 325, 327, 641, 669-terdecies c.p.c.", status:"free"},
     {id:"calendario-processo", title:"Calendario del processo civile (Cartabia)", desc:"Dalla prima udienza tutte le scadenze del rito ordinario: notifica, costituzione, verifiche preliminari, tre memorie integrative, udienza e scritti conclusivi, con esportazione nel calendario.", refs:"Artt. 155, 163-bis, 166, 171-bis, 171-ter, 183, 189, 281-quinquies c.p.c. — D.Lgs. 149/2022 e 164/2024 — L. 742/1969", status:"free"},
     {id:"contributo-unificato", title:"Contributo unificato", desc:"Scaglioni DPR 115/2002 per rito e grado.", refs:"DPR 115/2002, art. 13", status:"free"},
@@ -1352,7 +1352,7 @@ const CATALOG = [
     {id:"prescrizione", title:"Prescrizione dei diritti", desc:"Termini del codice civile (ordinaria, illecito, RC auto, canoni, retribuzioni, professionisti, vizi, appalto…): data di prescrizione e giorni residui.", refs:"Artt. 2946-2956, 1495, 1667 c.c. — L. 335/1995", status:"free"},
     {id:"pignoramento", title:"Pignoramento di stipendio e pensione", desc:"Quote pignorabili ex art. 545 c.p.c.: crediti ordinari, alimentari, fiscali, concorso; minimo impignorabile delle pensioni e somme sul conto.", refs:"Art. 545 c.p.c. (DL 83/2015, DL 115/2022) — art. 72-ter DPR 602/1973", status:"free"},
   ]},
-  {group:"Diritto penale", items:[
+  {group:"Processo penale, pena e compensi", items:[
     {id:"pena", title:"Determinazione della pena, patteggiamento e abbreviato", desc:"Pena base, tentativo, circostanze e bilanciamento, continuazione, diminuente del rito (abbreviato con l'ulteriore 1/6, patteggiamento), sospensione condizionale e pene sostitutive.", refs:"Artt. 56, 62-bis, 63-69, 81, 133-135, 163 c.p. — artt. 442 e 444-445 c.p.p. (D.Lgs. 150/2022) — art. 20-bis c.p. e artt. 53, 56-quater L. 689/1981", status:"free"},
     {id:"prescrizione-reato", title:"Prescrizione del reato", desc:"Termine ordinario e massimo (aggravanti ad effetto speciale, tentativo, raddoppi, limiti per le interruzioni), sospensioni, ultimo atto interruttivo e regime dopo la sentenza secondo la data del fatto: ex Cirielli, legge Orlando, cessazione e improcedibilità.", refs:"Artt. 14, 157-161-bis c.p. — L. 251/2005, L. 103/2017, L. 3/2019, L. 134/2021 — art. 344-bis c.p.p. — Cass. SU 20989/2025", status:"free"},
     {id:"parcella-penale", title:"Parcella penale — parametri forensi", desc:"Compenso dell'avvocato nel processo penale per autorità e fase (tabella 15), con più autorità, variazioni, più assistiti, patrocinio a spese dello Stato, spese generali, CPA, IVA e ritenuta.", refs:"DM 10/03/2014 n. 55, artt. 12, 15, 16 — tabella 15 sostituita dal DM 13/08/2022 n. 147 (GU n. 236 dell'8/10/2022) — art. 106-bis DPR 115/2002", status:"free"},
@@ -1360,7 +1360,7 @@ const CATALOG = [
   {group:"Lavoro", items:[
     {id:"tfr", title:"TFR — trattamento di fine rapporto", desc:"Art. 2120 c.c.: quote annue, rivalutazione con indici FOI reali (1,5% + 75% ISTAT), imposta sostitutiva 17%, netto in tassazione separata.", refs:"Art. 2120 c.c. — L. 297/1982 — art. 19 TUIR (dal 1° gennaio 2027 art. 21 TU imposte sui redditi, D.Lgs. 117/2026) — indici FOI ISTAT (serie reale)", status:"free"},
   ]},
-  {group:"Immobili, locazioni e fisco", items:[
+  {group:"Immobili, locazioni e successioni", items:[
     {id:"imu", title:"IMU e valore catastale", desc:"Rendita rivalutata e moltiplicatori per IMU, registro e successione; IMU annua per aliquota, mesi e quota di possesso.", refs:"L. 160/2019, art. 1, c. 740-749 — DPR 131/1986, art. 52 (dal 1° gennaio 2027 art. 299 TU adempimenti e accertamento, D.Lgs. 141/2026) — DL 168/2004 — DL 262/2006", status:"free"},
     {id:"compravendita", title:"Imposte sull'acquisto di un immobile", desc:"Registro 2%/9% con prezzo-valore, ipotecaria e catastale, oppure IVA 4%/10%/22% da impresa; terreni.", refs:"DPR 131/1986 (dal 1° gennaio 2027 TU registro D.Lgs. 123/2025: DL 200/2025, art. 4) — L. 266/2005, art. 1, c. 497 — DPR 633/1972, art. 10, n. 8-bis (TU IVA D.Lgs. 10/2026, art. 37, dal 1° gennaio 2027)", status:"free"},
     {id:"quote-ereditarie", title:"Quote ereditarie e legittima", desc:"Chi eredita e quanto senza testamento, quote di riserva dei legittimari e quota disponibile, con rappresentazione, fratelli unilaterali, donazioni e importi in euro.", refs:"Artt. 467-469, 536-548, 556, 565-586 c.c. — L. 76/2016 (unioni civili) — L. 219/2012", status:"free"},
