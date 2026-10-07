@@ -145,13 +145,13 @@ function apri(licenza) {
   // pagine informative e contatti
   await vai3("#/informazioni");
   const info = $3("#main").textContent;
-  ck("informazioni: GenAItix S.r.l.s. in costituzione, campi societari previsti", /GenAItix S.r.l.s./.test(info) && /in costituzione/.test(info) && /Partita IVA/.test(info) && /REA/.test(info) && !/Ordine degli Avvocati/.test(info));
+  ck("informazioni: ditta individuale Giacomello Fabio con P. IVA, senza codice fiscale né campi societari", /Giacomello Fabio \(ditta individuale\)/.test(info) && /04399910274/.test(info) && !/GCMFBA/.test(info) && !/REA/.test(info) && !/in costituzione/.test(info) && !/Ordine degli Avvocati/.test(info));
   ck("informazioni: condizioni e disdetta", /disdett/i.test(info));
   ck("informazioni: privacy", /Regolamento UE 2016\/679/.test(info));
   ck("informazioni: recesso", /recesso/i.test(info));
   ck("informazioni: assistenza", /assistenza/i.test(info));
   ck("footer con link informativi", !!$3('.foot a[href="#/informazioni"]'));
-  ck("footer con erogatore e contatto", /Servizio erogato da GenAItix S\.r\.l\.s\. \(in costituzione\)/.test($3("#footTitolare").textContent) && /@/.test($3("#footTitolare").textContent));
+  ck("footer con erogatore e contatto", /Servizio erogato da Giacomello Fabio \(ditta individuale\) — Pianiga \(VE\) — P\. IVA 04399910274/.test($3("#footTitolare").textContent) && /@/.test($3("#footTitolare").textContent));
 
   // ravvedimento: righe F24 e cambio di tributo
   await vai3("#/ravvedimento");

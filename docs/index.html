@@ -281,13 +281,14 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 // Erogatore del servizio. Società in costituzione: sede, partita IVA, REA, capitale e PEC si inseriscono appena attribuiti
 // (obblighi informativi: art. 7 D.Lgs. 70/2003, art. 2250 c.c.)
 const TITOLARE = {
-  nome:"GenAItix S.r.l.s.", costituzione:true,
-  indirizzo:"", piva:"", rea:"", capitale:"", pec:"", rappresentante:"",
+  // fase sperimentale: ditta individuale del socio (in futuro Ponderis S.r.l.s.: tornare a forma "società" con REA e capitale)
+  nome:"Giacomello Fabio", forma:"ditta individuale", costituzione:false,
+  indirizzo:"Pianiga (VE)", piva:"04399910274", rea:"", capitale:"", pec:"", rappresentante:"",
   email:"studiolegaleometto@gmail.com"
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.20.2 — 5 ottobre 2026",
+  version: "0.20.3 — 7 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -1507,12 +1508,12 @@ function renderInfo(){
   $("#main").innerHTML=`<div class="head"><h1>Informazioni, condizioni e contatti</h1><p>Chi eroga il servizio, come funzionano gli abbonamenti, come vengono trattati i dati e come ottenere assistenza.</p></div>
   <div class="panel"><div class="pb">
     <div class="eyebrow" style="margin-bottom:6px">Titolare del servizio</div>
-    <table class="rows testo"><tr><td>Denominazione</td><td class="r">${esc(T.nome)}</td></tr>
+    <table class="rows testo"><tr><td>Denominazione</td><td class="r">${esc(T.nome)}${T.forma?` (${esc(T.forma)})`:""}</td></tr>
     ${T.costituzione?`<tr><td>Stato</td><td class="r">società in costituzione</td></tr>`:""}
-    <tr><td>Sede legale</td><td class="r">${esc(T.indirizzo||ND)}</td></tr>
-    <tr><td>Partita IVA e codice fiscale</td><td class="r">${esc(T.piva||ND)}</td></tr>
-    <tr><td>Registro delle imprese (REA)</td><td class="r">${esc(T.rea||ND)}</td></tr>
-    <tr><td>Capitale sociale</td><td class="r">${esc(T.capitale||ND)}</td></tr>
+    <tr><td>${T.forma==="ditta individuale"?"Sede":"Sede legale"}</td><td class="r">${esc(T.indirizzo||ND)}</td></tr>
+    <tr><td>${T.forma==="ditta individuale"?"Partita IVA":"Partita IVA e codice fiscale"}</td><td class="r">${esc(T.piva||ND)}</td></tr>
+    ${T.forma==="ditta individuale"?"":`<tr><td>Registro delle imprese (REA)</td><td class="r">${esc(T.rea||ND)}</td></tr>
+    <tr><td>Capitale sociale</td><td class="r">${esc(T.capitale||ND)}</td></tr>`}
     ${T.pec?`<tr><td>PEC</td><td class="r">${esc(T.pec)}</td></tr>`:""}
     <tr><td>Contatti</td><td class="r"><a href="mailto:${esc(T.email)}">${esc(T.email)}</a></td></tr></table>
 
@@ -2689,7 +2690,7 @@ function route(){
 window.addEventListener("hashchange",route);
 document.documentElement.lang="it";   // necessario per la sillabazione automatica
 LIC.load(); STUDIO.load(); refreshBadge();
-$("#footTitolare").innerHTML=`Servizio erogato da ${esc(TITOLARE.nome)}${TITOLARE.costituzione?" (in costituzione)":""}${TITOLARE.indirizzo?" — "+esc(TITOLARE.indirizzo):""}${TITOLARE.piva?" — P. IVA "+esc(TITOLARE.piva):""} — <a href="mailto:${esc(TITOLARE.email)}">${esc(TITOLARE.email)}</a>`;
+$("#footTitolare").innerHTML=`Servizio erogato da ${esc(TITOLARE.nome)}${TITOLARE.forma?" ("+esc(TITOLARE.forma)+")":""}${TITOLARE.costituzione?" (in costituzione)":""}${TITOLARE.indirizzo?" — "+esc(TITOLARE.indirizzo):""}${TITOLARE.piva?" — P. IVA "+esc(TITOLARE.piva):""} — <a href="mailto:${esc(TITOLARE.email)}">${esc(TITOLARE.email)}</a>`;
 $("#footMail").href=`mailto:${TITOLARE.email}?subject=${encodeURIComponent("Calcoli Forensi — assistenza")}`;
 $("#dlgMail").href=`mailto:${TITOLARE.email}?subject=${encodeURIComponent("Calcoli Forensi — recupero chiave di licenza")}`; $("#footVersion").textContent="Versione "+CONFIG.version+" · Ultima verifica delle fonti normative e giurisprudenziali: "+MONITOR.fonti+" · Ultimo controllo automatico dei dati (ISTAT, test di calcolo): "+MONITOR.dati+" · Tabelle: saggio legale 2026, BCE 2° sem. 2026, DM 20/07/2026 (art. 139), DPR 12/2025 (TUN), Tabelle milanesi ed. 2024, DM 147/2022, DPR 115/2002.";
 route();
