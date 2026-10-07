@@ -214,6 +214,8 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 .f24 .tot td{font-weight:600}
 @media print{.f24{overflow:visible;font-size:10.5px}.f24 th,.f24 td{border-color:#000;color:#000}.f24 h4{background:#eee;border-color:#000}}
 .print-head,.print-foot{display:none;font-family:var(--serif)}
+.foot-calc{font-size:12px;line-height:1.7;color:var(--ink-2)} .foot-calc a{color:inherit}
+@media print{.foot-calc{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -264,7 +266,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.20.3 — 7 ottobre 2026",
+  version: "0.21.0 — 7 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -1289,7 +1291,7 @@ const CAMBI = {
         .finally(()=>{ delete this.attesa[chiave]; if(typeof state!=="undefined"&&state.calc==="cambi"&&typeof VIEWS!=="undefined"){ const r=document.getElementById("result"); if(r){ r.innerHTML=VIEWS.cambi.result(); bindResult(); } } }); }
     return null; }
 };
-const VALUTE=[["USD","Dollaro USA"],["GBP","Sterlina britannica"],["CHF","Franco svizzero"],["JPY","Yen giapponese"],["CNY","Renminbi cinese"],["CAD","Dollaro canadese"],["AUD","Dollaro australiano"],["SEK","Corona svedese"],["NOK","Corona norvegese"],["DKK","Corona danese"],["PLN","Zloty polacco"],["CZK","Corona ceca"],["HUF","Fiorino ungherese"],["RON","Leu rumeno"],["BGN","Lev bulgaro"],["TRY","Lira turca"],["ALL","Lek albanese"],["RSD","Dinaro serbo"],["MAD","Dirham marocchino"],["TND","Dinaro tunisino"],["EGP","Lira egiziana"],["AED","Dirham degli Emirati"],["SAR","Riyal saudita"],["INR","Rupia indiana"],["BRL","Real brasiliano"],["ARS","Peso argentino"],["MXN","Peso messicano"],["ZAR","Rand sudafricano"],["HKD","Dollaro di Hong Kong"],["SGD","Dollaro di Singapore"],["KRW","Won sudcoreano"],["ILS","Nuovo siclo israeliano"],["UAH","Grivnia ucraina"]];
+const VALUTE=[["USD","Dollaro USA"],["GBP","Sterlina britannica"],["CHF","Franco svizzero"],["JPY","Yen giapponese"],["CNY","Renminbi cinese"],["CAD","Dollaro canadese"],["AUD","Dollaro australiano"],["SEK","Corona svedese"],["NOK","Corona norvegese"],["DKK","Corona danese"],["PLN","Zloty polacco"],["CZK","Corona ceca"],["HUF","Fiorino ungherese"],["RON","Leu rumeno"],["BGN","Lev bulgaro"],["TRY","Lira turca"],["ALL","Lek albanese"],["RSD","Dinaro serbo"],["MAD","Dirham marocchino"],["TND","Dinaro tunisino"],["EGP","Lira egiziana"],["AED","Dirham degli Emirati"],["SAR","Riyal saudita"],["INR","Rupia indiana"],["BRL","Real brasiliano"],["ARS","Peso argentino"],["MXN","Peso messicano"],["ZAR","Rand sudafricano"],["HKD","Dollaro di Hong Kong"],["SGD","Dollaro di Singapore"],["KRW","Won sudcoreano"],["ILS","Nuovo siclo israeliano"],["UAH","Grivnia ucraina"]].sort((x,y)=>x[1].localeCompare(y[1],"it"));
 const F24 = {
   KEY:"cf_f24", ultime:[],
   lista(){ try{ return JSON.parse(localStorage.getItem(this.KEY)||"[]"); }catch(e){ return []; } },
@@ -1911,8 +1913,8 @@ const VIEWS = {
       const m=state.inputs.cbmodo||"giorno";
       return [
         field("cbmodo","Conversione","select","giorno",{full:true,rerender:true,options:[["giorno","Cambio di un giorno (fatture, pagamenti, debiti in valuta)"],["mese","Cambio medio mensile (redditi esteri, dichiarazioni)"],["lire","Lire ↔ euro"]]}),
-        m==="lire"?field("cblverso","Verso","select","lire2eur",{options:[["lire2eur","Da lire a euro"],["eur2lire","Da euro a lire"]]}):field("cbval","Valuta","select","USD",{options:VALUTE.map(([c,n])=>[c,`${c} — ${n}`])}),
-        m!=="lire"?field("cbverso","Verso","select","val2eur",{options:[["val2eur","Da valuta a euro"],["eur2val","Da euro a valuta"]]}):"",
+        m==="lire"?field("cblverso","Verso","select","lire2eur",{options:[["lire2eur","Da lire a euro"],["eur2lire","Da euro a lire"]]}):field("cbval","Valuta","select","USD",{rerender:true,options:VALUTE.map(([c,n])=>[c,`${n} (${c})`])}),
+        m!=="lire"?field("cbverso","Verso","select","val2eur",{options:(()=>{ const c=state.inputs.cbval||"USD", nm=(VALUTE.find(v=>v[0]===c)||[c,c])[1]; return [["val2eur",`Da ${nm} (${c}) a euro`],["eur2val",`Da euro a ${nm} (${c})`]]; })()}):"",
         m==="giorno"?field("cbdata","Data","date",new Date(Date.now()-86400000).toISOString().slice(0,10)):"",
         m==="mese"?field("cbmese","Mese","month",(()=>{ const d=new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth()-1); return d.toISOString().slice(0,7); })()):"",
         field("cbimp","Importo","number",1000,{min:0,step:0.01,full:true}),
@@ -1933,7 +1935,7 @@ const VIEWS = {
       const x=D.rates.find(r=>r.isoCode===cod); if(!x) return empty(`Nessuna quotazione per ${esc(cod)} nel periodo indicato.`);
       const c=+x.avgRate, r=ENGINES.convValuta(imp,c,verso); if(r==null) return empty("Inserisci l'importo.");
       const diverso=m==="giorno"&&D.data!==rif;
-      return `<div class="total"><div class="eyebrow">${m==="giorno"?"Cambio del giorno":"Cambio medio mensile"} — ${esc(x.currency)}</div><div class="big">${verso==="eur2val"?`${fmtN(r,2)} ${esc(cod)}`:fmt.format(r)}</div><div class="sub">${verso==="eur2val"?fmt.format(imp):`${fmtN(imp,2)} ${esc(cod)}`} · 1 € = ${fmtN(c,4)} ${esc(cod)} · ${m==="giorno"?`cambio del ${fmtD(D.data)}`:`media di ${D.data.slice(5)}/${D.data.slice(0,4)}`}</div>${diverso?`<div class="warn">Nessuna quotazione il ${fmtD(rif)} (festivo o non lavorativo): usato il giorno antecedente più prossimo, ${fmtD(D.data)}.</div>`:""}</div>
+      return `<div class="total"><div class="eyebrow">${m==="giorno"?"Cambio del giorno":"Cambio medio mensile"} — ${esc(x.currency)}</div><div class="big">${verso==="eur2val"?`${fmtN(r,2)} ${esc(cod)}`:fmt.format(r)}</div><div class="sub">${verso==="eur2val"?fmt.format(imp):`${fmtN(imp,2)} ${esc(cod)}`} · 1 € = ${fmtN(c,4)} ${esc(cod)} · 1 ${esc(cod)} = ${fmtN(1/c,4)} € · ${m==="giorno"?`cambio del ${fmtD(D.data)}`:`media di ${D.data.slice(5)}/${D.data.slice(0,4)}`}</div>${diverso?`<div class="warn">Nessuna quotazione il ${fmtD(rif)} (festivo o non lavorativo): usato il giorno antecedente più prossimo, ${fmtD(D.data)}.</div>`:""}</div>
       <div class="pb"><div class="note">Cambi di riferimento pubblicati dalla Banca d'Italia (per le valute quotate dalla BCE coincidono con i tassi BCE), espressi come quantità di valuta per 1 euro. IVA: corrispettivi e spese in valuta si convertono al cambio del giorno di effettuazione dell'operazione o di emissione della fattura, in mancanza del giorno antecedente più prossimo; in alternativa, per tutto l'anno solare, al tasso BCE (art. 13, c. 4, DPR 633/1972). Imposte sui redditi: cambio del giorno di percezione o sostenimento o del giorno antecedente più prossimo e, in mancanza, del mese (art. 9, c. 2, TUIR). Debiti in moneta estera: art. 1278 c.c. (pagamento in moneta legale al corso del cambio del giorno della scadenza). La Banca d'Italia precisa che i cambi pubblicati hanno valore indicativo, salvo i casi previsti dalla normativa italiana.</div></div>${actions()}`;
     }
   },
@@ -2653,7 +2655,7 @@ function toast(m){ const t=document.createElement("div"); t.className="toast"; t
 
 /* ===================== ROUTER ===================== */
 function route(){
-  const h=(location.hash||"#/").slice(1);
+  const h=(location.hash||(window.CF_START?"#/"+window.CF_START:"#/")).slice(1);   // CF_START: pagine indicizzabili /<indirizzo>/
   if(h==="/"||h==="") renderHome();
   else if(h==="/piani") renderPlans();
   else if(h==="/informazioni") renderInfo();

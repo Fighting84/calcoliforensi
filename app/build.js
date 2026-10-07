@@ -20,7 +20,7 @@ const out = `<!doctype html>
 <meta name="robots" content="index,follow">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230E5A48'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='34' font-weight='700' text-anchor='middle' fill='white'%3ECF%3C/text%3E%3C/svg%3E">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Calcoli Forensi","url":"https://calcoliforensi.it/","applicationCategory":"BusinessApplication","operatingSystem":"Web","inLanguage":"it","description":"${desc}","offers":[{"@type":"Offer","price":"0","priceCurrency":"EUR","name":"Gratis"},{"@type":"Offer","price":"19","priceCurrency":"EUR","name":"Pro mensile"},{"@type":"Offer","price":"149","priceCurrency":"EUR","name":"Pro annuale"}]}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Calcoli Forensi","url":"https://calcoliforensi.it/","applicationCategory":"BusinessApplication","operatingSystem":"Web","inLanguage":"it","description":"${desc}","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR","name":"Risultato dei calcoli"}}
 </script>
 <style>
 html{color-scheme:light dark}
@@ -37,3 +37,5 @@ ${body}
 const dest = path.join(__dirname, "..", "docs", "index.html");
 fs.writeFileSync(dest, out);
 console.log("scritto", dest, out.length, "byte");
+// pagine indicizzabili per Google (una per calcolatore) e sitemap
+require("./build_pagine").costruisci().catch(e => { console.error("ERRORE build_pagine:", e.message); process.exit(1); });
