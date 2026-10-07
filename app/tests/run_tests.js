@@ -360,5 +360,31 @@ ck("lire: 1.000 € = 1.936.270 lire", ENGINES.lireEuro(1000, "eur2lire"), 19362
   eq("cedolare: 8940 e 1940 (ris. 12/E/2023)", ENGINES.ravvedimento({ tributo: "ced_saldo", imposta: 100, scadenza: "2026-06-30", pagamento: "2026-07-10" }).righe.map(x => x.codice).join(" "), "1842 8940 1940");
   eq("scadenza di sabato segnalata", rv({ scadenza: "2026-05-16", pagamento: "2026-07-10" }).avvisi.some(a => /sabato/.test(a)), true);
   eq("nessun codice soppresso (8906, 8913, 1992, 8903, 8908)", /"(8906|8913|1992|8903|8908)"/.test(html.slice(html.indexOf("const RAVV_TRIBUTI"), html.indexOf("const prevMese"))), false); }
+// Sanzioni civili INPS (art. 116, c. 8, L. 388/2000; circ. INPS 90/2024 e 98/2026). Valori calcolati a mano:
+// tasso BCE 2,15% dall'11/06/2025, 2,40% dal 17/06/2026, 2,65% dal 16/09/2026; 4,25% dal 12/06/2024.
+{ const si = (...a) => ENGINES.sanzioniInps(...a);
+  ck("INPS omissione entro 120 gg: 76 gg al 2,40% (senza maggiorazione)", si(1000, "2026-06-16", "2026-08-31", "omissione", "spontaneo").sanzione, 5.00);
+  ck("INPS omissione oltre 120 gg: 91 gg al 7,90% + 45 gg all'8,15%", si(1000, "2026-06-16", "2026-10-30", "omissione", "spontaneo").sanzione, 29.75);
+  ck("INPS omissione con scadenza prima del 1/9/2024: niente beneficio dei 120 gg (74 gg al 9,75%)", si(1000, "2024-06-17", "2024-08-30", "omissione", "spontaneo").sanzione, 19.77);
+  ck("INPS evasione ordinaria: tetto del 60%", si(1000, "2022-01-17", "2026-01-17", "evasione", "accertamento", null, "2023-01-10").sanzione, 600);
+  ck("INPS evasione accertata e pagata entro 30 gg dalla notifica: 50% del tetto", si(1000, "2022-01-17", "2026-01-17", "evasione", "accertamento", null, "2025-12-20").sanzione, 300);
+  ck("INPS evasione: denuncia entro 12 mesi, pagamento a 50 gg dalla denuncia → 9,65% (2,15% + 7,5)", si(1000, "2025-08-18", "2026-02-20", "evasione", "spontaneo", "2026-01-01").periodi.every(p => p.tasso === 9.65), 1);
+  ck("INPS evasione: denuncia entro 12 mesi, pagamento entro 30 gg → 7,65%", si(1000, "2025-08-18", "2026-01-20", "evasione", "spontaneo", "2026-01-01").periodi[0].tasso, 7.65);
+  ck("INPS evasione: denuncia oltre 12 mesi → 30%", si(1000, "2024-09-16", "2025-10-20", "evasione", "spontaneo", "2025-10-01").periodi[0].tasso, 30);
+  ck("INPS omissione accertata pagata dopo 30 gg dalla notifica: nessuna riduzione", si(1000, "2026-06-16", "2026-10-30", "omissione", "accertamento", null, "2026-09-01").sanzione, 29.75);
+  ck("INPS omissione accertata pagata entro 30 gg: metà", si(1000, "2026-06-16", "2026-10-30", "omissione", "accertamento", null, "2026-10-10").sanzione, 14.88);
+  ck("INPS omissione al tetto del 40%", si(1000, "2010-01-18", "2026-01-16", "omissione", "spontaneo").sanzione, 400);
+  // confronto con un calcolo indipendente, giorno per giorno, su 200 casi pseudo-casuali (omissione ordinaria, sotto il tetto)
+  const tur = d => { let v = 0; for (const [x, y] of [["2022-07-27",0.5],["2022-09-14",1.25],["2022-11-02",2],["2022-12-21",2.5],["2023-02-08",3],["2023-03-22",3.5],["2023-05-10",3.75],["2023-06-21",4],["2023-08-02",4.25],["2023-09-20",4.5],["2024-06-12",4.25],["2024-09-18",3.65],["2024-10-23",3.4],["2024-12-18",3.15],["2025-02-05",2.9],["2025-03-12",2.65],["2025-04-23",2.4],["2025-06-11",2.15],["2026-06-17",2.4],["2026-09-16",2.65]]) if (x <= d) v = y; return v; };
+  let seme = 7, peggiore = 0; const rnd = () => (seme = (seme * 16807) % 2147483647) / 2147483647;
+  for (let k = 0; k < 200; k++) {
+    const s0 = Date.UTC(2023, 0, 1) + Math.floor(rnd() * 1100) * 86400000, scad = new Date(s0).toISOString().slice(0, 10);
+    const pag = new Date(s0 + (121 + Math.floor(rnd() * 600)) * 86400000).toISOString().slice(0, 10), imp = 100 + Math.floor(rnd() * 50000);
+    let attesa = 0; for (let t = s0 + 86400000; t <= Date.parse(pag); t += 86400000) attesa += imp * (tur(new Date(t).toISOString().slice(0, 10)) + 5.5) / 100 / 365;
+    attesa = Math.min(attesa, imp * 0.4);
+    peggiore = Math.max(peggiore, Math.abs(si(imp, scad, pag, "omissione", "spontaneo").sanzione - attesa));
+  }
+  ck("INPS: scarto massimo dal calcolo giorno per giorno su 200 casi (arrotondamenti per periodo)", peggiore < 0.05 ? 0 : peggiore, 0);
+}
 console.log(`\n${pass} OK, ${fail} DIFF`);
 process.exit(fail ? 1 : 0);

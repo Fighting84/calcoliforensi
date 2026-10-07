@@ -54,6 +54,11 @@ img{max-width:100%}
   --pro:#D9A94B; --pro-soft:#332A14;
   --ok:#4FBF7A; --warn:#D99A4E;
 }
+:root[data-theme="light"]{color-scheme:light} :root[data-theme="dark"]{color-scheme:dark}
+@media print{:root,:root[data-theme="dark"],:root:not([data-theme="light"]){
+  --bg:#FFFFFF; --surface:#FFFFFF; --surface-2:#F1F3F5; --line:#C9D0D6; --ink:#000000; --ink-2:#333B44; --ink-3:#5B6570;
+  --accent:#0E5A48; --accent-ink:#FFFFFF; --accent-soft:#DCEDE6; --pro:#9A6B12; --pro-soft:#F6EBD2; --ok:#1E7A45; --warn:#A8651B; color-scheme:light}}
+.btn-tema{min-width:40px;padding-inline:10px;font-size:16px;line-height:1}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;hyphens:auto;-webkit-hyphens:auto}
@@ -249,6 +254,7 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
     <a class="brand" href="#/"><b>Calcoli Forensi</b><span>calcolatori legali e fiscali, aggiornati</span></a>
     <div class="top-actions">
       <span id="licenseBadge" class="pill free">Versione gratuita</span>
+      <button class="btn btn-tema" id="btnTema" type="button" aria-label="Tema: automatico" title="Tema: automatico (segue il dispositivo)">◐</button>
       <button class="btn" id="btnLicense">Ho una licenza</button>
       <a class="btn pro" id="btnUpgrade" href="#/piani">Passa a Pro</a>
     </div>
@@ -256,9 +262,9 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 </header>
 
 <div class="wrap">
-  <nav class="nav" id="nav"><button class="nav-toggle" id="navToggle" aria-expanded="false">☰ Calcolatori (31) — cerca o scegli</button>
+  <nav class="nav" id="nav"><button class="nav-toggle" id="navToggle" aria-expanded="false">☰ Calcolatori (32) — cerca o scegli</button>
   <div class="nav-corpo"><input class="nav-cerca" id="navCerca" type="search" placeholder="Cerca un calcolatore…  ( / )" autocomplete="off" aria-label="Cerca un calcolatore">
-  <div class="nav-list"><div class="group"><a href="#/" class="">Tutti i calcolatori</a></div><div class="group" data-g="0"><button class="nav-g" data-g="0" aria-expanded="false"><span>Danno alla persona</span><span class="nav-n">4</span></button><div class="nav-items"><a href="#/danno-micro" data-id="danno-micro" class="">Danno biologico — micropermanenti</a><a href="#/danno-tun" data-id="danno-tun" class="">Danno biologico — Tabella Unica Nazionale (art. 138)</a><a href="#/danno-milano" data-id="danno-milano" class="">Danno non patrimoniale — Tabelle di Milano</a><a href="#/danno-parentale" data-id="danno-parentale" class="">Danno da perdita del rapporto parentale</a></div></div><div class="group" data-g="1"><button class="nav-g" data-g="1" aria-expanded="false"><span>Interessi e rivalutazione</span><span class="nav-n">4</span></button><div class="nav-items"><a href="#/interessi-legali" data-id="interessi-legali" class="">Interessi legali</a><a href="#/usura" data-id="usura" class="">Verifica dell'usura (tassi soglia)</a><a href="#/interessi-mora" data-id="interessi-mora" class="">Interessi di mora commerciali</a><a href="#/rivalutazione" data-id="rivalutazione" class="">Rivalutazione monetaria ISTAT</a></div></div><div class="group" data-g="2"><button class="nav-g" data-g="2" aria-expanded="false"><span>Processo civile, spese e compensi</span><span class="nav-n">8</span></button><div class="nav-items"><a href="#/scadenze" data-id="scadenze" class="">Scadenze processuali civili</a><a href="#/calendario-processo" data-id="calendario-processo" class="">Calendario del processo civile (Cartabia)</a><a href="#/contributo-unificato" data-id="contributo-unificato" class="">Contributo unificato</a><a href="#/parcella" data-id="parcella" class="">Parcella avvocato — parametri forensi</a><a href="#/preventivo" data-id="preventivo" class="">Preventivo ex art. 13 L. 247/2012</a><a href="#/precetto" data-id="precetto" class="">Atto di precetto</a><a href="#/prescrizione" data-id="prescrizione" class="">Prescrizione dei diritti</a><a href="#/pignoramento" data-id="pignoramento" class="">Pignoramento di stipendio e pensione</a></div></div><div class="group aperto" data-g="3"><button class="nav-g" data-g="3" aria-expanded="true"><span>Processo penale, pena e compensi</span><span class="nav-n">3</span></button><div class="nav-items"><a href="#/pena" data-id="pena" class="active">Determinazione della pena, patteggiamento e abbreviato</a><a href="#/prescrizione-reato" data-id="prescrizione-reato" class="">Prescrizione del reato</a><a href="#/parcella-penale" data-id="parcella-penale" class="">Parcella penale — parametri forensi</a></div></div><div class="group" data-g="4"><button class="nav-g" data-g="4" aria-expanded="false"><span>Lavoro</span><span class="nav-n">1</span></button><div class="nav-items"><a href="#/tfr" data-id="tfr" class="">TFR — trattamento di fine rapporto</a></div></div><div class="group" data-g="5"><button class="nav-g" data-g="5" aria-expanded="false"><span>Immobili, locazioni e successioni</span><span class="nav-n">7</span></button><div class="nav-items"><a href="#/imu" data-id="imu" class="">IMU e valore catastale</a><a href="#/compravendita" data-id="compravendita" class="">Imposte sull'acquisto di un immobile</a><a href="#/quote-ereditarie" data-id="quote-ereditarie" class="">Quote ereditarie e legittima</a><a href="#/successione" data-id="successione" class="">Imposta di successione e donazione</a><a href="#/usufrutto" data-id="usufrutto" class="">Usufrutto e nuda proprietà</a><a href="#/canone" data-id="canone" class="">Adeguamento ISTAT del canone</a><a href="#/cedolare" data-id="cedolare" class="">Cedolare secca o IRPEF?</a></div></div><div class="group" data-g="6"><button class="nav-g" data-g="6" aria-expanded="false"><span>Fisco e tributi</span><span class="nav-n">4</span></button><div class="nav-items"><a href="#/ravvedimento" data-id="ravvedimento" class="">Ravvedimento operoso — sanzioni, interessi e F24</a><a href="#/prescrizione-tributi" data-id="prescrizione-tributi" class="">Prescrizione e decadenza di imposte, tributi e cartelle</a><a href="#/cambi" data-id="cambi" class="">Cambi delle valute e lire-euro</a><a href="#/f24" data-id="f24" class="">Modello F24 — compilazione e stampa</a></div></div><div class="nav-vuoto" id="navVuoto" hidden="">Nessun calcolatore trovato.</div></div></div></nav>
+  <div class="nav-list"><div class="group"><a href="#/" class="">Tutti i calcolatori</a></div><div class="group" data-g="0"><button class="nav-g" data-g="0" aria-expanded="false"><span>Danno alla persona</span><span class="nav-n">4</span></button><div class="nav-items"><a href="#/danno-micro" data-id="danno-micro" class="">Danno biologico — micropermanenti</a><a href="#/danno-tun" data-id="danno-tun" class="">Danno biologico — Tabella Unica Nazionale (art. 138)</a><a href="#/danno-milano" data-id="danno-milano" class="">Danno non patrimoniale — Tabelle di Milano</a><a href="#/danno-parentale" data-id="danno-parentale" class="">Danno da perdita del rapporto parentale</a></div></div><div class="group" data-g="1"><button class="nav-g" data-g="1" aria-expanded="false"><span>Interessi e rivalutazione</span><span class="nav-n">4</span></button><div class="nav-items"><a href="#/interessi-legali" data-id="interessi-legali" class="">Interessi legali</a><a href="#/usura" data-id="usura" class="">Verifica dell'usura (tassi soglia)</a><a href="#/interessi-mora" data-id="interessi-mora" class="">Interessi di mora commerciali</a><a href="#/rivalutazione" data-id="rivalutazione" class="">Rivalutazione monetaria ISTAT</a></div></div><div class="group" data-g="2"><button class="nav-g" data-g="2" aria-expanded="false"><span>Processo civile, spese e compensi</span><span class="nav-n">8</span></button><div class="nav-items"><a href="#/scadenze" data-id="scadenze" class="">Scadenze processuali civili</a><a href="#/calendario-processo" data-id="calendario-processo" class="">Calendario del processo civile (Cartabia)</a><a href="#/contributo-unificato" data-id="contributo-unificato" class="">Contributo unificato</a><a href="#/parcella" data-id="parcella" class="">Parcella avvocato — parametri forensi</a><a href="#/preventivo" data-id="preventivo" class="">Preventivo ex art. 13 L. 247/2012</a><a href="#/precetto" data-id="precetto" class="">Atto di precetto</a><a href="#/prescrizione" data-id="prescrizione" class="">Prescrizione dei diritti</a><a href="#/pignoramento" data-id="pignoramento" class="">Pignoramento di stipendio e pensione</a></div></div><div class="group aperto" data-g="3"><button class="nav-g" data-g="3" aria-expanded="true"><span>Processo penale, pena e compensi</span><span class="nav-n">3</span></button><div class="nav-items"><a href="#/pena" data-id="pena" class="active">Determinazione della pena, patteggiamento e abbreviato</a><a href="#/prescrizione-reato" data-id="prescrizione-reato" class="">Prescrizione del reato</a><a href="#/parcella-penale" data-id="parcella-penale" class="">Parcella penale — parametri forensi</a></div></div><div class="group" data-g="4"><button class="nav-g" data-g="4" aria-expanded="false"><span>Lavoro</span><span class="nav-n">2</span></button><div class="nav-items"><a href="#/sanzioni-inps" data-id="sanzioni-inps" class="">Sanzioni civili INPS e ravvedimento sui contributi</a><a href="#/tfr" data-id="tfr" class="">TFR — trattamento di fine rapporto</a></div></div><div class="group" data-g="5"><button class="nav-g" data-g="5" aria-expanded="false"><span>Immobili, locazioni e successioni</span><span class="nav-n">7</span></button><div class="nav-items"><a href="#/imu" data-id="imu" class="">IMU e valore catastale</a><a href="#/compravendita" data-id="compravendita" class="">Imposte sull'acquisto di un immobile</a><a href="#/quote-ereditarie" data-id="quote-ereditarie" class="">Quote ereditarie e legittima</a><a href="#/successione" data-id="successione" class="">Imposta di successione e donazione</a><a href="#/usufrutto" data-id="usufrutto" class="">Usufrutto e nuda proprietà</a><a href="#/canone" data-id="canone" class="">Adeguamento ISTAT del canone</a><a href="#/cedolare" data-id="cedolare" class="">Cedolare secca o IRPEF?</a></div></div><div class="group" data-g="6"><button class="nav-g" data-g="6" aria-expanded="false"><span>Fisco e tributi</span><span class="nav-n">4</span></button><div class="nav-items"><a href="#/ravvedimento" data-id="ravvedimento" class="">Ravvedimento operoso — sanzioni, interessi e F24</a><a href="#/prescrizione-tributi" data-id="prescrizione-tributi" class="">Prescrizione e decadenza di imposte, tributi e cartelle</a><a href="#/cambi" data-id="cambi" class="">Cambi delle valute e lire-euro</a><a href="#/f24" data-id="f24" class="">Modello F24 — compilazione e stampa</a></div></div><div class="nav-vuoto" id="navVuoto" hidden="">Nessun calcolatore trovato.</div></div></div></nav>
   <main class="main" id="main"><div class="head"><div class="eyebrow">Processo penale, pena e compensi</div><h1>Determinazione della pena, patteggiamento e abbreviato</h1><p>Pena base, tentativo, circostanze e bilanciamento, continuazione, diminuente del rito (abbreviato con l'ulteriore 1/6, patteggiamento), sospensione condizionale e pene sostitutive.</p><div class="refs">Artt. 56, 62-bis, 63-69, 81, 133-135, 163 c.p. — artt. 442 e 444-445 c.p.p. (D.Lgs. 150/2022) — art. 20-bis c.p. e artt. 53, 56-quater L. 689/1981</div></div>
   <div class="print-head"><b>Determinazione della pena, patteggiamento e abbreviato</b> — relazione del 07/10/2026<div style="font-size:11px;font-family:var(--sans);margin-top:3px">Artt. 56, 62-bis, 63-69, 81, 133-135, 163 c.p. — artt. 442 e 444-445 c.p.p. (D.Lgs. 150/2022) — art. 20-bis c.p. e artt. 53, 56-quater L. 689/1981 · fonti verificate al 02/10/2026 · elaborazione con calcoliforensi.it</div></div>
   
@@ -281,7 +287,7 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 <footer class="foot">
   <p><strong>Calcoli Forensi</strong> — strumenti di calcolo per professionisti dell'area legale, fiscale, del lavoro e immobiliare. I risultati sono elaborazioni automatiche su dati normativi e tabellari pubblici e non costituiscono consulenza legale; la verifica finale spetta al professionista.</p>
   <p class="foot-links"><a href="#/informazioni">Informazioni, condizioni e privacy</a> · <a href="#/impostazioni">Impostazioni</a> · <a href="#/storico">Storico</a> · <a href="#/piani">Piani</a> · <a id="footMail" href="#">Assistenza</a></p>
-  <p class="foot-calc">Calcolatori: <a href="/calcolo-danno-biologico-micropermanenti/">Danno biologico — micropermanenti</a> · <a href="/calcolo-danno-biologico-tabella-unica-nazionale/">Danno biologico — Tabella Unica Nazionale (art. 138)</a> · <a href="/calcolo-danno-tabelle-milano/">Danno non patrimoniale — Tabelle di Milano</a> · <a href="/calcolo-danno-perdita-rapporto-parentale/">Danno da perdita del rapporto parentale</a> · <a href="/calcolo-interessi-legali/">Interessi legali</a> · <a href="/verifica-usura-tassi-soglia/">Verifica dell'usura (tassi soglia)</a> · <a href="/calcolo-interessi-di-mora/">Interessi di mora commerciali</a> · <a href="/rivalutazione-monetaria-istat/">Rivalutazione monetaria ISTAT</a> · <a href="/calcolo-termini-processuali/">Scadenze processuali civili</a> · <a href="/calendario-memorie-cartabia/">Calendario del processo civile (Cartabia)</a> · <a href="/calcolo-contributo-unificato/">Contributo unificato</a> · <a href="/calcolo-parcella-avvocato/">Parcella avvocato — parametri forensi</a> · <a href="/preventivo-avvocato/">Preventivo ex art. 13 L. 247/2012</a> · <a href="/calcolo-atto-di-precetto/">Atto di precetto</a> · <a href="/calcolo-prescrizione-diritti/">Prescrizione dei diritti</a> · <a href="/calcolo-pignoramento-stipendio-pensione/">Pignoramento di stipendio e pensione</a> · <a href="/calcolo-pena-patteggiamento-abbreviato/">Determinazione della pena, patteggiamento e abbreviato</a> · <a href="/calcolo-prescrizione-reato/">Prescrizione del reato</a> · <a href="/calcolo-parcella-avvocato-penale/">Parcella penale — parametri forensi</a> · <a href="/calcolo-tfr/">TFR — trattamento di fine rapporto</a> · <a href="/calcolo-imu-valore-catastale/">IMU e valore catastale</a> · <a href="/imposte-acquisto-casa/">Imposte sull'acquisto di un immobile</a> · <a href="/calcolo-quote-ereditarie-legittima/">Quote ereditarie e legittima</a> · <a href="/calcolo-imposta-di-successione/">Imposta di successione e donazione</a> · <a href="/calcolo-usufrutto-nuda-proprieta/">Usufrutto e nuda proprietà</a> · <a href="/aggiornamento-istat-canone-locazione/">Adeguamento ISTAT del canone</a> · <a href="/cedolare-secca-o-irpef/">Cedolare secca o IRPEF?</a> · <a href="/calcolo-ravvedimento-operoso/">Ravvedimento operoso — sanzioni, interessi e F24</a> · <a href="/prescrizione-cartelle-imposte-tributi/">Prescrizione e decadenza di imposte, tributi e cartelle</a> · <a href="/cambi-valute-banca-italia/">Cambi delle valute e lire-euro</a> · <a href="/compilazione-modello-f24/">Modello F24 — compilazione e stampa</a></p><p id="footTitolare"></p>
+  <p class="foot-calc">Calcolatori: <a href="/calcolo-danno-biologico-micropermanenti/">Danno biologico — micropermanenti</a> · <a href="/calcolo-danno-biologico-tabella-unica-nazionale/">Danno biologico — Tabella Unica Nazionale (art. 138)</a> · <a href="/calcolo-danno-tabelle-milano/">Danno non patrimoniale — Tabelle di Milano</a> · <a href="/calcolo-danno-perdita-rapporto-parentale/">Danno da perdita del rapporto parentale</a> · <a href="/calcolo-interessi-legali/">Interessi legali</a> · <a href="/verifica-usura-tassi-soglia/">Verifica dell'usura (tassi soglia)</a> · <a href="/calcolo-interessi-di-mora/">Interessi di mora commerciali</a> · <a href="/rivalutazione-monetaria-istat/">Rivalutazione monetaria ISTAT</a> · <a href="/calcolo-termini-processuali/">Scadenze processuali civili</a> · <a href="/calendario-memorie-cartabia/">Calendario del processo civile (Cartabia)</a> · <a href="/calcolo-contributo-unificato/">Contributo unificato</a> · <a href="/calcolo-parcella-avvocato/">Parcella avvocato — parametri forensi</a> · <a href="/preventivo-avvocato/">Preventivo ex art. 13 L. 247/2012</a> · <a href="/calcolo-atto-di-precetto/">Atto di precetto</a> · <a href="/calcolo-prescrizione-diritti/">Prescrizione dei diritti</a> · <a href="/calcolo-pignoramento-stipendio-pensione/">Pignoramento di stipendio e pensione</a> · <a href="/calcolo-pena-patteggiamento-abbreviato/">Determinazione della pena, patteggiamento e abbreviato</a> · <a href="/calcolo-prescrizione-reato/">Prescrizione del reato</a> · <a href="/calcolo-parcella-avvocato-penale/">Parcella penale — parametri forensi</a> · <a href="/calcolo-sanzioni-civili-inps/">Sanzioni civili INPS e ravvedimento sui contributi</a> · <a href="/calcolo-tfr/">TFR — trattamento di fine rapporto</a> · <a href="/calcolo-imu-valore-catastale/">IMU e valore catastale</a> · <a href="/imposte-acquisto-casa/">Imposte sull'acquisto di un immobile</a> · <a href="/calcolo-quote-ereditarie-legittima/">Quote ereditarie e legittima</a> · <a href="/calcolo-imposta-di-successione/">Imposta di successione e donazione</a> · <a href="/calcolo-usufrutto-nuda-proprieta/">Usufrutto e nuda proprietà</a> · <a href="/aggiornamento-istat-canone-locazione/">Adeguamento ISTAT del canone</a> · <a href="/cedolare-secca-o-irpef/">Cedolare secca o IRPEF?</a> · <a href="/calcolo-ravvedimento-operoso/">Ravvedimento operoso — sanzioni, interessi e F24</a> · <a href="/prescrizione-cartelle-imposte-tributi/">Prescrizione e decadenza di imposte, tributi e cartelle</a> · <a href="/cambi-valute-banca-italia/">Cambi delle valute e lire-euro</a> · <a href="/compilazione-modello-f24/">Modello F24 — compilazione e stampa</a></p><p id="footTitolare"></p>
   <p id="footVersion"></p>
 </footer>
 
@@ -298,6 +304,13 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 </dialog>
 
 <script>
+// Tema chiaro/scuro scelto dall'utente (memorizzato sul dispositivo); "auto" segue l'impostazione del sistema
+const TEMA={ voci:{auto:["◐","automatico (segue il dispositivo)"],light:["☀","chiaro"],dark:["☾","scuro"]},
+  get(){ try{ return localStorage.getItem("cf_tema")||"auto"; }catch(e){ return "auto"; } },
+  applica(v){ const r=document.documentElement; if(v==="light"||v==="dark") r.setAttribute("data-theme",v); else r.removeAttribute("data-theme");
+    const b=document.getElementById("btnTema"); if(b){ const [ic,nome]=TEMA.voci[v]||TEMA.voci.auto; b.textContent=ic; b.title="Tema: "+nome+" — clic per cambiare"; b.setAttribute("aria-label","Tema: "+nome); } },
+  cambia(){ const ord=["auto","light","dark"], v=ord[(ord.indexOf(TEMA.get())+1)%3]; try{ localStorage.setItem("cf_tema",v); }catch(e){} TEMA.applica(v); } };
+TEMA.applica(TEMA.get());
 /* ===================== CONFIG ===================== */
 // Erogatore del servizio. Società in costituzione: sede, partita IVA, REA, capitale e PEC si inseriscono appena attribuiti
 // (obblighi informativi: art. 7 D.Lgs. 70/2003, art. 2250 c.c.)
@@ -309,7 +322,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.21.0 — 7 ottobre 2026",
+  version: "0.22.0 — 7 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -330,6 +343,9 @@ const TASSI_LEGALI = {
   2012:2.5,2013:2.5,2014:1,2015:0.5,2016:0.2,2017:0.1,2018:0.3,2019:0.8,
   2020:0.05,2021:0.01,2022:1.25,2023:5,2024:2.5,2025:2,2026:1.6
 };
+// Ex Tasso Ufficiale di Riferimento = tasso BCE delle operazioni di rifinanziamento principali (DM MEF 26/09/2005),
+// con la data da cui ciascuna misura è in vigore (serie ufficiale BCE FM.D.U2.EUR.4F.KR.MRR_FR.LEV; aggiornata da update_bce.js)
+const TUR_BCE = [["2008-10-15",3.75],["2008-11-12",3.25],["2008-12-10",2.5],["2009-01-21",2],["2009-03-11",1.5],["2009-04-08",1.25],["2009-05-13",1],["2011-04-13",1.25],["2011-07-13",1.5],["2011-11-09",1.25],["2011-12-14",1],["2012-07-11",0.75],["2013-05-08",0.5],["2013-11-13",0.25],["2014-06-11",0.15],["2014-09-10",0.05],["2016-03-16",0],["2022-07-27",0.5],["2022-09-14",1.25],["2022-11-02",2],["2022-12-21",2.5],["2023-02-08",3],["2023-03-22",3.5],["2023-05-10",3.75],["2023-06-21",4],["2023-08-02",4.25],["2023-09-20",4.5],["2024-06-12",4.25],["2024-09-18",3.65],["2024-10-23",3.4],["2024-12-18",3.15],["2025-02-05",2.9],["2025-03-12",2.65],["2025-04-23",2.4],["2025-06-11",2.15],["2026-06-17",2.4],["2026-09-16",2.65]];
 // D.Lgs. 231/2002 — tasso BCE di riferimento per semestre (maggiorazione +8 dal 2013, +7 prima)
 const TASSI_BCE = {
   "2013-1":0.75,"2013-2":0.5,"2014-1":0.25,"2014-2":0.15,"2015-1":0.05,"2015-2":0.05,
@@ -588,6 +604,54 @@ const testoDi=el=>!el?"":((el.innerText!=null?el.innerText:el.textContent)||"");
 
 /* ===================== MOTORI DI CALCOLO ===================== */
 const ENGINES = {
+  // Sanzioni civili INPS (art. 116, c. 8-9, L. 388/2000 come modificato dall'art. 30 DL 19/2024; circ. INPS 90/2024 e 98/2026)
+  sanzioniInps(imp, scad, pag, tipo, modo, denuncia, notifica){
+    if(!(imp>0)||!/^\d{4}-\d{2}-\d{2}$/.test(scad||"")||!/^\d{4}-\d{2}-\d{2}$/.test(pag||"")) return null;
+    if(scad<"2009-01-01") return {errore:"Scadenze anteriori al 2009 non gestite."};
+    if(pag<=scad) return {errore:"La data di pagamento deve essere successiva alla scadenza."};
+    const piu=(d,n)=>new Date(pd(d)+n*86400000).toISOString().slice(0,10);
+    const piuMesi=(d,n)=>{ const x=new Date(pd(d)); x.setUTCMonth(x.getUTCMonth()+n); return x.toISOString().slice(0,10); };
+    const avvisi=[]; let magg=5.5, fisso=null, cap=40, meta=false, regime;
+    const nuovo=scad>="2024-09-01";
+    if(tipo==="omissione"){
+      if(modo==="accertamento"){
+        if(!notifica) return {errore:"Indica la data di notifica dell'accertamento o della contestazione."};
+        regime="Omissione rilevata dall'INPS: tasso BCE + 5,5 punti, tetto 40%";
+        if(notifica>="2024-09-01"&&pag<=piu(notifica,30)){ meta=true; regime+=", ridotta del 50% per pagamento entro 30 giorni dalla notifica (lett. b-bis)"; }
+        else if(notifica>="2024-09-01") avvisi.push("Pagamento oltre 30 giorni dalla notifica: niente riduzione del 50% (lett. b-bis).");
+      } else if(nuovo&&pag<=piu(scad,120)){ magg=0; regime="Ravvedimento entro 120 giorni dalla scadenza: solo tasso BCE, senza maggiorazione (lett. a)"; avvisi.push("Il beneficio richiede il pagamento in unica soluzione (anche con più versamenti, purché tutto entro i 120 giorni), spontaneo e prima di contestazioni o richieste dell'INPS; non spetta in caso di rateazione."); }
+      else { regime="Omissione: tasso BCE + 5,5 punti in ragione d'anno, tetto 40% (lett. a)"; if(!nuovo) avvisi.push("Scadenza anteriore al 1° settembre 2024: il ravvedimento entro 120 giorni non si applica (circ. INPS 90/2024)."); else avvisi.push(`Oltre i 120 giorni dalla scadenza (${fmtD(piu(scad,120))}): sanzione nella misura ordinaria.`); }
+    } else {
+      fisso=30; cap=60; regime="Evasione: 30% in ragione d'anno, tetto 60% (lett. b)";
+      if(modo==="accertamento"){
+        if(!notifica) return {errore:"Indica la data di notifica dell'accertamento o della contestazione."};
+        if(notifica>="2024-09-01"&&pag<=piu(notifica,30)){ meta=true; regime+=", ridotta del 50% per pagamento entro 30 giorni dalla notifica (lett. b-bis)"; }
+      } else {
+        if(!denuncia) return {errore:"Indica la data della denuncia spontanea all'INPS."};
+        if(denuncia<scad) return {errore:"La denuncia non può precedere la scadenza del versamento."};
+        if(pag<denuncia) return {errore:"Il pagamento non può precedere la denuncia."};
+        const entro12=denuncia<=piuMesi(scad,12);
+        if(!entro12) avvisi.push(`Denuncia oltre dodici mesi dalla scadenza (termine ${fmtD(piuMesi(scad,12))}): nessuna riduzione, si applica la misura dell'evasione.`);
+        else if(pag<=piu(denuncia,30)){ fisso=null; magg=5.5; cap=40; regime="Ravvedimento per evasione: denuncia spontanea entro 12 mesi e pagamento entro 30 giorni → tasso BCE + 5,5 punti, tetto 40%"; }
+        else if(denuncia>="2024-09-01"&&pag<=piu(denuncia,90)){ fisso=null; magg=7.5; cap=40; regime="Ravvedimento per evasione: denuncia spontanea entro 12 mesi e pagamento entro 90 giorni → tasso BCE + 7,5 punti, tetto 40%"; }
+        else avvisi.push(denuncia>="2024-09-01"?"Pagamento oltre 90 giorni dalla denuncia: si applica la misura dell'evasione.":"Denuncia anteriore al 1° settembre 2024: il termine di 90 giorni non era previsto; pagamento oltre 30 giorni dalla denuncia → misura dell'evasione.");
+      }
+    }
+    // periodi a tasso costante, dal giorno successivo alla scadenza al giorno del pagamento (base 365)
+    const periodi=[]; let d=piu(scad,1);
+    while(d<=pag){
+      let tur=0, prossimo=null; for(const [x,v] of TUR_BCE){ if(x<=d) tur=v; else { prossimo=x; break; } }
+      const fine = fisso!=null ? pag : (prossimo&&prossimo<=pag ? piu(prossimo,-1) : pag);
+      const g=daysBetween(piu(d,-1),fine), tasso=fisso!=null?fisso:r2(tur+magg);
+      periodi.push({dal:d,al:fine,giorni:g,tur:fisso!=null?null:tur,tasso,sanzione:r2(imp*tasso/100*g/365)});
+      d=piu(fine,1);
+    }
+    const lordo=r2(periodi.reduce((s,p)=>s+p.sanzione,0)), tetto=r2(imp*cap/100), alTetto=lordo>tetto;
+    let sanzione=alTetto?tetto:lordo;
+    if(alTetto) avvisi.push(`Raggiunto il tetto del ${cap}% dei contributi: sul debito residuo maturano poi gli interessi di mora dell'art. 30 DPR 602/1973 (art. 116, c. 9), non compresi in questo calcolo.`);
+    const intera=sanzione; if(meta) sanzione=r2(sanzione/2);
+    return {imp,scad,pag,giorni:daysBetween(scad,pag),regime,periodi,lordo,tetto,cap,alTetto,intera,meta,sanzione,totale:r2(imp+sanzione),avvisi};
+  },
   interessiLegali(cap, da, a){
     if(!(cap>0)||!da||!a||pd(a)<=pd(da)) return null;
     const periodi=[]; let tot=0;
@@ -1404,6 +1468,7 @@ const CATALOG = [
     {id:"parcella-penale", title:"Parcella penale — parametri forensi", desc:"Compenso dell'avvocato nel processo penale per autorità e fase (tabella 15), con più autorità, variazioni, più assistiti, patrocinio a spese dello Stato, spese generali, CPA, IVA e ritenuta.", refs:"DM 10/03/2014 n. 55, artt. 12, 15, 16 — tabella 15 sostituita dal DM 13/08/2022 n. 147 (GU n. 236 dell'8/10/2022) — art. 106-bis DPR 115/2002", status:"free"},
   ]},
   {group:"Lavoro", items:[
+    {id:"sanzioni-inps", title:"Sanzioni civili INPS e ravvedimento sui contributi", desc:"Contributi versati in ritardo: omissione o evasione, ravvedimento entro 120 giorni, denuncia spontanea entro 12 mesi, riduzione del 50% dopo l'accertamento, tasso BCE giorno per giorno e tetti del 40% e del 60%.", refs:"Art. 116, c. 8-9, L. 388/2000 (art. 30 DL 19/2024) — circ. INPS 90/2024 e 98/2026 — DM MEF 26/09/2005", status:"free"},
     {id:"tfr", title:"TFR — trattamento di fine rapporto", desc:"Art. 2120 c.c.: quote annue, rivalutazione con indici FOI reali (1,5% + 75% ISTAT), imposta sostitutiva 17%, netto in tassazione separata.", refs:"Art. 2120 c.c. — L. 297/1982 — art. 19 TUIR (dal 1° gennaio 2027 art. 21 TU imposte sui redditi, D.Lgs. 117/2026) — indici FOI ISTAT (serie reale)", status:"free"},
   ]},
   {group:"Immobili, locazioni e successioni", items:[
@@ -1430,6 +1495,7 @@ const state = {inputs:{}};
 
 // Ricerca dei calcolatori: titolo, descrizione, gruppo e parole chiave (anche sinonimi d'uso comune)
 const CERCA_KW={"danno-micro":"risarcimento sinistro incidente lesioni lievi colpo di frusta rc auto","danno-tun":"risarcimento sinistro incidente invalidita macropermanenti","danno-milano":"risarcimento invalidita tabelle milanesi","danno-parentale":"risarcimento morte congiunto lutto",
+  "sanzioni-inps":"ravvedimento inps contributi ritardato pagamento omissione evasione sanzioni civili artigiani commercianti gestione separata colf",
   "interessi-legali":"saggio legale interessi","interessi-mora":"ritardato pagamento fatture commerciali transazioni","rivalutazione":"istat inflazione svalutazione","scadenze":"termini processuali calcolo termini appello cassazione","contributo-unificato":"cu marca iscrizione a ruolo",
   "parcella":"compenso onorario avvocato notula dm 55","parcella-penale":"compenso onorario difensore penale","preventivo":"compenso onorario cliente","pignoramento":"quinto stipendio pensione","prescrizione":"termine diritto credito","precetto":"esecuzione titolo esecutivo",
   "usura":"mutuo tasso soglia teg banca interessi usurari","quote-ereditarie":"eredita successione legittima eredi testamento","successione":"tasse eredita","pena":"patteggiamento abbreviato condanna","prescrizione-reato":"estinzione reato",
@@ -2600,6 +2666,36 @@ const VIEWS = {
         <div class="note">Valori medi delle tabelle allegate al DM 147/2022, applicabili alle prestazioni esaurite dal 23/10/2022; il giudice o le parti possono aumentarli fino al 50% o ridurli non oltre il 50% (art. 4, c. 1). Per le cause oltre 520.000 € l'art. 6 consente fino al 30% in più per ogni fascia (1, 2, 4, 8 milioni e raddoppi successivi); per lo stragiudiziale oltre 520.000 € si applica la percentuale decrescente dell'art. 22. Spese generali nella misura del 15% del compenso (art. 2, c. 2). Il preventivo scritto è obbligatorio (art. 13, c. 5, L. 247/2012).</div>`)}</div>${actions([{to:"interessi-mora",val:R.totale,label:"Parcella",testo:"Calcola interessi di mora →"}])}`;
     }
   },
+  "sanzioni-inps":{
+    form:()=>{
+      const tipo=state.inputs.siTipo||"omissione", modo=state.inputs.siModo||"spontaneo";
+      return [
+        field("siImp","Contributi non versati (€)","number",1000,{min:0,step:0.01,full:true}),
+        field("siTipo","Tipo di violazione","select","omissione",{full:true,rerender:true,options:[["omissione","Omissione: denuncia presentata, contributi non versati o versati in ritardo"],["evasione","Evasione: denuncia omessa o non conforme al vero"]]}),
+        field("siModo","Come avviene la regolarizzazione","select","spontaneo",{full:true,rerender:true,options:[["spontaneo",tipo==="evasione"?"Denuncia spontanea, prima di richieste dell'INPS":"Pagamento spontaneo, prima di richieste dell'INPS"],["accertamento","Dopo accertamento d'ufficio o verifica ispettiva"]]}),
+        field("siScad","Scadenza di legge del versamento","date","2026-06-16"),
+        tipo==="evasione"&&modo==="spontaneo"?field("siDen","Data della denuncia spontanea","date","2026-07-20"):"",
+        modo==="accertamento"?field("siNot","Data di notifica della contestazione","date","2026-08-10"):"",
+        field("siPag","Data del pagamento","date","2026-08-31"),
+      ].join("");
+    },
+    result:()=>{
+      const tipo=val("siTipo")||"omissione", modo=val("siModo")||"spontaneo";
+      const R=ENGINES.sanzioniInps(num("siImp"),val("siScad"),val("siPag"),tipo,modo,tipo==="evasione"&&modo==="spontaneo"?val("siDen"):null,modo==="accertamento"?val("siNot"):null);
+      if(!R) return empty("Inserisci importo, scadenza e data di pagamento.");
+      if(R.errore) return empty(esc(R.errore));
+      return `<div class="total"><div class="eyebrow">Sanzione civile INPS</div><div class="big">${fmt.format(R.sanzione)}</div><div class="sub">da versare ${fmt.format(R.totale)} (contributi ${fmt.format(R.imp)} + sanzione) · ${R.giorni} giorni di ritardo, dal ${fmtD(R.scad)} al ${fmtD(R.pag)}</div></div>
+      <div class="pb"><div class="note" style="margin:0 0 10px"><b>Regime applicato:</b> ${esc(R.regime)}.</div>
+      ${R.avvisi.map(x=>`<div class="warn" style="margin:0 0 8px">${esc(x)}</div>`).join("")}
+      ${gate(`<div class="tblwrap"><table class="rows"><tr><th>Periodo</th><th class="r">Giorni</th><th class="r">Tasso BCE</th><th class="r">Misura annua</th><th class="r">Sanzione</th></tr>
+      ${R.periodi.map(p=>`<tr><td>${fmtD(p.dal)} – ${fmtD(p.al)}</td><td class="r">${p.giorni}</td><td class="r">${p.tur==null?"—":fmtN(p.tur,2)+" %"}</td><td class="r">${fmtN(p.tasso,2)} %</td><td class="r">${fmt.format(p.sanzione)}</td></tr>`).join("")}
+      <tr class="sum"><td colspan="4">Sanzione maturata</td><td class="r">${fmt.format(R.lordo)}</td></tr>
+      <tr><td colspan="4">Tetto del ${R.cap}% dei contributi</td><td class="r">${fmt.format(R.tetto)}</td></tr>
+      ${R.meta?`<tr><td colspan="4">Riduzione del 50% (lett. b-bis) su ${fmt.format(R.intera)}</td><td class="r">−${fmt.format(r2(R.intera-R.sanzione))}</td></tr>`:""}
+      <tr class="sum"><td colspan="4">Sanzione civile dovuta</td><td class="r">${fmt.format(R.sanzione)}</td></tr></table></div>
+      <div class="note">Art. 116, c. 8, L. 388/2000, come modificato dall'art. 30 DL 19/2024 dal 1° settembre 2024 (circ. INPS 90/2024): <b>omissione</b> (contributi rilevabili dalle denunce) tasso BCE delle operazioni di rifinanziamento principali, ex TUR (DM MEF 26/09/2005), maggiorato di 5,5 punti, tetto 40%; senza maggiorazione se il pagamento avviene entro 120 giorni dalla scadenza, in unica soluzione e spontaneamente (per le scadenze dal 1° settembre 2024). <b>Evasione</b>: 30% annuo, tetto 60%; con denuncia spontanea entro 12 mesi dalla scadenza, tasso BCE + 5,5 punti se si paga entro 30 giorni dalla denuncia o + 7,5 punti entro 90 giorni (dal 1° settembre 2024), tetto 40%. <b>Accertamento d'ufficio o ispettivo</b> notificato dal 1° settembre 2024: sanzione ordinaria ridotta del 50% se si paga entro 30 giorni dalla notifica (lett. b-bis). La sanzione decorre dal giorno successivo alla scadenza fino al pagamento; il calcolo applica a ciascun giorno il tasso BCE in vigore (la misura varia "a decorrere" da ogni decisione BCE, circ. INPS 98/2026), base 365. Le rateazioni, le riduzioni per crisi o procedure concorsuali (c. 15-16) e il caso delle incertezze interpretative (c. 10: soli interessi legali) non sono gestiti. La quantificazione definitiva spetta all'INPS, che verifica il regime in base alla data effettiva del pagamento (circ. 90/2024, par. 4).</div>`)}</div>${actions()}`;
+    }
+  },
   "interessi-legali":{
     form:()=>[
       field("cap","Capitale (€)","number",10000,{min:0,step:0.01,full:true}),
@@ -2711,6 +2807,7 @@ function route(){
 window.addEventListener("hashchange",route);
 document.documentElement.lang="it";   // necessario per la sillabazione automatica
 LIC.load(); STUDIO.load(); refreshBadge();
+TEMA.applica(TEMA.get()); $("#btnTema").onclick=()=>TEMA.cambia();
 $("#footTitolare").innerHTML=`Servizio erogato da ${esc(TITOLARE.nome)}${TITOLARE.forma?" ("+esc(TITOLARE.forma)+")":""}${TITOLARE.costituzione?" (in costituzione)":""}${TITOLARE.indirizzo?" — "+esc(TITOLARE.indirizzo):""}${TITOLARE.piva?" — P. IVA "+esc(TITOLARE.piva):""} — <a href="mailto:${esc(TITOLARE.email)}">${esc(TITOLARE.email)}</a>`;
 $("#footMail").href=`mailto:${TITOLARE.email}?subject=${encodeURIComponent("Calcoli Forensi — assistenza")}`;
 $("#dlgMail").href=`mailto:${TITOLARE.email}?subject=${encodeURIComponent("Calcoli Forensi — recupero chiave di licenza")}`; $("#footVersion").textContent="Versione "+CONFIG.version+" · Ultima verifica delle fonti normative e giurisprudenziali: "+MONITOR.fonti+" · Ultimo controllo automatico dei dati (ISTAT, test di calcolo): "+MONITOR.dati+" · Tabelle: saggio legale 2026, BCE 2° sem. 2026, DM 20/07/2026 (art. 139), DPR 12/2025 (TUN), Tabelle milanesi ed. 2024, DM 147/2022, DPR 115/2002.";
@@ -2723,6 +2820,11 @@ const TESTS = [
   ["micro 1%/70a",()=>ENGINES.dannoMicro(1,70,0,0,0,0,0,"2025").totale,674.38],
   ["micro 9%/20a",()=>ENGINES.dannoMicro(9,20,30,15,0,40,0,"2025").totale,15784.24],
   ["micro 3%/50a +20%",()=>ENGINES.dannoMicro(3,50,5,0,0,0,20,"2025").totale,3389.13],
+  ["INPS omissione ravvedimento 120 gg (76 gg al 2,40%)",()=>ENGINES.sanzioniInps(1000,"2026-06-16","2026-08-31","omissione","spontaneo").sanzione,5.00],
+  ["INPS omissione oltre 120 gg (91 gg al 7,90% + 45 al 8,15%)",()=>ENGINES.sanzioniInps(1000,"2026-06-16","2026-10-30","omissione","spontaneo").sanzione,29.75],
+  ["INPS omissione scadenza ante 1/9/2024: niente 120 gg (74 gg al 9,75%)",()=>ENGINES.sanzioniInps(1000,"2024-06-17","2024-08-30","omissione","spontaneo").sanzione,19.77],
+  ["INPS evasione ordinaria al tetto del 60%",()=>ENGINES.sanzioniInps(1000,"2022-01-17","2026-01-17","evasione","accertamento",null,"2023-01-10").sanzione,600],
+  ["INPS evasione accertata, pagata entro 30 gg dalla notifica: 50% del tetto",()=>ENGINES.sanzioniInps(1000,"2022-01-17","2026-01-17","evasione","accertamento",null,"2025-12-20").sanzione,300],
   ["legali 10k 2021→2026",()=>ENGINES.interessiLegali(10000,"2021-03-15","2026-09-17").totale,1190.45],
   ["legali 5k 2015→2020",()=>ENGINES.interessiLegali(5000,"2015-06-01","2020-06-01").totale,85.66],
   ["mora 25k 2024→2026",()=>ENGINES.interessiMora(25000,"2024-01-10","2026-09-17").totale,7498.97],

@@ -4,7 +4,7 @@
 // Uso: node app/scripts/update_bce.js → exit 0 nessuna novità, 10 aggiornato, 1 errore, 2 discordanza
 const fs = require("fs"), path = require("path");
 const FILE = path.join(__dirname, "..", "index.html");
-const API = "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MRR_FR.LEV?startPeriod=2012-06-01&format=csvdata";
+const API = "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MRR_FR.LEV?startPeriod=2008-10-01&format=csvdata";
 
 (async () => {
   try {
@@ -16,7 +16,16 @@ const API = "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MRR_F
     if (serie.length < 1000) throw new Error("serie BCE incompleta");
     const inVigore = d => { let v = null; for (const [x, y] of serie) if (x <= d) v = y; return v; };
 
-    const html = fs.readFileSync(FILE, "utf8");
+    let html = fs.readFileSync(FILE, "utf8"), cambiato = false;
+    // TUR_BCE: tutte le variazioni del tasso (sanzioni civili INPS, art. 116 L. 388/2000), con la data di decorrenza
+    { const mt = html.match(/const TUR_BCE = (\[\[[\s\S]*?\]\]);/); if (!mt) throw new Error("TUR_BCE non trovato");
+      const sito = JSON.parse(mt[1]), bce = []; let prec = null;
+      for (const [d, v] of serie) if (d >= "2008-10-15" && v !== prec) { bce.push([d, v]); prec = v; }
+      const disc = sito.filter(([d, v]) => { const b = bce.find(x => x[0] === d); return !b || Math.abs(b[1] - v) > 0.001; });
+      if (disc.length) { console.log("DISCORDANZA TUR_BCE con la BCE (nessuna modifica automatica):", JSON.stringify(disc)); process.exit(2); }
+      const nuove = bce.filter(([d]) => !sito.some(x => x[0] === d));
+      if (nuove.length) { html = html.replace(mt[0], "const TUR_BCE = " + JSON.stringify(bce) + ";"); cambiato = true;
+        console.log("Tasso BCE (sanzioni INPS) aggiornato:", nuove.map(([d, v]) => `${v}% dal ${d}`).join(", ")); } }
     const m = html.match(/const TASSI_BCE = \{([\s\S]*?)\};/);
     const attuali = {}; for (const x of m[1].matchAll(/"(\d{4}-[12])":([\d.]+)/g)) attuali[x[1]] = +x[2];
 
@@ -30,7 +39,7 @@ const API = "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MRR_F
       else if (Math.abs(attuali[k] - v) > 0.001) discordanze.push(`${k}: sito ${attuali[k]} / BCE ${v}`);
     }
     if (discordanze.length) { console.log("DISCORDANZA con la BCE (nessuna modifica automatica):", discordanze.join("; ")); process.exit(2); }
-    if (!Object.keys(nuovi).length) { console.log("BCE: nessun semestre nuovo (ultimo in tabella: " + Object.keys(attuali).sort().pop() + ")"); process.exit(0); }
+    if (!Object.keys(nuovi).length) { if (cambiato) { fs.writeFileSync(FILE, html); process.exit(10); } console.log("BCE: nessun semestre nuovo (ultimo in tabella: " + Object.keys(attuali).sort().pop() + ")"); process.exit(0); }
     const tutti = { ...attuali, ...nuovi };
     const corpo = Object.keys(tutti).sort().map(k => `"${k}":${tutti[k]}`).join(",");
     let out = html.replace(/const TASSI_BCE = \{[\s\S]*?\};/, `const TASSI_BCE = {\n  ${corpo}\n};`);

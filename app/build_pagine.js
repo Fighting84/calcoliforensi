@@ -27,6 +27,7 @@ const PAGINE = {
   "pena": ["calcolo-pena-patteggiamento-abbreviato", "Calcolo della pena: circostanze, patteggiamento e abbreviato"],
   "prescrizione-reato": ["calcolo-prescrizione-reato", "Calcolo prescrizione del reato (Cirielli, Orlando, Bonafede, Cartabia)"],
   "parcella-penale": ["calcolo-parcella-avvocato-penale", "Calcolo parcella avvocato penale: parametri forensi"],
+  "sanzioni-inps": ["calcolo-sanzioni-civili-inps", "Calcolo sanzioni civili INPS 2026 e ravvedimento sui contributi"],
   "tfr": ["calcolo-tfr", "Calcolo TFR: rivalutazione e tassazione"],
   "imu": ["calcolo-imu-valore-catastale", "Calcolo IMU e valore catastale"],
   "compravendita": ["imposte-acquisto-casa", "Calcolo imposte sull'acquisto di un immobile: registro, IVA, ipotecaria e catastale"],
