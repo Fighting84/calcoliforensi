@@ -6,7 +6,7 @@ const body = src.replace(/^<meta charset="utf-8">\s*/i, "").replace(/^<title>.*?
 const ANALYTICS_TOKEN = "";
 const contatore = ANALYTICS_TOKEN ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"${ANALYTICS_TOKEN}","spa":true}'></script>
 ` : "";
-const title = "Calcoli Forensi — calcolatori legali e fiscali per professionisti";
+const title = "Ponderis — calcoli forensi: calcolatori legali e fiscali per professionisti";
 const desc = "Calcolatori per avvocati, commercialisti, consulenti del lavoro, notai, agenti immobiliari, medici legali e CAF: danno biologico (TUN, art. 139, Tabelle di Milano), interessi e rivalutazione ISTAT, parcella DM 55/2014, scadenze, TFR, IMU, successioni, locazioni. Formula e fonte accanto a ogni risultato, dati aggiornati ogni giorno.";
 const out = `<!doctype html>
 <html lang="it">
@@ -22,9 +22,10 @@ const out = `<!doctype html>
 <meta property="og:url" content="https://calcoliforensi.it/">
 <meta property="og:locale" content="it_IT">
 <meta name="robots" content="index,follow">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230E5A48'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='34' font-weight='700' text-anchor='middle' fill='white'%3ECF%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+<meta property="og:site_name" content="Ponderis">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Calcoli Forensi","url":"https://calcoliforensi.it/","applicationCategory":"BusinessApplication","operatingSystem":"Web","inLanguage":"it","description":"${desc}","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR","name":"Risultato dei calcoli"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Ponderis — calcoli forensi","url":"https://calcoliforensi.it/","applicationCategory":"BusinessApplication","operatingSystem":"Web","inLanguage":"it","description":"${desc}","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR","name":"Risultato dei calcoli"}}
 </script>
 <style>
 html{color-scheme:light dark}

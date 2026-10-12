@@ -3,7 +3,7 @@
   try {
     const r = await fetch("https://calcoliforensi.it/", { redirect: "follow", headers: { "User-Agent": "calcoliforensi.it monitor" } });
     const t = await r.text();
-    const ok = r.status === 200 && t.includes("Calcoli Forensi") && t.includes("const ENGINES");
+    const ok = r.status === 200 && /Ponderis|Calcoli Forensi/.test(t) && t.includes("const ENGINES");
     const v = (t.match(/version: "([^"]+)"/) || [])[1];
     console.log(`sito: HTTP ${r.status}, ${t.length} byte, versione ${v || "?"} → ${ok ? "OK" : "PROBLEMA"}`);
     process.exit(ok ? 0 : 1);

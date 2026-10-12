@@ -79,7 +79,7 @@ async function costruisci() {
   for (const c of elenco) {
     const [slug, titolo] = PAGINE[c.id];
     const url = `${SITO}/${slug}/`;
-    const t = `${titolo} | Calcoli Forensi`;
+    const t = `${titolo} | Ponderis`;
     const v = await disegna(c.id);
     let html = conPiede(base)
       .replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(t)}</title>`)

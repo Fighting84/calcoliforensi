@@ -3,18 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Rivalutazione monetaria ISTAT e interessi sul capitale rivalutato | Calcoli Forensi</title>
+<title>Rivalutazione monetaria ISTAT e interessi sul capitale rivalutato | Ponderis</title>
 <meta name="description" content="Indici FOI mensili con raccordo tra basi; interessi legali sul capitale rivalutato anno per anno (Cass. SU 1712/1995).">
 <link rel="canonical" href="https://calcoliforensi.it/rivalutazione-monetaria-istat/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Rivalutazione monetaria ISTAT e interessi sul capitale rivalutato | Calcoli Forensi">
+<meta property="og:title" content="Rivalutazione monetaria ISTAT e interessi sul capitale rivalutato | Ponderis">
 <meta property="og:description" content="Indici FOI mensili con raccordo tra basi; interessi legali sul capitale rivalutato anno per anno (Cass. SU 1712/1995).">
 <meta property="og:url" content="https://calcoliforensi.it/rivalutazione-monetaria-istat/">
 <meta property="og:locale" content="it_IT">
 <meta name="robots" content="index,follow">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230E5A48'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='34' font-weight='700' text-anchor='middle' fill='white'%3ECF%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+<meta property="og:site_name" content="Ponderis">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Calcoli Forensi","url":"https://calcoliforensi.it/","applicationCategory":"BusinessApplication","operatingSystem":"Web","inLanguage":"it","description":"Calcolatori per avvocati, commercialisti, consulenti del lavoro, notai, agenti immobiliari, medici legali e CAF: danno biologico (TUN, art. 139, Tabelle di Milano), interessi e rivalutazione ISTAT, parcella DM 55/2014, scadenze, TFR, IMU, successioni, locazioni. Formula e fonte accanto a ogni risultato, dati aggiornati ogni giorno.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR","name":"Risultato dei calcoli"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Ponderis — calcoli forensi","url":"https://calcoliforensi.it/","applicationCategory":"BusinessApplication","operatingSystem":"Web","inLanguage":"it","description":"Calcolatori per avvocati, commercialisti, consulenti del lavoro, notai, agenti immobiliari, medici legali e CAF: danno biologico (TUN, art. 139, Tabelle di Milano), interessi e rivalutazione ISTAT, parcella DM 55/2014, scadenze, TFR, IMU, successioni, locazioni. Formula e fonte accanto a ogni risultato, dati aggiornati ogni giorno.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR","name":"Risultato dei calcoli"}}
 </script>
 <style>
 html{color-scheme:light dark}
@@ -77,9 +78,11 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0;text-
 /* ---------- shell ---------- */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
 .top-in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;color:var(--ink)}
-.brand b{font-family:var(--serif);font-size:20px;font-weight:600}
-.brand span{font-size:12px;color:var(--ink-3)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand .logo{flex:none;display:block}
+.brand-txt{display:flex;flex-direction:column;line-height:1.15}
+.brand b{font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:.01em}
+.brand-txt span{font-size:12px;color:var(--ink-3)}
 .top-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px;border-radius:var(--radius);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-weight:500;font-size:14px}
 .btn:hover{background:var(--surface-2)}
@@ -251,7 +254,7 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 
 <header class="top">
   <div class="top-in">
-    <a class="brand" href="#/"><b>Calcoli Forensi</b><span>calcolatori legali e fiscali, aggiornati</span></a>
+    <a class="brand" href="#/" aria-label="Ponderis — calcoli forensi"><svg class="logo" viewBox="0 0 64 64" width="38" height="38" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0E5A48"/><path d="M32 15v33M23 49h18" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/><path d="M14 22.5h36" stroke="#E2B65E" stroke-width="3.6" stroke-linecap="round"/><circle cx="32" cy="14.5" r="3.2" fill="#E2B65E"/><path d="M17 23l-5.5 13M17 23l5.5 13M47 23l-5.5 13M47 23l5.5 13" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M10 36h14a7 7 0 0 1-14 0zM40 36h14a7 7 0 0 1-14 0z" fill="#fff"/></svg><span class="brand-txt"><b>Ponderis</b><span>calcoli forensi · calcolatori legali e fiscali</span></span></a>
     <div class="top-actions">
       <span id="licenseBadge" class="pill free">Versione gratuita</span>
       <button class="btn btn-tema" id="btnTema" type="button" aria-label="Tema: automatico" title="Tema: automatico (segue il dispositivo)">◐</button>
@@ -284,7 +287,7 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 </div>
 
 <footer class="foot">
-  <p><strong>Calcoli Forensi</strong> — strumenti di calcolo per professionisti dell'area legale, fiscale, del lavoro e immobiliare. I risultati sono elaborazioni automatiche su dati normativi e tabellari pubblici e non costituiscono consulenza legale; la verifica finale spetta al professionista.</p>
+  <p><strong>Ponderis</strong> · calcoli forensi — strumenti di calcolo per professionisti dell'area legale, fiscale, del lavoro e immobiliare. I risultati sono elaborazioni automatiche su dati normativi e tabellari pubblici e non costituiscono consulenza legale; la verifica finale spetta al professionista.</p>
   <p class="foot-links"><a href="#/informazioni">Informazioni, condizioni e privacy</a> · <a href="#/impostazioni">Impostazioni</a> · <a href="#/storico">Storico</a> · <a href="#/piani">Piani</a> · <a id="footMail" href="#">Assistenza</a></p>
   <p class="foot-calc">Calcolatori: <a href="/calcolo-danno-biologico-micropermanenti/">Danno biologico — micropermanenti</a> · <a href="/calcolo-danno-biologico-tabella-unica-nazionale/">Danno biologico — Tabella Unica Nazionale (art. 138)</a> · <a href="/calcolo-danno-tabelle-milano/">Danno non patrimoniale — Tabelle di Milano</a> · <a href="/calcolo-danno-perdita-rapporto-parentale/">Danno da perdita del rapporto parentale</a> · <a href="/calcolo-interessi-legali/">Interessi legali</a> · <a href="/verifica-usura-tassi-soglia/">Verifica dell'usura (tassi soglia)</a> · <a href="/calcolo-interessi-di-mora/">Interessi di mora commerciali</a> · <a href="/rivalutazione-monetaria-istat/">Rivalutazione monetaria ISTAT</a> · <a href="/calcolo-termini-processuali/">Scadenze processuali civili</a> · <a href="/calendario-memorie-cartabia/">Calendario del processo civile (Cartabia)</a> · <a href="/calcolo-contributo-unificato/">Contributo unificato</a> · <a href="/calcolo-parcella-avvocato/">Parcella avvocato — parametri forensi</a> · <a href="/preventivo-avvocato/">Preventivo ex art. 13 L. 247/2012</a> · <a href="/calcolo-atto-di-precetto/">Atto di precetto</a> · <a href="/calcolo-prescrizione-diritti/">Prescrizione dei diritti</a> · <a href="/calcolo-pignoramento-stipendio-pensione/">Pignoramento di stipendio e pensione</a> · <a href="/calcolo-pena-patteggiamento-abbreviato/">Determinazione della pena, patteggiamento e abbreviato</a> · <a href="/calcolo-prescrizione-reato/">Prescrizione del reato</a> · <a href="/calcolo-parcella-avvocato-penale/">Parcella penale — parametri forensi</a> · <a href="/calcolo-sanzioni-civili-inps/">Sanzioni civili INPS e ravvedimento sui contributi</a> · <a href="/calcolo-tfr/">TFR — trattamento di fine rapporto</a> · <a href="/calcolo-imu-valore-catastale/">IMU e valore catastale</a> · <a href="/imposte-acquisto-casa/">Imposte sull'acquisto di un immobile</a> · <a href="/calcolo-quote-ereditarie-legittima/">Quote ereditarie e legittima</a> · <a href="/calcolo-imposta-di-successione/">Imposta di successione e donazione</a> · <a href="/calcolo-usufrutto-nuda-proprieta/">Usufrutto e nuda proprietà</a> · <a href="/aggiornamento-istat-canone-locazione/">Adeguamento ISTAT del canone</a> · <a href="/cedolare-secca-o-irpef/">Cedolare secca o IRPEF?</a> · <a href="/calcolo-ravvedimento-operoso/">Ravvedimento operoso — sanzioni, interessi e F24</a> · <a href="/prescrizione-cartelle-imposte-tributi/">Prescrizione e decadenza di imposte, tributi e cartelle</a> · <a href="/cambi-valute-banca-italia/">Cambi delle valute e lire-euro</a> · <a href="/compilazione-modello-f24/">Modello F24 — compilazione e stampa</a></p><p id="footTitolare"></p>
   <p id="footVersion"></p>
@@ -315,13 +318,13 @@ TEMA.applica(TEMA.get());
 // (obblighi informativi: art. 7 D.Lgs. 70/2003, art. 2250 c.c.)
 const TITOLARE = {
   // fase sperimentale: ditta individuale del socio (in futuro Ponderis S.r.l.s.: tornare a forma "società" con REA e capitale)
-  nome:"Giacomello Fabio", forma:"ditta individuale", costituzione:false,
-  indirizzo:"Pianiga (VE)", piva:"04399910274", rea:"", capitale:"", pec:"", rappresentante:"",
-  email:"studiolegaleometto@gmail.com"
+  nome:"", forma:"ditta individuale", costituzione:false,
+  indirizzo:"", piva:"04399910274", rea:"", capitale:"", pec:"", rappresentante:"",
+  email:""   // indirizzo di assistenza Ponderis in attivazione
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.22.0 — 7 ottobre 2026",
+  version: "0.23.0 — 12 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -1594,17 +1597,17 @@ function renderInfo(){
   $("#main").innerHTML=`<div class="head"><h1>Informazioni, condizioni e contatti</h1><p>Chi eroga il servizio, come funzionano gli abbonamenti, come vengono trattati i dati e come ottenere assistenza.</p></div>
   <div class="panel"><div class="pb">
     <div class="eyebrow" style="margin-bottom:6px">Titolare del servizio</div>
-    <table class="rows testo"><tr><td>Denominazione</td><td class="r">${esc(T.nome)}${T.forma?` (${esc(T.forma)})`:""}</td></tr>
+    <table class="rows testo">${T.nome?`<tr><td>Denominazione</td><td class="r">${esc(T.nome)}${T.forma?` (${esc(T.forma)})`:""}</td></tr>`:""}
     ${T.costituzione?`<tr><td>Stato</td><td class="r">società in costituzione</td></tr>`:""}
-    <tr><td>${T.forma==="ditta individuale"?"Sede":"Sede legale"}</td><td class="r">${esc(T.indirizzo||ND)}</td></tr>
+    ${T.indirizzo||T.forma!=="ditta individuale"?`<tr><td>${T.forma==="ditta individuale"?"Sede":"Sede legale"}</td><td class="r">${esc(T.indirizzo||ND)}</td></tr>`:""}
     <tr><td>${T.forma==="ditta individuale"?"Partita IVA":"Partita IVA e codice fiscale"}</td><td class="r">${esc(T.piva||ND)}</td></tr>
     ${T.forma==="ditta individuale"?"":`<tr><td>Registro delle imprese (REA)</td><td class="r">${esc(T.rea||ND)}</td></tr>
     <tr><td>Capitale sociale</td><td class="r">${esc(T.capitale||ND)}</td></tr>`}
     ${T.pec?`<tr><td>PEC</td><td class="r">${esc(T.pec)}</td></tr>`:""}
-    <tr><td>Contatti</td><td class="r"><a href="mailto:${esc(T.email)}">${esc(T.email)}</a></td></tr></table>
+    <tr><td>Contatti</td><td class="r">${T.email?`<a href="mailto:${esc(T.email)}">${esc(T.email)}</a>`:"indirizzo di assistenza in attivazione"}</td></tr></table>
 
-    <div class="eyebrow" style="margin:18px 0 6px">Che cosa è Calcoli Forensi</div>
-    <p class="just">Calcoli Forensi è uno strumento di calcolo per professionisti dell'area legale, fiscale, del lavoro e immobiliare (avvocati, commercialisti, consulenti del lavoro, notai, agenti immobiliari, medici legali, periti, patronati e CAF). Elabora valori tabellari e parametri normativi pubblici (tabelle ministeriali, decreti, indici ISTAT, criteri degli osservatori sulla giustizia civile) e ne restituisce l'applicazione al caso inserito dall'utente, con l'indicazione delle formule e delle fonti. Non è un servizio di consulenza legale, non instaura alcun rapporto professionale e non sostituisce la valutazione dell'avvocato o del consulente: ogni risultato va verificato prima dell'uso. Il servizio è rivolto a soggetti che operano nell'esercizio di attività professionale.</p>
+    <div class="eyebrow" style="margin:18px 0 6px">Che cosa è Ponderis</div>
+    <p class="just">Ponderis (calcoliforensi.it) è uno strumento di calcolo per professionisti dell'area legale, fiscale, del lavoro e immobiliare (avvocati, commercialisti, consulenti del lavoro, notai, agenti immobiliari, medici legali, periti, patronati e CAF). Elabora valori tabellari e parametri normativi pubblici (tabelle ministeriali, decreti, indici ISTAT, criteri degli osservatori sulla giustizia civile) e ne restituisce l'applicazione al caso inserito dall'utente, con l'indicazione delle formule e delle fonti. Non è un servizio di consulenza legale, non instaura alcun rapporto professionale e non sostituisce la valutazione dell'avvocato o del consulente: ogni risultato va verificato prima dell'uso. Il servizio è rivolto a soggetti che operano nell'esercizio di attività professionale.</p>
 
     <div class="eyebrow" style="margin:18px 0 6px">Abbonamenti, pagamenti e disdetta</div>
     <p class="just">Il risultato di ogni calcolatore è gratuito e non richiede registrazione. Le funzioni Pro (prospetto analitico, relazione stampabile, storico, intestazione dello studio) si attivano con una chiave di licenza inviata per email dopo l'acquisto. L'abbonamento si rinnova automaticamente alla scadenza del periodo scelto e può essere disdetto in qualsiasi momento dall'area di gestione indicata nell'email di acquisto o scrivendo all'indirizzo di contatto: la disdetta ha effetto alla scadenza del periodo già pagato, senza penali. I prezzi indicati sono comprensivi delle imposte applicabili. I pagamenti e la fatturazione sono gestiti dal fornitore di pagamento indicato in fase di acquisto, che emette il documento fiscale.</p>
@@ -1617,7 +1620,7 @@ function renderInfo(){
     <p class="just">I valori applicati sono aggiornati con verifiche automatiche quotidiane sulle fonti ufficiali (indici ISTAT e Gazzetta Ufficiale) e con controlli periodici sulla giurisprudenza; le date dell'ultima verifica sono riportate in fondo a ogni pagina e nelle relazioni stampate. Nonostante la cura impiegata, il titolare non garantisce l'assenza di errori o l'aggiornamento istantaneo rispetto a ogni modifica normativa, e non risponde delle decisioni assunte sulla base dei risultati, che l'utente professionale è tenuto a verificare. Eventuali errori segnalati all'indirizzo di contatto vengono esaminati con priorità.</p>
 
     <div class="eyebrow" style="margin:18px 0 6px">Assistenza</div>
-    <p class="just">Per assistenza, segnalazioni di errore, recupero della chiave di licenza o richieste di fatturazione: <a href="mailto:${esc(T.email)}?subject=Calcoli%20Forensi%20—%20assistenza">${esc(T.email)}</a>. Gli abbonati Studio hanno priorità nelle risposte. Indicare sempre l'indirizzo email usato per l'acquisto.</p>
+    <p class="just">Per assistenza, segnalazioni di errore, recupero della chiave di licenza o richieste di fatturazione: ${T.email?`<a href="mailto:${esc(T.email)}?subject=Ponderis%20—%20assistenza">${esc(T.email)}</a>`:"l'indirizzo di assistenza è in attivazione e sarà pubblicato a breve su questa pagina"}. Gli abbonati Studio hanno priorità nelle risposte. Indicare sempre l'indirizzo email usato per l'acquisto.</p>
 
     <div class="eyebrow" style="margin:18px 0 6px">Legge applicabile</div>
     <p class="just">Il rapporto è regolato dalla legge italiana. Per le controversie con utenti professionali è competente il foro della sede del titolare; per gli utenti consumatori resta fermo il foro del luogo di residenza o domicilio.</p>
@@ -2807,9 +2810,9 @@ window.addEventListener("hashchange",route);
 document.documentElement.lang="it";   // necessario per la sillabazione automatica
 LIC.load(); STUDIO.load(); refreshBadge();
 TEMA.applica(TEMA.get()); $("#btnTema").onclick=()=>TEMA.cambia();
-$("#footTitolare").innerHTML=`Servizio erogato da ${esc(TITOLARE.nome)}${TITOLARE.forma?" ("+esc(TITOLARE.forma)+")":""}${TITOLARE.costituzione?" (in costituzione)":""}${TITOLARE.indirizzo?" — "+esc(TITOLARE.indirizzo):""}${TITOLARE.piva?" — P. IVA "+esc(TITOLARE.piva):""} — <a href="mailto:${esc(TITOLARE.email)}">${esc(TITOLARE.email)}</a>`;
-$("#footMail").href=`mailto:${TITOLARE.email}?subject=${encodeURIComponent("Calcoli Forensi — assistenza")}`;
-$("#dlgMail").href=`mailto:${TITOLARE.email}?subject=${encodeURIComponent("Calcoli Forensi — recupero chiave di licenza")}`; $("#footVersion").textContent="Versione "+CONFIG.version+" · Ultima verifica delle fonti normative e giurisprudenziali: "+MONITOR.fonti+" · Ultimo controllo automatico dei dati (ISTAT, test di calcolo): "+MONITOR.dati+" · Tabelle: saggio legale 2026, BCE 2° sem. 2026, DM 20/07/2026 (art. 139), DPR 12/2025 (TUN), Tabelle milanesi ed. 2024, DM 147/2022, DPR 115/2002.";
+$("#footTitolare").innerHTML=[TITOLARE.nome?esc(TITOLARE.nome)+(TITOLARE.forma?" ("+esc(TITOLARE.forma)+")":""):"",TITOLARE.indirizzo?esc(TITOLARE.indirizzo):"",TITOLARE.piva?"P. IVA "+esc(TITOLARE.piva):"",TITOLARE.email?`<a href="mailto:${esc(TITOLARE.email)}">${esc(TITOLARE.email)}</a>`:""].filter(Boolean).join(" — ");
+if(TITOLARE.email) $("#footMail").href=`mailto:${TITOLARE.email}?subject=${encodeURIComponent("Ponderis — assistenza")}`; else { const m=$("#footMail"); if(m){ m.previousSibling&&m.previousSibling.nodeType===3&&(m.previousSibling.textContent=m.previousSibling.textContent.replace(/ · $/,"")); m.remove(); } }
+if(TITOLARE.email) $("#dlgMail").href=`mailto:${TITOLARE.email}?subject=${encodeURIComponent("Ponderis — recupero chiave di licenza")}`; else $("#dlgMail").removeAttribute("href"); $("#footVersion").textContent="Versione "+CONFIG.version+" · Ultima verifica delle fonti normative e giurisprudenziali: "+MONITOR.fonti+" · Ultimo controllo automatico dei dati (ISTAT, test di calcolo): "+MONITOR.dati+" · Tabelle: saggio legale 2026, BCE 2° sem. 2026, DM 20/07/2026 (art. 139), DPR 12/2025 (TUN), Tabelle milanesi ed. 2024, DM 147/2022, DPR 115/2002.";
 route();
 
 /* ===================== AUTOVERIFICA (#/verifica) ===================== */
