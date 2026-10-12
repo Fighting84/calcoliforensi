@@ -222,6 +222,7 @@ ck("pignoramento: assegno sociale 2026 predefinito", ENGINES.pignoramento(1800, 
 // Cambi e lire-euro
 ck("cambi: 1.135,50 USD a 1,1355 = 1.000 €", ENGINES.convValuta(1135.5, 1.1355, "val2eur"), 1000);
 ck("cambi: 1.000 € a 1,1355 = 1.135,50 USD", ENGINES.convValuta(1000, 1.1355, "eur2val"), 1135.5);
+ck("cambi incrociati: 840 GBP → USD", ENGINES.convIncrociato(840, 0.84, 1.1355), 1135.5);
 ck("lire: 1.000.000 lire = 516,46 €", ENGINES.lireEuro(1000000, "lire2eur"), 516.46);
 ck("lire: 1.000 € = 1.936.270 lire", ENGINES.lireEuro(1000, "eur2lire"), 1936270);
 // Calendario del processo: prima udienza 10/03/2027 (mercoledì), calcolo a mano a ritroso con giorni liberi

@@ -212,6 +212,12 @@ function apri(licenza) {
   await vai3("#/cambi");
   await set3("cbdata", "2026-09-30"); await set3("cbimp", "1135.5"); await sleep(60);
   ck("cambi: 1.135,50 USD al cambio 1,1355 = 1.000,00 €", /1\.000,00/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  await set3("cbda", "GBP"); await set3("cba", "USD"); await set3("cbimp", "840"); await sleep(60);
+  ck("cambi incrociati: 840 GBP (0,84) = 1.135,50 USD (1,1355)", /1\.135,50 USD/.test($3("#result .total .big").textContent), $3("#result .total .big").textContent);
+  ck("cambi: stesse valute nei due menu (euro compreso)", $3("#cbda").options.length === $3("#cba").options.length && [...$3("#cbda").options].some(o => o.value === "EUR"), $3("#cbda").options.length + "/" + $3("#cba").options.length);
+  w3.CAMBI_INVERTI(); await sleep(90);
+  ck("cambi: inverti le valute", $3("#cbda").value === "USD" && $3("#cba").value === "GBP", $3("#cbda").value + "→" + $3("#cba").value);
+  await set3("cbda", "USD"); await set3("cba", "EUR"); await set3("cbimp", "1135.5");
   await set3("cbdata", "2026-09-27"); await sleep(60);
   ck("cambi: domenica senza quotazione → giorno antecedente più prossimo", /giorno antecedente più prossimo, 26\/09\/2026/.test($3("#result").textContent), $3("#result .total").textContent.replace(/\s+/g, " ").slice(0, 200));
   await set3("cbmodo", "lire"); await set3("cbimp", "1936270");

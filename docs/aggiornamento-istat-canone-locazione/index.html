@@ -324,7 +324,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.23.0 — 12 ottobre 2026",
+  version: "0.23.1 — 12 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -977,6 +977,8 @@ const ENGINES = {
   },
   // Cambi: conversione con il cambio di riferimento (quantità di valuta per 1 euro) e lire-euro (1 € = 1.936,27 lire,
   // Reg. CE n. 2866/98)
+  // da una valuta a un altra con i cambi contro euro (quantita di valuta per 1 euro; euro = 1)
+  convIncrociato(importo, tDa, tA){ const x=+importo||0; if(!(x>0)||!(tDa>0)||!(tA>0)) return null; return r2(x/tDa*tA); },
   convValuta(importo, cambio, verso){ const x=+importo||0, c=+cambio||0; if(!(x>0)||!(c>0)) return null; return verso==="eur2val"?r2(x*c):r2(x/c); },
   lireEuro(importo, verso){ const x=+importo||0; if(!(x>0)) return null; return verso==="eur2lire"?Math.round(x*1936.27):r2(x/1936.27); },
   // Calendario del processo ordinario di cognizione (riforma Cartabia, D.Lgs. 149/2022 e correttivo D.Lgs. 164/2024):
@@ -1387,6 +1389,8 @@ const STORICO = {
 // Modello F24 in preparazione: righe raccolte dai calcolatori o inserite a mano; restano su questo dispositivo.
 // Cambi di riferimento dal servizio pubblico della Banca d'Italia (tassidicambio.bancaditalia.it): si inviano solo data e
 // valuta; risultati in memoria per la sessione. Nei giorni senza quotazione si usa il giorno antecedente più prossimo.
+// scambia le valute "Da" e "A" del convertitore
+function CAMBI_INVERTI(){ const d=state.inputs.cbda||"USD", t=state.inputs.cba||"EUR"; state.inputs.cbda=t; state.inputs.cba=d; renderCalc("cambi"); }
 const CAMBI = {
   API:"https://tassidicambio.bancaditalia.it/terzevalute-wf-web/rest/v1.0/", cache:{}, attesa:{},
   async giorno(d){ for(let i=0;i<10;i++){ const g=new Date(pd(d)-i*86400000).toISOString().slice(0,10);
@@ -2022,10 +2026,12 @@ const VIEWS = {
   "cambi":{
     form:()=>{
       const m=state.inputs.cbmodo||"giorno";
+      const opz=[["EUR","Euro (EUR)"],...VALUTE.map(([c,n])=>[c,`${n} (${c})`])];
       return [
         field("cbmodo","Conversione","select","giorno",{full:true,rerender:true,options:[["giorno","Cambio di un giorno (fatture, pagamenti, debiti in valuta)"],["mese","Cambio medio mensile (redditi esteri, dichiarazioni)"],["lire","Lire ↔ euro"]]}),
-        m==="lire"?field("cblverso","Verso","select","lire2eur",{options:[["lire2eur","Da lire a euro"],["eur2lire","Da euro a lire"]]}):field("cbval","Valuta","select","USD",{rerender:true,options:VALUTE.map(([c,n])=>[c,`${n} (${c})`])}),
-        m!=="lire"?field("cbverso","Verso","select","val2eur",{options:(()=>{ const c=state.inputs.cbval||"USD", nm=(VALUTE.find(v=>v[0]===c)||[c,c])[1]; return [["val2eur",`Da ${nm} (${c}) a euro`],["eur2val",`Da euro a ${nm} (${c})`]]; })()}):"",
+        m==="lire"?field("cblverso","Verso","select","lire2eur",{options:[["lire2eur","Da lire a euro"],["eur2lire","Da euro a lire"]]}):"",
+        m!=="lire"?field("cbda","Da","select","USD",{options:opz}):"",
+        m!=="lire"?field("cba","A","select","EUR",{options:opz,hint:`<button type="button" class="btn" style="padding:3px 10px;margin-top:4px" onclick="CAMBI_INVERTI()">⇄ Inverti le valute</button>`}):"",
         m==="giorno"?field("cbdata","Data","date",new Date(Date.now()-86400000).toISOString().slice(0,10)):"",
         m==="mese"?field("cbmese","Mese","month",(()=>{ const d=new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth()-1); return d.toISOString().slice(0,7); })()):"",
         field("cbimp","Importo","number",1000,{min:0,step:0.01,full:true}),
@@ -2036,18 +2042,25 @@ const VIEWS = {
       if(m==="lire"){ const verso=val("cblverso"), r=ENGINES.lireEuro(imp,verso); if(r==null) return empty("Inserisci l'importo.");
         return `<div class="total"><div class="eyebrow">Conversione lire – euro</div><div class="big">${verso==="eur2lire"?`${fmtN(r,0)} lire`:fmt.format(r)}</div><div class="sub">${verso==="eur2lire"?fmt.format(imp):`${fmtN(imp,0)} lire`} al tasso fisso di 1.936,27 lire per euro</div></div>
         <div class="pb"><div class="note">Tasso di conversione irrevocabile fissato dal Regolamento (CE) n. 2866/98 del Consiglio, in vigore dal 1° gennaio 1999; arrotondamento al centesimo di euro. Per riportare a oggi il valore di un importo in lire usa la rivalutazione ISTAT.</div></div>${actions([{to:"rivalutazione",val:verso==="eur2lire"?imp:r,label:"Conversione lire-euro",testo:"Rivaluta l'importo in euro →"}])}`; }
-      const cod=val("cbval")||"USD", verso=val("cbverso");
+      const da=val("cbda")||"USD", a=val("cba")||"EUR";
+      const nome=c=>c==="EUR"?"Euro":((VALUTE.find(v=>v[0]===c)||[c,c])[1]);
+      const imp2=x=>x==null?"":(a==="EUR"?fmt.format(x):`${fmtN(x,2)} ${esc(a)}`), impDa=da==="EUR"?fmt.format(imp):`${fmtN(imp,2)} ${esc(da)}`;
+      if(da===a) return empty("Scegli due valute diverse.");
       let chiave, fn, rif;
       if(m==="giorno"){ const d=val("cbdata"); if(!/^\d{4}-\d{2}-\d{2}$/.test(d||"")) return empty("Indica la data."); if(d>todayISO()) return empty("La data è nel futuro."); chiave="g"+d; fn=()=>CAMBI.giorno(d); rif=d; }
       else { const mm=val("cbmese"); if(!/^\d{4}-\d{2}$/.test(mm||"")) return empty("Indica il mese."); chiave="m"+mm; fn=()=>CAMBI.mese(+mm.slice(0,4),+mm.slice(5)); rif=mm; }
       const D=CAMBI.leggi(chiave,fn);
       if(!D) return `<div class="total"><div class="eyebrow">Cambio della Banca d'Italia</div><div class="big" style="font-size:22px">lettura in corso…</div><div class="sub">collegamento al servizio dei cambi di riferimento</div></div>`;
       if(D.errore) return empty(`Cambio non disponibile: ${esc(D.errore)}. Il servizio della Banca d'Italia potrebbe non essere raggiungibile: riprova più tardi.`);
-      const x=D.rates.find(r=>r.isoCode===cod); if(!x) return empty(`Nessuna quotazione per ${esc(cod)} nel periodo indicato.`);
-      const c=+x.avgRate, r=ENGINES.convValuta(imp,c,verso); if(r==null) return empty("Inserisci l'importo.");
-      const diverso=m==="giorno"&&D.data!==rif;
-      return `<div class="total"><div class="eyebrow">${m==="giorno"?"Cambio del giorno":"Cambio medio mensile"} — ${esc(x.currency)}</div><div class="big">${verso==="eur2val"?`${fmtN(r,2)} ${esc(cod)}`:fmt.format(r)}</div><div class="sub">${verso==="eur2val"?fmt.format(imp):`${fmtN(imp,2)} ${esc(cod)}`} · 1 € = ${fmtN(c,4)} ${esc(cod)} · 1 ${esc(cod)} = ${fmtN(1/c,4)} € · ${m==="giorno"?`cambio del ${fmtD(D.data)}`:`media di ${D.data.slice(5)}/${D.data.slice(0,4)}`}</div>${diverso?`<div class="warn">Nessuna quotazione il ${fmtD(rif)} (festivo o non lavorativo): usato il giorno antecedente più prossimo, ${fmtD(D.data)}.</div>`:""}</div>
-      <div class="pb"><div class="note">Cambi di riferimento pubblicati dalla Banca d'Italia (per le valute quotate dalla BCE coincidono con i tassi BCE), espressi come quantità di valuta per 1 euro. IVA: corrispettivi e spese in valuta si convertono al cambio del giorno di effettuazione dell'operazione o di emissione della fattura, in mancanza del giorno antecedente più prossimo; in alternativa, per tutto l'anno solare, al tasso BCE (art. 13, c. 4, DPR 633/1972). Imposte sui redditi: cambio del giorno di percezione o sostenimento o del giorno antecedente più prossimo e, in mancanza, del mese (art. 9, c. 2, TUIR). Debiti in moneta estera: art. 1278 c.c. (pagamento in moneta legale al corso del cambio del giorno della scadenza). La Banca d'Italia precisa che i cambi pubblicati hanno valore indicativo, salvo i casi previsti dalla normativa italiana.</div></div>${actions()}`;
+      // quantità di valuta per 1 euro (l'euro vale 1)
+      const tasso=c=>{ if(c==="EUR") return 1; const x=D.rates.find(r=>r.isoCode===c); return x?+x.avgRate:null; };
+      const tDa=tasso(da), tA=tasso(a);
+      if(tDa==null||tA==null) return empty(`Nessuna quotazione per ${esc(tDa==null?da:a)} nel periodo indicato.`);
+      const r=ENGINES.convIncrociato(imp,tDa,tA); if(r==null) return empty("Inserisci l'importo.");
+      const diverso=m==="giorno"&&D.data!==rif, uno=tA/tDa;
+      const quot=[da,a].filter(c=>c!=="EUR").map(c=>`1 € = ${fmtN(tasso(c),4)} ${esc(c)}`).join(" · ");
+      return `<div class="total"><div class="eyebrow">${m==="giorno"?"Cambio del giorno":"Cambio medio mensile"} — da ${esc(nome(da))} a ${esc(nome(a))}</div><div class="big">${imp2(r)}</div><div class="sub">${impDa} · 1 ${esc(da)} = ${fmtN(uno,4)} ${esc(a)} · 1 ${esc(a)} = ${fmtN(1/uno,4)} ${esc(da)} · ${m==="giorno"?`cambio del ${fmtD(D.data)}`:`media di ${D.data.slice(5)}/${D.data.slice(0,4)}`}</div>${diverso?`<div class="warn">Nessuna quotazione il ${fmtD(rif)} (festivo o non lavorativo): usato il giorno antecedente più prossimo, ${fmtD(D.data)}.</div>`:""}</div>
+      <div class="pb"><div class="note">Quotazioni usate: ${quot}. Tra due valute diverse dall'euro il cambio si ricava dai rispettivi cambi contro euro (cambio incrociato). Cambi di riferimento pubblicati dalla Banca d'Italia (per le valute quotate dalla BCE coincidono con i tassi BCE), espressi come quantità di valuta per 1 euro. IVA: corrispettivi e spese in valuta si convertono al cambio del giorno di effettuazione dell'operazione o di emissione della fattura, in mancanza del giorno antecedente più prossimo; in alternativa, per tutto l'anno solare, al tasso BCE (art. 13, c. 4, DPR 633/1972). Imposte sui redditi: cambio del giorno di percezione o sostenimento o del giorno antecedente più prossimo e, in mancanza, del mese (art. 9, c. 2, TUIR). Debiti in moneta estera: art. 1278 c.c. (pagamento in moneta legale al corso del cambio del giorno della scadenza). La Banca d'Italia precisa che i cambi pubblicati hanno valore indicativo, salvo i casi previsti dalla normativa italiana.</div></div>${actions()}`;
     }
   },
   "calendario-processo":{
