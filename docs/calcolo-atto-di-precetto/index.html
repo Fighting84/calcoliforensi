@@ -346,7 +346,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.25.2 — 12 ottobre 2026",
+  version: "0.26.0 — 12 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -2005,6 +2005,204 @@ const GUIDE = {
       ["Davanti al tribunale per i minorenni quali valori si usano?", "Quelli dell'autorità che sarebbe stata competente per un maggiorenne (art. 12, c. 3-ter)."]
     ],
     norme: [["Art. 12 DM 55/2014", "decreto.ministeriale:2014-03-10;55~art12"], ["Art. 2 DM 55/2014", "decreto.ministeriale:2014-03-10;55~art2"], ["Art. 106-bis DPR 115/2002", "decreto.del.presidente.della.repubblica:2002-05-30;115~art106bis"]]
+  },
+  "tfr": {
+    intro: "Calcola il trattamento di fine rapporto maturato anno per anno, con la rivalutazione sugli indici ISTAT reali, l'imposta sostitutiva sulle rivalutazioni e una stima del netto in tassazione separata.",
+    come: [
+      "Quota annua = retribuzione utile dell'anno / 13,5, meno il contributo dello 0,50% destinato al fondo di garanzia (art. 3 L. 297/1982).",
+      "Al 31 dicembre il fondo accantonato fino all'anno precedente si rivaluta dell'1,5% fisso più il 75% dell'aumento dell'indice FOI da dicembre a dicembre (art. 2120, c. 4, c.c.).",
+      "Sulle rivalutazioni si paga ogni anno un'imposta sostitutiva del 17%.",
+      "Alla cessazione il TFR è soggetto a tassazione separata con l'aliquota media del periodo; l'Agenzia delle entrate riliquida l'imposta in base ai redditi del quinquennio."
+    ],
+    esempio: "Retribuzione utile di 30.000 € all'anno dal 01/01/2016 al 31/12/2025: quote accantonate 20.722,20 € (2.072,22 € all'anno), rivalutazioni 3.389,23 €, imposta sostitutiva 576,17 €; TFR lordo 23.535,26 €, netto stimato 18.101,64 €.",
+    errori: [
+      "Dividere per 13,5 senza togliere il contributo dello 0,50%.",
+      "Rivalutare anche le quote dell'anno in corso, che si rivalutano solo dall'anno successivo.",
+      "Usare l'indice ISTAT medio annuo invece della variazione da dicembre a dicembre.",
+      "Considerare definitivo il netto: l'imposta viene riliquidata dall'Agenzia delle entrate."
+    ],
+    faq: [
+      ["Come si rivaluta il TFR?", "Con un tasso composto dall'1,5% fisso e dal 75% dell'aumento dell'indice dei prezzi FOI rispetto al dicembre precedente (art. 2120 c.c.)."],
+      ["Quali voci entrano nella retribuzione utile?", "Tutte le somme corrisposte in dipendenza del rapporto di lavoro a titolo non occasionale, salvo diversa previsione dei contratti collettivi (art. 2120, c. 2, c.c.)."],
+      ["Il calcolo considera il fondo pensione?", "No: non tiene conto del TFR destinato alla previdenza complementare né delle anticipazioni già ricevute."]
+    ],
+    norme: [["Art. 2120 c.c.", "regio.decreto:1942-03-16;262:2~art2120"], ["Art. 3 L. 297/1982", "legge:1982-05-29;297~art3"], ["Art. 19 TUIR", "decreto.del.presidente.della.repubblica:1986-12-22;917~art19"]]
+  },
+  "compravendita": {
+    intro: "Calcola le imposte sull'acquisto di un immobile: registro, ipotecaria e catastale se il venditore è un privato, IVA e imposte fisse se è un'impresa, con l'agevolazione prima casa e il prezzo-valore.",
+    come: [
+      "Se compra una persona fisica da un privato un'abitazione, la base del registro può essere il valore catastale (rendita × 1,05 × 110 per la prima casa, 120 per le altre) invece del prezzo: è il prezzo-valore (art. 1, c. 497, L. 266/2005).",
+      "Imposta di registro: 2% per la prima casa e 9% negli altri casi, con un minimo di 1.000 €; imposte ipotecaria e catastale fisse di 50 € ciascuna.",
+      "Se vende un'impresa in regime IVA, si applica l'IVA (4% prima casa, 10% abitazioni non di lusso, 22% di lusso) e le imposte di registro, ipotecaria e catastale in misura fissa.",
+      "Oltre alle imposte si pagano bollo, tasse ipotecarie e onorario notarile."
+    ],
+    esempio: "Abitazione acquistata da un privato a 250.000 € con rendita di 800 € e agevolazione prima casa: base imponibile 800 × 1,05 × 110 = 92.400 €; registro 2% = 1.848,00 €, ipotecaria e catastale 50 € ciascuna. Totale 1.948,00 €. Senza agevolazione e sul prezzo dichiarato il registro al 9% sarebbe 22.500,00 €.",
+    errori: [
+      "Usare il prezzo come base quando si può chiedere il prezzo-valore.",
+      "Dimenticare il minimo di 1.000 € dell'imposta di registro.",
+      "Applicare l'imposta di registro quando il venditore è un'impresa che vende in regime IVA.",
+      "Perdere la prima casa rivendendo entro cinque anni senza riacquistare, o non vendendo la casa precedente nei termini."
+    ],
+    faq: [
+      ["Cos'è il prezzo-valore?", "La possibilità, per chi acquista un'abitazione come persona fisica da un privato, di pagare il registro sul valore catastale invece che sul prezzo, indicando comunque nell'atto il prezzo effettivo (art. 1, c. 497, L. 266/2005)."],
+      ["Entro quando va venduta la casa già acquistata con l'agevolazione?", "Dal 2025 entro due anni dal nuovo acquisto (L. 207/2024)."],
+      ["Quali spese ci sono oltre alle imposte?", "Con il registro: imposta di bollo 230 € e tasse ipotecarie 90 €; con l'IVA: bollo e tasse ipotecarie 320 €; oltre all'onorario del notaio."]
+    ],
+    norme: [["Art. 1, c. 497, L. 266/2005", "legge:2005-12-23;266~art1"], ["DPR 131/1986 (imposta di registro)", "decreto.del.presidente.della.repubblica:1986-04-26;131"], ["Art. 10 DPR 633/1972", "decreto.del.presidente.della.repubblica:1972-10-26;633~art10"]]
+  },
+  "quote-ereditarie": {
+    intro: "Calcola chi eredita e quanto senza testamento (successione legittima), le quote di riserva dei legittimari e la quota disponibile, con rappresentazione, fratelli unilaterali e donazioni.",
+    come: [
+      "Successione legittima: con figli succedono solo il coniuge e i figli; al coniuge spetta la metà con un figlio e un terzo con più figli (artt. 566 e 581 c.c.).",
+      "Senza figli il coniuge ha due terzi se concorre con genitori o fratelli e l'intero se è solo (art. 582); i fratelli unilaterali prendono la metà dei germani.",
+      "I discendenti di un figlio premorto, indegno o rinunciante subentrano per stirpi (rappresentazione, artt. 467-469).",
+      "Riserva: un figlio 1/2, più figli 2/3; coniuge e un figlio 1/3 ciascuno; coniuge e più figli 1/4 e 1/2; coniuge solo 1/2; i fratelli non sono legittimari. La legittima si calcola sulla massa che comprende le donazioni (art. 556)."
+    ],
+    esempio: "Patrimonio netto di 600.000 € lasciato a coniuge e due figli senza testamento: un terzo a ciascuno, 200.000 €. Quote di riserva: 1/4 al coniuge e 1/4 a ciascun figlio (150.000 €); quota disponibile 1/4 (150.000 €).",
+    errori: [
+      "Considerare i fratelli legittimari: non hanno diritto alla riserva.",
+      "Dimenticare la rappresentazione dei nipoti quando un figlio è premorto o rinuncia.",
+      "Calcolare la legittima sui soli beni lasciati, senza le donazioni fatte in vita.",
+      "Confondere la quota che spetta senza testamento con la quota di riserva."
+    ],
+    faq: [
+      ["Quanto spetta al coniuge con un solo figlio?", "Senza testamento la metà dell'eredità; come legittimario un terzo, come il figlio (artt. 581 e 542 c.c.)."],
+      ["Il coniuge ha altri diritti?", "Sì: i diritti di abitazione sulla casa familiare e di uso dei mobili che la arredano (art. 540, c. 2, c.c.)."],
+      ["L'unito civilmente ha gli stessi diritti del coniuge?", "Sì, nella successione legittima e nella riserva (L. 76/2016)."]
+    ],
+    norme: [["Art. 540 c.c.", "regio.decreto:1942-03-16;262:2~art540"], ["Art. 542 c.c.", "regio.decreto:1942-03-16;262:2~art542"], ["Art. 556 c.c.", "regio.decreto:1942-03-16;262:2~art556"], ["Art. 566 c.c.", "regio.decreto:1942-03-16;262:2~art566"], ["Art. 581 c.c.", "regio.decreto:1942-03-16;262:2~art581"], ["Art. 582 c.c.", "regio.decreto:1942-03-16;262:2~art582"]]
+  },
+  "usufrutto": {
+    intro: "Calcola il valore fiscale dell'usufrutto vitalizio e della nuda proprietà in base all'età dell'usufruttuario, con il prospetto dei coefficienti allegato al testo unico dell'imposta di registro.",
+    come: [
+      "L'usufrutto vitalizio vale la rendita annua (valore della piena proprietà × saggio legale) moltiplicata per il coefficiente della fascia d'età dell'usufruttuario.",
+      "I coefficienti sono aggiornati con decreto del Ministero dell'economia a ogni variazione del saggio legale, perciò la percentuale per fascia d'età resta costante: dal 95% fino a 20 anni al 10% tra 93 e 99 anni.",
+      "La nuda proprietà è la differenza tra piena proprietà e usufrutto.",
+      "Per l'usufrutto a tempo determinato il valore è la rendita annua per il numero di anni, entro il limite del vitalizio; per l'usufrutto congiuntivo si considera l'età del più giovane."
+    ],
+    esempio: "Piena proprietà di 200.000 €, usufruttuario di 70 anni: con il saggio legale 2026 dell'1,60% il coefficiente è 25, pari al 40%. Usufrutto 80.000,00 €, nuda proprietà 120.000,00 €.",
+    errori: [
+      "Usare un prospetto dei coefficienti non aggiornato al saggio legale dell'anno.",
+      "Applicare all'usufrutto a termine il valore del vitalizio senza confrontarlo con la durata.",
+      "Considerare l'età del più anziano nell'usufrutto congiuntivo.",
+      "Confondere il valore fiscale con il valore di mercato dell'usufrutto."
+    ],
+    faq: [
+      ["Perché la percentuale non cambia con il saggio legale?", "Perché i coefficienti vengono ricalcolati con decreto ministeriale a ogni variazione del saggio: rendita più alta e coefficiente più basso si compensano."],
+      ["A cosa serve questo valore?", "Per determinare la base imponibile delle imposte di registro, successione e donazione sui trasferimenti di usufrutto e nuda proprietà."],
+      ["Cosa cambia dal 2027?", "Il prospetto confluisce nell'allegato 4 al testo unico del registro (D.Lgs. 123/2025), applicabile dal 1° gennaio 2027."]
+    ],
+    norme: [["Art. 46 DPR 131/1986", "decreto.del.presidente.della.repubblica:1986-04-26;131~art46"], ["Art. 48 DPR 131/1986", "decreto.del.presidente.della.repubblica:1986-04-26;131~art48"]]
+  },
+  "canone": {
+    intro: "Calcola l'aggiornamento ISTAT del canone di locazione con l'indice FOI, al 75% o al 100% della variazione, con il raccordo tra le basi ISTAT.",
+    come: [
+      "L'aggiornamento spetta solo se previsto dal contratto e va chiesto dal locatore (art. 32 L. 392/1978).",
+      "Si confrontano gli indici FOI del mese della stipula o dell'ultimo aggiornamento e del mese dell'adeguamento; per prassi si usa il mese precedente, perché l'indice del mese corrente non è ancora pubblicato.",
+      "Per le locazioni a uso diverso dall'abitazione l'aumento non può superare il 75% della variazione; per le abitative a canone libero vale la misura pattuita, per quelle a canone concordato quella degli accordi territoriali.",
+      "Le variazioni negative non riducono il canone; con la cedolare secca l'aggiornamento è sospeso per tutta la durata dell'opzione."
+    ],
+    esempio: "Canone annuo di 9.600 €, aggiornamento dal 01/09/2024 al 01/09/2025: indice FOI di agosto 2024 120,1, di agosto 2025 121,8, variazione 1,42%; al 75% l'aumento è dell'1,06% e il nuovo canone è 9.701,92 € all'anno.",
+    errori: [
+      "Aggiornare il canone quando il contratto non lo prevede.",
+      "Superare il 75% della variazione in una locazione a uso diverso dall'abitazione.",
+      "Aggiornare il canone quando il locatore ha optato per la cedolare secca.",
+      "Usare l'indice NIC invece del FOI."
+    ],
+    faq: [
+      ["L'aggiornamento è automatico?", "No: deve essere previsto dal contratto e richiesto dal locatore (art. 32 L. 392/1978)."],
+      ["Con la cedolare secca si può aggiornare il canone?", "No: per tutta la durata dell'opzione la facoltà di chiedere l'aggiornamento è sospesa, anche se prevista dal contratto (art. 3, c. 11, D.Lgs. 23/2011; dal 2027 art. 206, c. 3, D.Lgs. 117/2026)."],
+      ["Se l'indice scende il canone diminuisce?", "No: le variazioni negative non riducono il canone."]
+    ],
+    norme: [["Art. 32 L. 392/1978", "legge:1978-07-27;392~art32"], ["Art. 3 D.Lgs. 23/2011", "decreto.legislativo:2011-03-14;23~art3"]]
+  },
+  "cedolare": {
+    intro: "Confronta la cedolare secca con la tassazione ordinaria IRPEF per un contratto di locazione abitativa, includendo addizionali, imposta di registro e bollo.",
+    come: [
+      "Cedolare secca: 21% sul canone, oppure 10% per i contratti a canone concordato nei comuni ad alta tensione abitativa; sostituisce IRPEF, addizionali, registro e bollo (art. 3 D.Lgs. 23/2011).",
+      "Tassazione ordinaria: reddito pari al canone ridotto del 5% (o alla rendita rivalutata, se maggiore), tassato all'aliquota IRPEF marginale più le addizionali.",
+      "Con il regime ordinario si paga anche l'imposta di registro del 2% sul canone annuo (metà a carico del locatore) e il bollo.",
+      "Con la cedolare il locatore rinuncia all'aggiornamento ISTAT del canone."
+    ],
+    esempio: "Canone di 9.600 € all'anno, contratto libero, aliquota IRPEF marginale 33% e addizionali 2,5%: cedolare 2.016,00 €; ordinaria 3.237,60 € di IRPEF e addizionali più 96,00 € di registro e 16,00 € di bollo, totale 3.349,60 €. Con la cedolare si risparmiano 1.333,60 € all'anno.",
+    errori: [
+      "Confrontare la cedolare con la sola IRPEF, dimenticando addizionali, registro e bollo.",
+      "Applicare l'aliquota del 10% fuori dai comuni ad alta tensione abitativa o a contratti non concordati.",
+      "Dimenticare che con la cedolare si rinuncia all'aggiornamento ISTAT.",
+      "Ignorare che il reddito in cedolare conta comunque per ISEE e alcune detrazioni."
+    ],
+    faq: [
+      ["Qual è l'aliquota della cedolare secca?", "Il 21% per i contratti a canone libero e il 10% per quelli a canone concordato nei comuni ad alta tensione abitativa (art. 9 DL 47/2014)."],
+      ["La cedolare conviene sempre?", "Di solito conviene a chi ha un'aliquota IRPEF marginale più alta del 21%; il confronto qui non considera più scaglioni né le detrazioni eventualmente perse."],
+      ["Cosa cambia dal 2027?", "Il reddito dei fabbricati sarà regolato dall'art. 39 del testo unico delle imposte sui redditi (D.Lgs. 117/2026), applicabile dal 1° gennaio 2027."]
+    ],
+    norme: [["Art. 3 D.Lgs. 23/2011", "decreto.legislativo:2011-03-14;23~art3"], ["Art. 37 TUIR", "decreto.del.presidente.della.repubblica:1986-12-22;917~art37"], ["Art. 9 DL 47/2014", "decreto.legge:2014-03-28;47~art9"]]
+  },
+  "prescrizione-tributi": {
+    intro: "Verifica i termini di decadenza per l'accertamento e per la notifica della cartella e la prescrizione dei crediti tributari dopo la notifica, per tipo di credito, con le sospensioni del periodo Covid indicate a parte.",
+    come: [
+      "Dopo la notifica di una cartella o di un avviso, il credito si prescrive secondo il tipo: 10 anni per le imposte erariali (IRPEF, IRES, IVA, IRAP, registro); 5 anni per i tributi locali (IMU, TARI), le sanzioni, gli interessi, i contributi INPS e le multe; 3 anni per il bollo auto.",
+      "Il credito accertato con sentenza passata in giudicato si prescrive in 10 anni (art. 2953 c.c.).",
+      "Ogni atto di riscossione notificato (intimazione, pignoramento, ipoteca, preavviso di fermo) e il riconoscimento del debito, come l'istanza di rateizzazione, interrompono la prescrizione: si indica la data dell'ultimo atto.",
+      "La sospensione dei versamenti dall'8/3/2020 al 31/8/2021 sposta in avanti i termini di 542 giorni secondo Cass. n. 960/2025, ma l'orientamento non è uniforme: il calcolatore mostra entrambe le date."
+    ],
+    esempio: "Cartella per imposte erariali notificata il 15/05/2019, senza atti successivi: la prescrizione decennale matura il 15/05/2029; considerando la sospensione di 542 giorni del periodo Covid, l'08/11/2030.",
+    errori: [
+      "Applicare a tutte le cartelle la prescrizione quinquennale, che per le imposte erariali è invece decennale secondo la Cassazione.",
+      "Dimenticare un'intimazione di pagamento o un'istanza di rateizzazione che ha interrotto la prescrizione.",
+      "Impugnare l'estratto di ruolo invece del primo atto successivo che pretende il pagamento.",
+      "Ignorare le sospensioni previste dalle definizioni agevolate («rottamazioni»)."
+    ],
+    faq: [
+      ["Quanto dura la prescrizione di una cartella?", "Dipende dal credito: 10 anni per le imposte erariali, 5 anni per tributi locali, sanzioni, interessi e contributi, 3 anni per il bollo auto (Cass. SU 23397/2016; Cass. 33213/2023 e 25631/2026)."],
+      ["La richiesta di rateizzazione interrompe la prescrizione?", "Sì: costituisce riconoscimento del debito e fa decorrere un nuovo termine (art. 2944 c.c.)."],
+      ["Come si fa valere la prescrizione?", "Impugnando il primo atto successivo alla cartella che pretende il pagamento, come un'intimazione o un pignoramento, non l'estratto di ruolo (Cass. n. 25422/2026)."]
+    ],
+    norme: [["Art. 2946 c.c.", "regio.decreto:1942-03-16;262:2~art2946"], ["Art. 2948 c.c.", "regio.decreto:1942-03-16;262:2~art2948"], ["Art. 2944 c.c.", "regio.decreto:1942-03-16;262:2~art2944"], ["Art. 25 DPR 602/1973", "decreto.del.presidente.della.repubblica:1973-09-29;602~art25"], ["Art. 68 DL 18/2020", "decreto.legge:2020-03-17;18~art68"]]
+  },
+  "cambi": {
+    intro: "Converte importi da qualsiasi valuta a qualsiasi altra con i cambi di riferimento della Banca d'Italia, del giorno o medi mensili, e converte le lire in euro.",
+    come: [
+      "I cambi della Banca d'Italia sono espressi come quantità di valuta per 1 euro.",
+      "Tra due valute diverse dall'euro il cambio si ricava dai rispettivi cambi contro euro (cambio incrociato).",
+      "Se nel giorno indicato non c'è quotazione (festivo o non lavorativo) si usa il giorno antecedente più prossimo.",
+      "Per le lire si applica il tasso fisso di 1.936,27 lire per euro."
+    ],
+    esempio: "1.000 dollari canadesi in franchi svizzeri al cambio del 09/10/2026: 584,18 CHF (1 CAD = 0,5842 CHF). Con il pulsante «Inverti» 1.000 franchi svizzeri diventano 1.711,80 dollari canadesi.",
+    errori: [
+      "Usare il cambio di un giorno diverso da quello rilevante per l'operazione.",
+      "Usare il cambio medio mensile quando la norma chiede quello del giorno.",
+      "Confondere 1 € = x valuta con 1 valuta = x €.",
+      "Convertire importi in lire senza poi rivalutarli con l'indice ISTAT."
+    ],
+    faq: [
+      ["Quale cambio si usa per l'IVA?", "Quello del giorno dell'operazione o dell'emissione della fattura, o in mancanza del giorno antecedente più prossimo; in alternativa, per tutto l'anno, il tasso BCE (art. 13, c. 4, DPR 633/1972)."],
+      ["E per i redditi esteri?", "Il cambio del giorno di percezione o sostenimento, o del giorno antecedente più prossimo, e in mancanza quello del mese (art. 9, c. 2, TUIR)."],
+      ["Come si paga un debito in valuta estera?", "In moneta legale al corso del cambio del giorno della scadenza (art. 1278 c.c.)."]
+    ],
+    norme: [["Art. 13 DPR 633/1972", "decreto.del.presidente.della.repubblica:1972-10-26;633~art13"], ["Art. 9 TUIR", "decreto.del.presidente.della.repubblica:1986-12-22;917~art9"], ["Art. 1278 c.c.", "regio.decreto:1942-03-16;262:2~art1278"]]
+  },
+  "f24": {
+    intro: "Compila il modello F24 riga per riga, controlla codici tributo, anni e sezioni e lo stampa, anche con le righe preparate dal calcolatore del ravvedimento.",
+    come: [
+      "Si indicano codice fiscale e dati anagrafici del contribuente e la data del versamento.",
+      "Ogni riga va nella sezione giusta (Erario, Regioni, IMU e altri tributi locali), con codice tributo, anno di riferimento ed eventuali rateazione, regione o mese.",
+      "Gli importi a credito compensano quelli a debito e il modello calcola il saldo.",
+      "Le righe del ravvedimento si aggiungono con il pulsante «Aggiungi all'F24»: imposta, sanzione e interessi hanno codici tributo distinti."
+    ],
+    esempio: "Ravvedimento di un saldo IRPEF di 1.000 € versato con 15 giorni di ritardo: tre righe nella sezione Erario per imposta (1.000,00 €), sanzione (12,50 €) e interessi (0,66 €), con i rispettivi codici tributo; saldo della delega 1.013,16 €.",
+    errori: [
+      "Usare il codice tributo dell'imposta anche per sanzione e interessi.",
+      "Indicare l'anno del pagamento invece dell'anno d'imposta di riferimento.",
+      "Inserire un tributo locale nella sezione Erario.",
+      "Presentare in banca una delega con compensazioni, che va trasmessa con i servizi telematici dell'Agenzia delle entrate."
+    ],
+    faq: [
+      ["Chi deve pagare l'F24 in via telematica?", "I titolari di partita IVA (art. 37, c. 49, DL 223/2006)."],
+      ["Una delega con compensazioni si può pagare in banca?", "No: se contiene crediti in compensazione si usano esclusivamente i servizi telematici dell'Agenzia delle entrate (art. 11, c. 2, lett. a, DL 66/2014, come modificato dalla L. 213/2023, dal 1° luglio 2024)."],
+      ["Il prospetto sostituisce il modello ufficiale?", "No: è un prospetto da riportare sul modello F24 approvato o nei servizi di pagamento telematico (F24 web, home banking)."]
+    ],
+    norme: [["Art. 17 D.Lgs. 241/1997", "decreto.legislativo:1997-07-09;241~art17"], ["Art. 37 DL 223/2006", "decreto.legge:2006-07-04;223~art37"], ["Art. 11 DL 66/2014", "decreto.legge:2014-04-24;66~art11"]]
   }
 };
 function guidaHtml(id){
@@ -2082,7 +2280,7 @@ const CATALOG = [
     {id:"quote-ereditarie", title:"Quote ereditarie e legittima", desc:"Chi eredita e quanto senza testamento, quote di riserva dei legittimari e quota disponibile, con rappresentazione, fratelli unilaterali, donazioni e importi in euro.", refs:"Artt. 467-469, 536-548, 556, 565-586 c.c. — L. 76/2016 (unioni civili) — L. 219/2012", status:"free"},
     {id:"successione", title:"Imposta di successione e donazione", desc:"Aliquote 4/6/8%, franchigie per parentela e disabilità, imposte ipotecaria e catastale sugli immobili.", refs:"D.Lgs. 346/1990 (TUS), come modificato dal D.Lgs. 139/2024 (dal 1° gennaio 2027 TU registro D.Lgs. 123/2025, artt. 93 e 133) — DL 262/2006, art. 2, c. 48-49", status:"free"},
     {id:"usufrutto", title:"Usufrutto e nuda proprietà", desc:"Valore dell'usufrutto vitalizio per età dell'usufruttuario (prospetto dei coefficienti allegato al DPR 131/1986) e della nuda proprietà.", refs:"DPR 131/1986, artt. 46 e 48 e prospetto allegato (dal 1° gennaio 2027 TU registro D.Lgs. 123/2025, artt. 50 e 52 e allegato 4) — DM MEF sul saggio legale", status:"free"},
-    {id:"canone", title:"Adeguamento ISTAT del canone", desc:"Aggiornamento annuale del canone di locazione al 75% o 100% della variazione FOI, con indici reali.", refs:"Art. 32 L. 392/1978 — L. 431/1998 — indici FOI ISTAT", status:"free"},
+    {id:"canone", title:"Adeguamento ISTAT del canone", desc:"Aggiornamento annuale del canone di locazione al 75% o al 100% della variazione FOI, con indici reali e raccordo tra le basi ISTAT.", refs:"Art. 32 L. 392/1978 — L. 431/1998 — art. 3, c. 11, D.Lgs. 23/2011 (dal 2027 art. 206 D.Lgs. 117/2026) — indici FOI ISTAT", status:"free"},
     {id:"cedolare", title:"Cedolare secca o IRPEF?", desc:"Confronto tra cedolare 21%/10% e tassazione ordinaria (IRPEF su 95% del canone, addizionali, registro e bollo).", refs:"Art. 3 D.Lgs. 23/2011 — art. 37 TUIR (dal 1° gennaio 2027 art. 39 D.Lgs. 117/2026) — art. 8 L. 392/1978", status:"free"},
   ]},
   {group:"Fisco e tributi", items:[
@@ -2605,7 +2803,7 @@ const VIEWS = {
   "canone":{
     form:()=>[
       field("kcan","Canone annuo attuale (€)","number",9600,{min:0,step:0.01}),
-      field("kpct","Percentuale di variazione FOI applicabile","select","75",{options:[["75","75% (uso abitativo, art. 32 L. 392/1978)"],["100","100% (uso diverso o clausola contrattuale)"]]}),
+      field("kpct","Percentuale di variazione FOI applicabile","select","75",{options:[["75","75% (limite dell'art. 32 L. 392/1978 per gli usi diversi; misura frequente nei contratti abitativi)"],["100","100% (se pattuito nel contratto)"]]}),
       field("kst","Data di stipula o ultimo adeguamento","date","2025-09-01"),
       field("kad","Data dell'adeguamento","date",todayISO()),
       field("kcrit","Indici da confrontare","select","precedente",{full:true,options:[["precedente","Mese precedente a ciascuna data (prassi: l'indice del mese corrente non è ancora pubblicato)"],["stesso","Stesso mese di ciascuna data"]]}),
@@ -2621,7 +2819,7 @@ const VIEWS = {
         <tr><td>Variazione applicata (${R.pct}%)</td><td class="r">${fmtN(R.varApp*100,2)} %</td></tr>
         <tr><td>Canone attuale</td><td class="r">${fmt.format(R.canone)}</td></tr>
         <tr class="sum"><td>Canone aggiornato</td><td class="r">${fmt.format(R.nuovo)}</td></tr></table>
-        <div class="note">Art. 32 L. 392/1978: per le locazioni abitative l'aggiornamento non può superare il 75% della variazione FOI; per le locazioni a canone concordato l'aggiornamento è escluso se il locatore ha optato per la cedolare secca (art. 3, c. 11, D.Lgs. 23/2011: la rinuncia vale per tutto il periodo dell'opzione). L'aggiornamento va richiesto per iscritto e decorre dalla richiesta (art. 32, c. 2). Le variazioni negative non riducono il canone.</div>`)}</div>${actions()}`;
+        <div class="note">L'aggiornamento è dovuto solo se previsto dal contratto e su richiesta del locatore (art. 32 L. 392/1978). Per le locazioni a uso diverso dall'abitazione l'art. 32 limita l'aumento al 75% della variazione dell'indice FOI; per le locazioni abitative a canone libero vale la misura pattuita e per quelle a canone concordato quella prevista dagli accordi territoriali. Se il locatore ha optato per la cedolare secca la facoltà di chiedere l'aggiornamento è sospesa per tutta la durata dell'opzione, qualunque sia il tipo di contratto (art. 3, c. 11, D.Lgs. 23/2011; dal 1° gennaio 2027 art. 206, c. 3, D.Lgs. 117/2026). Le variazioni negative non riducono il canone.</div>`)}</div>${actions()}`;
     }
   },
   "cambi":{
