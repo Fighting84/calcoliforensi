@@ -209,7 +209,7 @@ function apri(licenza) {
   ck("prescrizione reato: ergastolo imprescrittibile", /Imprescrittibile/.test($3("#result .total .big").textContent));
   ck("prescrizione reato: nessun errore", C.errori.length === 0, C.errori.join(" | "));
   // guide sotto i calcolatori: presenti, con passi, esempio, domande e collegamenti a Normattiva
-  for (const id of ["scadenze", "interessi-legali", "danno-micro", "prescrizione-reato", "parcella", "ravvedimento", "sanzioni-inps", "fattura-avvocato"]) {
+  for (const id of ["scadenze", "interessi-legali", "danno-micro", "prescrizione-reato", "parcella", "ravvedimento", "sanzioni-inps", "fattura-avvocato", "interessi-mora", "rivalutazione", "danno-tun", "danno-milano", "contributo-unificato", "successione", "imu", "precetto"]) {
     await vai3("#/" + id);
     const g = $3(".guida");
     ck(`guida ${id}`, !!g && g.querySelectorAll("ol li").length >= 3 && g.querySelectorAll("details").length >= 3 && [...g.querySelectorAll(".norme a")].every(a => a.href.startsWith("https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:")) && !!g.querySelector(".es"));

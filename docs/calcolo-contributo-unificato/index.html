@@ -23,6 +23,7 @@ body{margin:0;font-family:system-ui,sans-serif;font-size:14px}
 img{max-width:100%}
 [hidden]{display:none!important}
 </style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Quanto costa il contributo per un decreto ingiuntivo?","acceptedAnswer":{"@type":"Answer","text":"La metà dell'importo previsto per lo stesso valore nel procedimento ordinario (art. 13, c. 3, DPR 115/2002)."}},{"@type":"Question","name":"Quanto si paga in appello?","acceptedAnswer":{"@type":"Answer","text":"L'importo del primo grado aumentato della metà; in cassazione il doppio (art. 13, c. 1-bis)."}},{"@type":"Question","name":"Cos'è la marca da 27 €?","acceptedAnswer":{"@type":"Answer","text":"L'anticipazione forfettaria per le notifiche eseguite d'ufficio nel processo civile (art. 30 DPR 115/2002)."}}]}</script>
 </head>
 <body>
 <script>window.CF_START="contributo-unificato";</script>
@@ -295,7 +296,14 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
     
   </div></div>
   </div>
-  
+  <section class="guida" aria-labelledby="guida-tit"><h2 id="guida-tit">Guida: come si calcola</h2>
+    <p>Calcola il contributo unificato dovuto per iscrivere una causa a ruolo, secondo il valore, il tipo di procedimento e il grado (art. 13 DPR 115/2002).</p>
+    <h3>Il calcolo passo per passo</h3><ol><li>Il valore della causa si determina con le regole degli artt. 10 e seguenti c.p.c.</li><li>Allo scaglione di valore corrisponde un importo fisso, in vigore dal 2023.</li><li>In appello l'importo aumenta del 50%, in cassazione raddoppia (art. 13, c. 1-bis); nel procedimento monitorio è dimezzato (c. 3).</li><li>Si aggiunge di regola la marca da 27 € per le notifiche d'ufficio (art. 30).</li></ol>
+    <h3>Esempio svolto</h3><p class="es">Causa di cognizione ordinaria del valore di 15.000 €: primo grado 237,00 €, appello 355,50 €, cassazione 474,00 €, oltre alla marca da 27 €.</p>
+    <h3>Errori frequenti</h3><ul><li>Sbagliare il valore della causa, che si determina con gli artt. 10 e seguenti c.p.c.</li><li>Dimenticare la marca da 27 € per le notifiche d'ufficio.</li><li>Pagare per intero nel decreto ingiuntivo, dove il contributo è dimezzato.</li><li>Non considerare il raddoppio dovuto quando l'impugnazione è respinta o dichiarata inammissibile (art. 13, c. 1-quater).</li></ul>
+    <h3>Domande frequenti</h3><details><summary>Quanto costa il contributo per un decreto ingiuntivo?</summary><p>La metà dell'importo previsto per lo stesso valore nel procedimento ordinario (art. 13, c. 3, DPR 115/2002).</p></details><details><summary>Quanto si paga in appello?</summary><p>L'importo del primo grado aumentato della metà; in cassazione il doppio (art. 13, c. 1-bis).</p></details><details><summary>Cos'è la marca da 27 €?</summary><p>L'anticipazione forfettaria per le notifiche eseguite d'ufficio nel processo civile (art. 30 DPR 115/2002).</p></details>
+    <h3>Norme di riferimento</h3><p class="norme"><a href="https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:2002-05-30;115~art13" target="_blank" rel="noopener">Art. 13 DPR 115/2002</a> · <a href="https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:2002-05-30;115~art30" target="_blank" rel="noopener">Art. 30 DPR 115/2002</a> · <a href="https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:regio.decreto:1940-10-28;1443:1~art10" target="_blank" rel="noopener">Art. 10 c.p.c.</a></p>
+    <p class="agg">Testo verificato sulle fonti ufficiali al 12/10/2026.</p></section>
   <div class="print-foot">Elaborazione automatica su dati normativi e tabellari pubblici, verificati alla data indicata; non costituisce consulenza legale e non sostituisce la valutazione del professionista.</div></main>
 </div>
 
@@ -337,7 +345,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.25.0 — 12 ottobre 2026",
+  version: "0.25.1 — 12 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -1644,6 +1652,182 @@ const GUIDE = {
       ["Quando va messo il bollo?", "Quando le somme non soggette a IVA superano 77,47 €: 2 € (art. 13 della Tariffa allegata al DPR 642/1972), indicati nel campo «Bollo virtuale» della fattura elettronica."]
     ],
     norme: [["Art. 2 DM 55/2014", "decreto.ministeriale:2014-03-10;55~art2"], ["Art. 25 DPR 600/1973", "decreto.del.presidente.della.repubblica:1973-09-29;600~art25"], ["Art. 15 DPR 633/1972", "decreto.del.presidente.della.repubblica:1972-10-26;633~art15"]]
+  },
+  "interessi-mora": {
+    intro: "Calcola gli interessi di mora sui crediti nati da transazioni commerciali tra imprese o con la pubblica amministrazione (D.Lgs. 231/2002), semestre per semestre.",
+    come: [
+      "Il tasso è quello di riferimento della BCE in vigore il 1° gennaio o il 1° luglio, maggiorato di 8 punti (7 fino al 2012), e resta fisso per tutto il semestre (art. 5).",
+      "Per ogni semestre: capitale × tasso × giorni / 365.",
+      "Gli interessi decorrono dalla scadenza senza bisogno di costituzione in mora (art. 4).",
+      "Al creditore spetta anche un indennizzo forfettario di 40 € per i costi di recupero (art. 6)."
+    ],
+    esempio: "Fattura di 10.000 € scaduta, mora dal 01/01/2025 al 31/12/2025: primo semestre 180 giorni all'11,15% (BCE 3,15% + 8) = 549,86 €; secondo semestre 184 giorni al 10,15% (BCE 2,15% + 8) = 511,67 €. Totale 1.061,53 €, oltre ai 40 € di indennizzo.",
+    errori: [
+      "Applicarli quando una delle parti è un consumatore: valgono gli interessi legali.",
+      "Applicarli ai crediti restitutori, come la restituzione di acconti dopo la risoluzione del contratto.",
+      "Cambiare tasso a metà semestre: conta quello del 1° gennaio o del 1° luglio.",
+      "Dimenticare l'indennizzo forfettario di 40 €."
+    ],
+    faq: [
+      ["Qual è il tasso di mora nel secondo semestre 2026?", "Il 10,40%: tasso BCE del 2,40% in vigore il 1° luglio 2026 maggiorato di 8 punti."],
+      ["Serve una lettera di messa in mora?", "No: nelle transazioni commerciali gli interessi decorrono automaticamente dal giorno successivo alla scadenza del termine di pagamento (art. 4 D.Lgs. 231/2002)."],
+      ["Spettano se il debitore ha sospeso il pagamento per vizi?", "Non per la parte di corrispettivo legittimamente sospesa con un'eccezione di inadempimento proporzionata (art. 1460, c. 2, c.c.)."]
+    ],
+    norme: [["Art. 4 D.Lgs. 231/2002", "decreto.legislativo:2002-10-09;231~art4"], ["Art. 5 D.Lgs. 231/2002", "decreto.legislativo:2002-10-09;231~art5"], ["Art. 6 D.Lgs. 231/2002", "decreto.legislativo:2002-10-09;231~art6"], ["Art. 1284 c.c.", "regio.decreto:1942-03-16;262:2~art1284"]]
+  },
+  "rivalutazione": {
+    intro: "Rivaluta un importo con l'indice ISTAT dei prezzi al consumo per le famiglie di operai e impiegati (FOI senza tabacchi) e, se richiesto, aggiunge gli interessi legali sul capitale rivalutato anno per anno.",
+    come: [
+      "Coefficiente = indice del mese di liquidazione / indice del mese iniziale, con il raccordo tra le basi ISTAT (1995, 2010, 2015, 2025).",
+      "Capitale rivalutato = importo originario × coefficiente.",
+      "Per i debiti di valore gli interessi si calcolano sul capitale rivalutato alla fine di ciascun anno, ai saggi legali di ogni anno (Cass. SU 1712/1995), non sul capitale finale per tutto il periodo.",
+      "Oltre l'ultimo indice pubblicato si usa l'ultimo disponibile, indicato nel risultato."
+    ],
+    esempio: "Importo di 10.000 € dal 15/01/2020 al 31/12/2025: coefficiente 1,183, capitale rivalutato 11.830,00 €; interessi legali sul capitale rivalutato anno per anno 1.258,60 €. Totale 13.088,60 €.",
+    errori: [
+      "Usare l'indice NIC o IPCA al posto del FOI senza tabacchi, che è quello delle rivalutazioni giudiziali e dei canoni.",
+      "Dimenticare il raccordo tra le basi ISTAT quando il periodo ne attraversa più di una.",
+      "Calcolare gli interessi sul capitale finale per tutto il periodo, gonfiando il risultato.",
+      "Rivalutare automaticamente un debito di denaro: per le obbligazioni pecuniarie spettano gli interessi e l'eventuale maggior danno (art. 1224, c. 2, c.c.)."
+    ],
+    faq: [
+      ["Quale indice ISTAT si usa?", "L'indice dei prezzi al consumo per le famiglie di operai e impiegati al netto dei tabacchi (FOI), pubblicato mensilmente dall'ISTAT."],
+      ["Perché gli interessi si calcolano anno per anno?", "Per i debiti di valore il criterio delle Sezioni Unite (Cass. 1712/1995) evita di applicare gli interessi a una somma rivalutata che il creditore non avrebbe avuto all'inizio."],
+      ["Fino a quale mese è aggiornato l'indice?", "Il calcolatore usa l'ultimo indice pubblicato dall'ISTAT, aggiornato in automatico, e lo indica nel risultato."]
+    ],
+    norme: [["Art. 1224 c.c.", "regio.decreto:1942-03-16;262:2~art1224"], ["Art. 1284 c.c.", "regio.decreto:1942-03-16;262:2~art1284"]]
+  },
+  "danno-tun": {
+    intro: "Liquida il danno non patrimoniale per le lesioni dal 10% al 100% con la Tabella Unica Nazionale (DPR 12/2025), prevista dall'art. 138 del Codice delle assicurazioni private.",
+    come: [
+      "La TUN si applica ai sinistri da circolazione di veicoli e natanti e alla responsabilità sanitaria verificatisi dopo il 5 marzo 2025, data di entrata in vigore del DPR (art. 1, c. 18, L. 124/2017).",
+      "Il valore del danno biologico dipende dalla percentuale di invalidità e dall'età; il primo punto segue l'aggiornamento annuale (988,45 € dal DM 20/07/2026).",
+      "Alla componente biologica si aggiunge il danno morale della Tavola 2, nella misura minima, media o massima.",
+      "Il giudice può aumentare l'importo fino al 30% se la menomazione incide in modo rilevante su specifici aspetti dinamico-relazionali documentati (art. 138, c. 3)."
+    ],
+    esempio: "Invalidità permanente del 25% a 40 anni, danno morale medio: danno biologico 95.708,00 €, danno morale 36.177,00 €, totale 131.885,00 €, prima della personalizzazione e della temporanea.",
+    errori: [
+      "Usare la TUN per le lesioni fino al 9%, per le quali vale l'art. 139.",
+      "Superare il 30% di personalizzazione o applicarla senza aspetti dinamico-relazionali documentati.",
+      "Dimenticare rivalutazione e interessi dalla data del sinistro.",
+      "Ignorare che l'importo è esaustivo del danno da lesione fisica (art. 138, c. 4)."
+    ],
+    faq: [
+      ["La TUN vale anche per i sinistri anteriori al 5 marzo 2025?", "Per legge si applica ai sinistri successivi, ma la Cassazione (sez. III, 7 aprile 2026 n. 8630) la considera parametro generale di equità anche per i sinistri anteriori e per gli illeciti diversi, salvo motivazione specifica."],
+      ["Fino a quanto si può personalizzare?", "Fino al 30% dell'importo tabellare (art. 138, c. 3, D.Lgs. 209/2005)."],
+      ["Il danno morale è compreso?", "Sì: la tabella incrementa la componente biologica con la quota del danno morale (Tavola 2), nella misura scelta."]
+    ],
+    norme: [["Art. 138 D.Lgs. 209/2005", "decreto.legislativo:2005-09-07;209~art138"], ["Art. 139 D.Lgs. 209/2005", "decreto.legislativo:2005-09-07;209~art139"]]
+  },
+  "danno-milano": {
+    intro: "Liquida il danno non patrimoniale con le Tabelle dell'Osservatorio sulla giustizia civile di Milano, edizione 2024: componente biologica e sofferenza, demoltiplicatore per età e temporanea.",
+    come: [
+      "Si legge nella tabella il valore corrispondente alla percentuale di invalidità e all'età del danneggiato.",
+      "Il demoltiplicatore per età scende di 0,005 per ogni anno, da 1 a un anno di età fino a 0,505 a cento anni.",
+      "Il valore si può aumentare in via personalizzata fino alla percentuale massima prevista dalla tabella per quel punto, che il calcolatore indica.",
+      "La temporanea si liquida per giorno, al 100% o in misura proporzionale per le inabilità parziali."
+    ],
+    esempio: "Invalidità permanente del 25% a 40 anni: valore tabellare 125.107,00 € all'1/1/2024, prima della personalizzazione, della temporanea, della rivalutazione e degli interessi.",
+    errori: [
+      "Usarle per le lesioni da RC auto e responsabilità sanitaria fino al 9%, per le quali vale l'art. 139.",
+      "Dimenticare che i valori sono all'1/1/2024 e vanno rivalutati alla data della liquidazione.",
+      "Liquidare a parte la sofferenza soggettiva, già compresa nel valore tabellare insieme alla componente biologica.",
+      "Non considerare che per i sinistri stradali e sanitari dal 5 marzo 2025 si applica la Tabella Unica Nazionale."
+    ],
+    faq: [
+      ["Le Tabelle di Milano si usano ancora?", "Sì, per gli illeciti a cui non si applicano gli artt. 138 e 139 del Codice delle assicurazioni; per i sinistri stradali e sanitari dal 5 marzo 2025 si applica la TUN, che la Cassazione (n. 8630/2026) indica come parametro di equità anche negli altri casi."],
+      ["Quanto vale un giorno di inabilità temporanea totale?", "115,00 € secondo le Tabelle 2024; per le inabilità parziali si applica la percentuale."],
+      ["I valori comprendono rivalutazione e interessi?", "No: sono espressi all'1/1/2024; rivalutazione e interessi si calcolano con gli strumenti dedicati."]
+    ],
+    norme: [["Art. 2059 c.c.", "regio.decreto:1942-03-16;262:2~art2059"], ["Art. 1226 c.c.", "regio.decreto:1942-03-16;262:2~art1226"]]
+  },
+  "contributo-unificato": {
+    intro: "Calcola il contributo unificato dovuto per iscrivere una causa a ruolo, secondo il valore, il tipo di procedimento e il grado (art. 13 DPR 115/2002).",
+    come: [
+      "Il valore della causa si determina con le regole degli artt. 10 e seguenti c.p.c.",
+      "Allo scaglione di valore corrisponde un importo fisso, in vigore dal 2023.",
+      "In appello l'importo aumenta del 50%, in cassazione raddoppia (art. 13, c. 1-bis); nel procedimento monitorio è dimezzato (c. 3).",
+      "Si aggiunge di regola la marca da 27 € per le notifiche d'ufficio (art. 30)."
+    ],
+    esempio: "Causa di cognizione ordinaria del valore di 15.000 €: primo grado 237,00 €, appello 355,50 €, cassazione 474,00 €, oltre alla marca da 27 €.",
+    errori: [
+      "Sbagliare il valore della causa, che si determina con gli artt. 10 e seguenti c.p.c.",
+      "Dimenticare la marca da 27 € per le notifiche d'ufficio.",
+      "Pagare per intero nel decreto ingiuntivo, dove il contributo è dimezzato.",
+      "Non considerare il raddoppio dovuto quando l'impugnazione è respinta o dichiarata inammissibile (art. 13, c. 1-quater)."
+    ],
+    faq: [
+      ["Quanto costa il contributo per un decreto ingiuntivo?", "La metà dell'importo previsto per lo stesso valore nel procedimento ordinario (art. 13, c. 3, DPR 115/2002)."],
+      ["Quanto si paga in appello?", "L'importo del primo grado aumentato della metà; in cassazione il doppio (art. 13, c. 1-bis)."],
+      ["Cos'è la marca da 27 €?", "L'anticipazione forfettaria per le notifiche eseguite d'ufficio nel processo civile (art. 30 DPR 115/2002)."]
+    ],
+    norme: [["Art. 13 DPR 115/2002", "decreto.del.presidente.della.repubblica:2002-05-30;115~art13"], ["Art. 30 DPR 115/2002", "decreto.del.presidente.della.repubblica:2002-05-30;115~art30"], ["Art. 10 c.p.c.", "regio.decreto:1940-10-28;1443:1~art10"]]
+  },
+  "successione": {
+    intro: "Calcola l'imposta di successione o di donazione a carico di un beneficiario, con le franchigie per parentela e disabilità e le imposte ipotecaria e catastale sugli immobili.",
+    come: [
+      "Aliquote e franchigie dipendono dal rapporto con il defunto o il donante: 4% oltre 1.000.000 € per coniuge e linea retta; 6% oltre 100.000 € per fratelli e sorelle; 6% senza franchigia per gli altri parenti fino al quarto grado e gli affini; 8% per gli altri.",
+      "La franchigia si applica a ciascun beneficiario ed è ridotta dalle donazioni ricevute in precedenza (coacervo); per un beneficiario con disabilità grave sale a 1.500.000 €.",
+      "Gli immobili si valutano al valore catastale: rendita × 1,05 × moltiplicatore.",
+      "Sugli immobili si pagano l'imposta ipotecaria del 2% e catastale dell'1%, oppure 200 € ciascuna con l'agevolazione prima casa."
+    ],
+    esempio: "Quota di 1.200.000 € al coniuge, di cui 500.000 € di immobili al valore catastale: imposta di successione 4% su 200.000 € = 8.000,00 €; ipotecaria 10.000,00 €; catastale 5.000,00 €. Totale 23.000,00 €.",
+    errori: [
+      "Applicare la franchigia all'intero asse invece che a ciascun beneficiario.",
+      "Dimenticare le donazioni precedenti, che riducono la franchigia.",
+      "Valutare gli immobili a prezzo di mercato invece che al valore catastale.",
+      "Lasciar scadere i 12 mesi per la dichiarazione di successione."
+    ],
+    faq: [
+      ["Quanto pagano coniuge e figli?", "Il 4% sulla parte della quota che supera 1.000.000 € per ciascuno; sotto la franchigia l'imposta di successione non è dovuta, ma restano ipotecaria e catastale sugli immobili."],
+      ["Entro quando si presenta la dichiarazione?", "Entro 12 mesi dall'apertura della successione, in via telematica; l'imposta è autoliquidata dagli eredi."],
+      ["Cosa cambia dal 2027?", "Le stesse aliquote e franchigie confluiscono negli artt. 93 e 133 del testo unico del registro e degli altri tributi indiretti (D.Lgs. 123/2025), applicabile dal 1° gennaio 2027."]
+    ],
+    norme: [["Art. 7 D.Lgs. 346/1990", "decreto.legislativo:1990-10-31;346~art7"], ["Art. 2 DL 262/2006", "decreto.legge:2006-10-03;262~art2"]]
+  },
+  "imu": {
+    intro: "Calcola il valore catastale e l'IMU annua di un immobile a partire dalla rendita, con l'aliquota del Comune, i mesi e la quota di possesso (L. 160/2019).",
+    come: [
+      "Base imponibile = rendita catastale rivalutata del 5% × moltiplicatore della categoria (art. 1, c. 745, L. 160/2019): 160 per il gruppo A e C/2, C/6, C/7; 140 per il gruppo B e C/3, C/4, C/5; 80 per A/10 e D/5; 65 per il gruppo D; 55 per C/1.",
+      "IMU = base imponibile × aliquota comunale × quota di possesso × mesi / 12.",
+      "Il mese conta se il possesso dura più di 15 giorni (c. 761).",
+      "L'abitazione principale è esente, salvo le categorie A/1, A/8 e A/9, che hanno una detrazione di 200 €."
+    ],
+    esempio: "Abitazione A/2 con rendita di 800 €, non abitazione principale, aliquota del 10,6‰, posseduta al 100% per tutto l'anno: base imponibile 800 × 1,05 × 160 = 134.400,00 €; IMU 1.424,64 €.",
+    errori: [
+      "Usare la rendita senza la rivalutazione del 5%.",
+      "Applicare il moltiplicatore di un'altra categoria catastale.",
+      "Dimenticare quota e mesi di possesso.",
+      "Usare l'aliquota base invece di quella deliberata dal Comune."
+    ],
+    faq: [
+      ["L'abitazione principale paga l'IMU?", "No, salvo le abitazioni di lusso delle categorie A/1, A/8 e A/9, che pagano con l'aliquota ridotta e una detrazione di 200 €."],
+      ["Quando si paga?", "In due rate: acconto entro il 16 giugno e saldo entro il 16 dicembre."],
+      ["Il valore catastale per l'IMU è uguale a quello per il registro?", "No: per l'imposta di registro i moltiplicatori dell'art. 52 DPR 131/1986 sono maggiorati (del 20%, o del 10% per la prima casa); il calcolatore li mostra entrambi."]
+    ],
+    norme: [["Art. 1 L. 160/2019", "legge:2019-12-27;160~art1"], ["Art. 52 DPR 131/1986", "decreto.del.presidente.della.repubblica:1986-04-26;131~art52"]]
+  },
+  "precetto": {
+    intro: "Calcola le somme da intimare con l'atto di precetto: capitale, interessi fino alla data del precetto, spese liquidate nel titolo e compenso del precetto secondo i parametri forensi.",
+    come: [
+      "Interessi sul solo capitale, dalla decorrenza indicata nel titolo alla data del precetto, legali, di mora commerciale o convenzionali.",
+      "Spese del titolo: compensi liquidati con spese generali 15%, contributo integrativo 4% e IVA, più gli esborsi.",
+      "Compenso del precetto secondo la tabella 6 del DM 55/2014 (DM 147/2022) per lo scaglione del credito, con spese generali, contributo integrativo e IVA.",
+      "L'IVA sulle spese legali non è dovuta dal debitore se il creditore la detrae."
+    ],
+    esempio: "Capitale di 10.000 €, interessi legali dal 30/06/2025 al precetto del 30/06/2026 = 180,16 €; spese liquidate nel titolo (compensi 2.500 € ed esborsi 264 €) = 3.911,80 €; compenso del precetto con accessori = 344,36 €. Totale intimato 14.436,32 €.",
+    errori: [
+      "Concedere un termine per adempiere inferiore a dieci giorni.",
+      "Omettere l'avvertimento sulla possibilità di ricorrere a una procedura di composizione della crisi da sovraindebitamento, richiesto a pena di nullità.",
+      "Iniziare l'esecuzione oltre novanta giorni dalla notifica: il precetto diventa inefficace.",
+      "Chiedere l'IVA sulle spese legali quando il creditore la detrae."
+    ],
+    faq: [
+      ["Entro quanto deve iniziare l'esecuzione?", "Entro novanta giorni dalla notifica del precetto, altrimenti il precetto perde efficacia (art. 481 c.p.c.)."],
+      ["Quale termine si dà al debitore?", "Non meno di dieci giorni per adempiere, con l'avvertimento che in mancanza si procederà a esecuzione forzata (art. 480 c.p.c.)."],
+      ["Gli interessi continuano dopo il precetto?", "Sì: nel precetto si indicano quelli maturati fino alla sua data, ma continuano a decorrere fino al pagamento."]
+    ],
+    norme: [["Art. 480 c.p.c.", "regio.decreto:1940-10-28;1443:1~art480"], ["Art. 481 c.p.c.", "regio.decreto:1940-10-28;1443:1~art481"], ["Art. 1284 c.c.", "regio.decreto:1942-03-16;262:2~art1284"]]
   }
 };
 function guidaHtml(id){
