@@ -23,6 +23,7 @@ body{margin:0;font-family:system-ui,sans-serif;font-size:14px}
 img{max-width:100%}
 [hidden]{display:none!important}
 </style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Da quale udienza si contano le memorie integrative?","acceptedAnswer":{"@type":"Answer","text":"Dall'udienza fissata in citazione o, se il giudice l'ha confermata o differita con il decreto dell'art. 171-bis, da quella indicata nel decreto: inseriscila nel calcolatore per ricalcolare le memorie."}},{"@type":"Question","name":"Quanti giorni servono tra notifica e udienza?","acceptedAnswer":{"@type":"Answer","text":"Almeno 120 giorni liberi, o 150 se la notifica avviene all'estero (art. 163-bis c.p.c.)."}},{"@type":"Question","name":"Quando si applica questo rito?","acceptedAnswer":{"@type":"Answer","text":"Ai procedimenti introdotti dal 1° marzo 2023 (D.Lgs. 149/2022, con il correttivo D.Lgs. 164/2024)."}}]}</script>
 </head>
 <body>
 <script>window.CF_START="calendario-processo";</script>
@@ -296,7 +297,14 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
     
   </div></div>
   </div>
-  
+  <section class="guida" aria-labelledby="guida-tit"><h2 id="guida-tit">Guida: come si calcola</h2>
+    <p>Calcola tutte le scadenze del processo ordinario di cognizione riformato (D.Lgs. 149/2022), a partire dalla prima udienza indicata nella citazione.</p>
+    <h3>Il calcolo passo per passo</h3><ol><li>Termine a comparire: tra la notifica e l'udienza devono intercorrere almeno 120 giorni liberi, 150 se la notifica avviene all'estero (art. 163-bis c.p.c.).</li><li>Il convenuto si costituisce almeno 70 giorni prima dell'udienza (art. 166); entro i 15 giorni successivi il giudice emette il decreto sulle verifiche preliminari (art. 171-bis).</li><li>Le tre memorie integrative si depositano 40, 20 e 10 giorni prima dell'udienza (art. 171-ter).</li><li>Ogni termine segue l'art. 155 c.p.c.: termini a ritroso anticipati al giorno non festivo precedente e sospensione feriale di agosto.</li></ol>
+    <h3>Esempio svolto</h3><p class="es">Prima udienza indicata in citazione il 10/03/2027: citazione da notificare entro il 09/11/2026; costituzione del convenuto entro il 29/12/2026; decreto del giudice entro il 13/01/2027; prima memoria entro il 28/01/2027, seconda entro il 17/02/2027, terza entro il 26/02/2027.</p>
+    <h3>Errori frequenti</h3><ul><li>Calcolare le memorie dall'udienza della citazione quando il giudice l'ha differita con il decreto dell'art. 171-bis.</li><li>Contare i giorni del termine a comparire come giorni semplici invece che liberi.</li><li>Dimenticare la sospensione feriale di agosto.</li><li>Non anticipare al giorno precedente un termine a ritroso che cade di domenica o in un festivo.</li></ul>
+    <h3>Domande frequenti</h3><details><summary>Da quale udienza si contano le memorie integrative?</summary><p>Dall'udienza fissata in citazione o, se il giudice l'ha confermata o differita con il decreto dell'art. 171-bis, da quella indicata nel decreto: inseriscila nel calcolatore per ricalcolare le memorie.</p></details><details><summary>Quanti giorni servono tra notifica e udienza?</summary><p>Almeno 120 giorni liberi, o 150 se la notifica avviene all'estero (art. 163-bis c.p.c.).</p></details><details><summary>Quando si applica questo rito?</summary><p>Ai procedimenti introdotti dal 1° marzo 2023 (D.Lgs. 149/2022, con il correttivo D.Lgs. 164/2024).</p></details>
+    <h3>Norme di riferimento</h3><p class="norme"><a href="https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:regio.decreto:1940-10-28;1443:1~art163bis" target="_blank" rel="noopener">Art. 163-bis c.p.c.</a> · <a href="https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:regio.decreto:1940-10-28;1443:1~art166" target="_blank" rel="noopener">Art. 166 c.p.c.</a> · <a href="https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:regio.decreto:1940-10-28;1443:1~art171bis" target="_blank" rel="noopener">Art. 171-bis c.p.c.</a> · <a href="https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:regio.decreto:1940-10-28;1443:1~art171ter" target="_blank" rel="noopener">Art. 171-ter c.p.c.</a> · <a href="https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:regio.decreto:1940-10-28;1443:1~art155" target="_blank" rel="noopener">Art. 155 c.p.c.</a></p>
+    <p class="agg">Testo verificato sulle fonti ufficiali al 12/10/2026.</p></section>
   <div class="print-foot">Elaborazione automatica su dati normativi e tabellari pubblici, verificati alla data indicata; non costituisce consulenza legale e non sostituisce la valutazione del professionista.</div></main>
 </div>
 
@@ -338,7 +346,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.25.1 — 12 ottobre 2026",
+  version: "0.25.2 — 12 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -1821,6 +1829,182 @@ const GUIDE = {
       ["Gli interessi continuano dopo il precetto?", "Sì: nel precetto si indicano quelli maturati fino alla sua data, ma continuano a decorrere fino al pagamento."]
     ],
     norme: [["Art. 480 c.p.c.", "regio.decreto:1940-10-28;1443:1~art480"], ["Art. 481 c.p.c.", "regio.decreto:1940-10-28;1443:1~art481"], ["Art. 1284 c.c.", "regio.decreto:1942-03-16;262:2~art1284"]]
+  },
+  "danno-parentale": {
+    intro: "Liquida il danno da perdita del rapporto parentale con le tabelle integrate a punti di Milano (edizione 2024), costruite secondo i criteri indicati dalla Cassazione (n. 10579/2021).",
+    come: [
+      "Si attribuiscono punti a cinque parametri: età della vittima, età del superstite, convivenza, presenza di altri congiunti superstiti del nucleo primario, qualità e intensità della relazione affettiva (da 0 a 30 punti).",
+      "Il totale dei punti si moltiplica per il valore del punto della tabella: 3.911,03 € per genitore, figlio, coniuge, unito civilmente o convivente; un valore inferiore per fratelli, nipoti e nonni.",
+      "L'importo non supera di regola il tetto della tabella (391.103,18 € per il nucleo primario), salvo circostanze eccezionali motivate.",
+      "Contrasti, violenze o reati del superstite verso la vittima possono ridurre l'importo fino ad azzerarlo."
+    ],
+    esempio: "Morte di un figlio di 15 anni, genitore superstite di 45 anni convivente, altri due congiunti superstiti, relazione affettiva valutata 15 punti: 89 punti × 3.911,03 € = 348.081,83 €, sotto il tetto di 391.103,18 €.",
+    errori: [
+      "Usare il valore del punto del nucleo primario per fratelli, nipoti o nonni.",
+      "Superare il tetto senza una motivazione specifica su circostanze eccezionali.",
+      "Attribuire il massimo dei punti per la relazione senza elementi concreti.",
+      "Dimenticare che gli importi sono all'1/1/2024 e vanno rivalutati."
+    ],
+    faq: [
+      ["Quanto vale un punto nel 2024?", "3.911,03 € per genitori, figli, coniuge, unito civilmente e convivente di fatto; per fratelli, nipoti e nonni il valore è inferiore e il calcolatore lo applica in automatico."],
+      ["Il tetto si può superare?", "Solo in circostanze eccezionali e con adeguata motivazione, come indicato dalle Tabelle milanesi."],
+      ["Cosa succede se ci sono quattro o più superstiti?", "Il parametro relativo agli altri congiunti superstiti vale 0 punti, come negli esempi ufficiali dell'Osservatorio di Milano."]
+    ],
+    norme: [["Art. 2059 c.c.", "regio.decreto:1942-03-16;262:2~art2059"], ["Art. 1226 c.c.", "regio.decreto:1942-03-16;262:2~art1226"]]
+  },
+  "usura": {
+    intro: "Verifica se il tasso di un contratto di finanziamento supera la soglia antiusura del trimestre in cui è stato pattuito, con la serie ufficiale dei tassi medi dal 1997.",
+    come: [
+      "Si individua il trimestre della stipula, la categoria di operazione e la classe di importo.",
+      "Dal 14 maggio 2011 la soglia è il tasso effettivo globale medio (TEGM) aumentato di un quarto più 4 punti, con una differenza massima di 8 punti dal TEGM; prima era il TEGM aumentato della metà.",
+      "Si confronta il TEG del contratto, calcolato con le istruzioni della Banca d'Italia (commissioni, spese e oneri connessi all'erogazione, senza imposte né interessi di mora), con la soglia.",
+      "L'usura si valuta al momento della pattuizione: il superamento successivo della soglia non rende il tasso usurario."
+    ],
+    esempio: "Apertura di credito in conto corrente fino a 5.000 € stipulata nel trimestre 1/10–31/12/2026: TEGM 10,80%, soglia 10,80% × 1,25 + 4 = 17,50%. Con un TEG del 9% il contratto è entro la soglia, con un margine di 8,50 punti.",
+    errori: [
+      "Confrontare con la soglia il TAEG o l'ISC, calcolati con regole diverse dal TEG.",
+      "Usare il trimestre del pagamento invece di quello della pattuizione.",
+      "Scegliere la categoria di operazione o la classe di importo sbagliata.",
+      "Inserire gli interessi di mora nel TEG: la mora si confronta a parte."
+    ],
+    faq: [
+      ["Cosa succede se il tasso è usurario?", "La clausola è nulla e non sono dovuti interessi (art. 1815, c. 2, c.c.)."],
+      ["E se è usuraria solo la mora?", "Restano dovuti gli interessi corrispettivi pattuiti (Cass. SU n. 19597/2020)."],
+      ["Un tasso diventato superiore alla soglia dopo la stipula è usurario?", "No: conta il momento della pattuizione (Cass. SU n. 24675/2017)."]
+    ],
+    norme: [["Art. 2 L. 108/1996", "legge:1996-03-07;108~art2"], ["Art. 644 c.p.", "regio.decreto:1930-10-19;1398:1~art644"], ["Art. 1815 c.c.", "regio.decreto:1942-03-16;262:2~art1815"]]
+  },
+  "calendario-processo": {
+    intro: "Calcola tutte le scadenze del processo ordinario di cognizione riformato (D.Lgs. 149/2022), a partire dalla prima udienza indicata nella citazione.",
+    come: [
+      "Termine a comparire: tra la notifica e l'udienza devono intercorrere almeno 120 giorni liberi, 150 se la notifica avviene all'estero (art. 163-bis c.p.c.).",
+      "Il convenuto si costituisce almeno 70 giorni prima dell'udienza (art. 166); entro i 15 giorni successivi il giudice emette il decreto sulle verifiche preliminari (art. 171-bis).",
+      "Le tre memorie integrative si depositano 40, 20 e 10 giorni prima dell'udienza (art. 171-ter).",
+      "Ogni termine segue l'art. 155 c.p.c.: termini a ritroso anticipati al giorno non festivo precedente e sospensione feriale di agosto."
+    ],
+    esempio: "Prima udienza indicata in citazione il 10/03/2027: citazione da notificare entro il 09/11/2026; costituzione del convenuto entro il 29/12/2026; decreto del giudice entro il 13/01/2027; prima memoria entro il 28/01/2027, seconda entro il 17/02/2027, terza entro il 26/02/2027.",
+    errori: [
+      "Calcolare le memorie dall'udienza della citazione quando il giudice l'ha differita con il decreto dell'art. 171-bis.",
+      "Contare i giorni del termine a comparire come giorni semplici invece che liberi.",
+      "Dimenticare la sospensione feriale di agosto.",
+      "Non anticipare al giorno precedente un termine a ritroso che cade di domenica o in un festivo."
+    ],
+    faq: [
+      ["Da quale udienza si contano le memorie integrative?", "Dall'udienza fissata in citazione o, se il giudice l'ha confermata o differita con il decreto dell'art. 171-bis, da quella indicata nel decreto: inseriscila nel calcolatore per ricalcolare le memorie."],
+      ["Quanti giorni servono tra notifica e udienza?", "Almeno 120 giorni liberi, o 150 se la notifica avviene all'estero (art. 163-bis c.p.c.)."],
+      ["Quando si applica questo rito?", "Ai procedimenti introdotti dal 1° marzo 2023 (D.Lgs. 149/2022, con il correttivo D.Lgs. 164/2024)."]
+    ],
+    norme: [["Art. 163-bis c.p.c.", "regio.decreto:1940-10-28;1443:1~art163bis"], ["Art. 166 c.p.c.", "regio.decreto:1940-10-28;1443:1~art166"], ["Art. 171-bis c.p.c.", "regio.decreto:1940-10-28;1443:1~art171bis"], ["Art. 171-ter c.p.c.", "regio.decreto:1940-10-28;1443:1~art171ter"], ["Art. 155 c.p.c.", "regio.decreto:1940-10-28;1443:1~art155"]]
+  },
+  "preventivo": {
+    intro: "Prepara il preventivo scritto da consegnare al cliente: compensi per fase secondo i parametri forensi, spese generali, Cassa Forense, IVA, contributo unificato e anticipazioni stimate.",
+    come: [
+      "Si sceglie il procedimento, il valore della controversia e il livello dei compensi (minimi, medi o massimi tabellari).",
+      "Per ogni fase si applicano i valori del DM 55/2014 (tabelle DM 147/2022); si aggiungono spese generali 15%, contributo integrativo 4% e IVA.",
+      "Si stimano le anticipazioni: contributo unificato per il valore della causa, notifiche, copie, eventuale consulenza tecnica.",
+      "Il documento distingue oneri, spese e compenso professionale, come richiede l'art. 13, c. 5, L. 247/2012."
+    ],
+    esempio: "Causa davanti al tribunale del valore di 30.000 €, compensi medi: studio 1.701 €, introduttiva 1.204 €, istruttoria 1.806 €, decisionale 2.905 €, compenso 7.616,00 €; spese generali 1.142,40 €, Cassa 350,34 €, IVA 2.003,92 €; anticipazioni stimate 695,00 €. Costo presumibile 11.807,66 €.",
+    errori: [
+      "Consegnare un preventivo orale o generico, senza la distinzione tra compenso, spese e oneri.",
+      "Dimenticare il contributo unificato e le altre anticipazioni.",
+      "Non avvertire che fasi cautelari, esecutive e gradi successivi richiedono un preventivo separato.",
+      "Non informare il cliente del rischio di condanna alle spese in caso di soccombenza."
+    ],
+    faq: [
+      ["Il preventivo scritto è obbligatorio?", "Sì: l'avvocato deve comunicare per iscritto al cliente la prevedibile misura del costo della prestazione, distinguendo oneri, spese e compenso (art. 13, c. 5, L. 247/2012)."],
+      ["Il preventivo vincola l'avvocato?", "Indica una misura presumibile: gli importi possono variare in base alle attività effettivamente svolte e alla complessità della causa, come specificato nelle avvertenze."],
+      ["Posso partire dai valori minimi?", "Sì: il calcolatore consente valori minimi, medi o massimi; ciascuna fase può essere ridotta fino al 50% o aumentata fino al 50% dei valori medi (art. 4 DM 55/2014)."]
+    ],
+    norme: [["Art. 13 L. 247/2012", "legge:2012-12-31;247~art13"], ["Art. 2 DM 55/2014", "decreto.ministeriale:2014-03-10;55~art2"], ["Art. 4 DM 55/2014", "decreto.ministeriale:2014-03-10;55~art4"]]
+  },
+  "prescrizione": {
+    intro: "Calcola la data in cui si prescrive un diritto secondo i termini del codice civile: ordinario di dieci anni, quinquennali, brevi e speciali.",
+    come: [
+      "Si sceglie il diritto e la data da cui può essere fatto valere (art. 2935 c.c.).",
+      "Il termine si computa secondo il calendario comune, senza contare il giorno iniziale (art. 2963 c.c.); se scade in un giorno festivo è prorogato al giorno seguente non festivo.",
+      "Termini principali: dieci anni in via ordinaria (art. 2946); cinque anni per il risarcimento del danno da fatto illecito, due per quello da circolazione di veicoli (art. 2947); cinque anni per canoni, interessi e altri pagamenti periodici (art. 2948).",
+      "Il calcolo non considera interruzioni e sospensioni, che vanno valutate caso per caso."
+    ],
+    esempio: "Credito esigibile dal 15/06/2021, soggetto alla prescrizione ordinaria di dieci anni: si prescrive il 15/06/2031, se non interviene un atto interruttivo.",
+    errori: [
+      "Dimenticare gli atti interruttivi, come una lettera di messa in mora, da cui decorre un nuovo termine.",
+      "Far decorrere il termine da una data diversa da quella in cui il diritto poteva essere fatto valere.",
+      "Applicare il termine decennale a crediti periodici soggetti a quello quinquennale.",
+      "Confondere prescrizione e decadenza, come nei vizi della vendita (art. 1495) o dell'appalto (art. 1667)."
+    ],
+    faq: [
+      ["Come si interrompe la prescrizione?", "Con la domanda giudiziale, con un atto di costituzione in mora e con il riconoscimento del debito (artt. 2943 e 2944 c.c.); dall'interruzione decorre un nuovo periodo."],
+      ["Quanto dura la prescrizione dopo una sentenza?", "Dieci anni dal passaggio in giudicato, anche se per il diritto era previsto un termine più breve (art. 2953 c.c.)."],
+      ["Se il termine scade di domenica?", "È prorogato al primo giorno seguente non festivo."]
+    ],
+    norme: [["Art. 2946 c.c.", "regio.decreto:1942-03-16;262:2~art2946"], ["Art. 2947 c.c.", "regio.decreto:1942-03-16;262:2~art2947"], ["Art. 2948 c.c.", "regio.decreto:1942-03-16;262:2~art2948"], ["Art. 2943 c.c.", "regio.decreto:1942-03-16;262:2~art2943"], ["Art. 2953 c.c.", "regio.decreto:1942-03-16;262:2~art2953"], ["Art. 2963 c.c.", "regio.decreto:1942-03-16;262:2~art2963"]]
+  },
+  "pignoramento": {
+    intro: "Calcola la quota pignorabile di stipendio e pensione secondo l'art. 545 c.p.c. e, per la riscossione coattiva, secondo l'art. 72-ter DPR 602/1973.",
+    come: [
+      "Crediti ordinari: fino a un quinto dello stipendio netto (art. 545, c. 4); crediti alimentari nella misura autorizzata dal presidente del tribunale (c. 3).",
+      "Se concorrono più cause di credito, il pignoramento non può superare la metà (c. 5).",
+      "Le pensioni sono impignorabili fino al doppio dell'assegno sociale e comunque per almeno 1.000 € al mese (c. 7).",
+      "Le somme già accreditate sul conto prima del pignoramento sono impignorabili fino al triplo dell'assegno sociale (c. 8)."
+    ],
+    esempio: "Stipendio netto di 1.800 € pignorato per un credito ordinario: quota pignorabile 1/5 = 360,00 € al mese; al debitore restano 1.440,00 €. Le somme già sul conto sono impignorabili fino a 1.638,72 € (tre volte l'assegno sociale).",
+    errori: [
+      "Calcolare il quinto sul lordo invece che sul netto.",
+      "Applicare alle pensioni il quinto senza rispettare il minimo impignorabile.",
+      "Superare la metà quando concorrono più creditori.",
+      "Usare le quote ordinarie per l'agente della riscossione, che ha limiti propri."
+    ],
+    faq: [
+      ["Quanto può pignorare l'agente della riscossione?", "Un decimo per stipendi fino a 2.500 €, un settimo fino a 5.000 €, un quinto oltre (art. 72-ter DPR 602/1973)."],
+      ["Qual è la parte impignorabile della pensione?", "Il doppio dell'assegno sociale, con un minimo di 1.000 € al mese; sulla parte eccedente si applicano le quote ordinarie (art. 545, c. 7, c.p.c.)."],
+      ["Il TFR si può pignorare?", "Sì, nel limite di un quinto."]
+    ],
+    norme: [["Art. 545 c.p.c.", "regio.decreto:1940-10-28;1443:1~art545"], ["Art. 72-ter DPR 602/1973", "decreto.del.presidente.della.repubblica:1973-09-29;602~art72ter"]]
+  },
+  "pena": {
+    intro: "Simula la determinazione della pena: pena base, circostanze in successione, bilanciamento, continuazione e diminuenti del giudizio abbreviato o del patteggiamento, con i limiti dei benefici.",
+    come: [
+      "Si parte dalla pena base scelta per il reato più grave; mesi di 30 giorni e anni di 12 mesi, senza frazioni di giorno (art. 134 c.p.).",
+      "Le circostanze si applicano in successione sulla pena risultante, prima quelle ad effetto speciale (art. 63); aggravanti e attenuanti comuni fino a un terzo (artt. 64 e 65).",
+      "Con la continuazione la pena del reato più grave si aumenta fino al triplo, senza superare il cumulo materiale (art. 81).",
+      "La diminuente del rito si applica per ultima: abbreviato un terzo per i delitti e metà per le contravvenzioni (art. 442 c.p.p.); patteggiamento fino a un terzo, ammesso se la pena finale non supera 5 anni (art. 444)."
+    ],
+    esempio: "Pena base di 2 anni di reclusione con un'attenuante di un terzo: 1 anno e 4 mesi, compatibile con la sospensione condizionale per entità. Con il giudizio abbreviato la pena scende di un ulteriore terzo, a 10 mesi e 20 giorni.",
+    errori: [
+      "Applicare la diminuente del rito prima delle circostanze o della continuazione.",
+      "Applicare le circostanze comuni prima di quelle ad effetto speciale.",
+      "Ammettere la prevalenza delle attenuanti sulla recidiva reiterata, vietata salvo le eccezioni dichiarate dalla Corte costituzionale.",
+      "Proporre un patteggiamento con pena finale superiore a 5 anni."
+    ],
+    faq: [
+      ["Quanto riduce il giudizio abbreviato?", "Un terzo per i delitti e la metà per le contravvenzioni; la pena è ridotta di un ulteriore sesto in fase esecutiva se non viene proposta impugnazione (art. 442, c. 2 e 2-bis, c.p.p.)."],
+      ["Qual è il limite per la sospensione condizionale?", "Due anni; due anni e sei mesi per chi aveva tra 18 e 21 anni o più di 70 anni; tre anni per i minorenni (art. 163 c.p.), salvo la valutazione dei presupposti soggettivi."],
+      ["Quando si applicano le pene sostitutive?", "Semilibertà e detenzione domiciliare fino a 4 anni, lavoro di pubblica utilità fino a 3 anni, pena pecuniaria fino a 1 anno (art. 20-bis c.p.; art. 53 L. 689/1981)."]
+    ],
+    norme: [["Art. 63 c.p.", "regio.decreto:1930-10-19;1398:1~art63"], ["Art. 69 c.p.", "regio.decreto:1930-10-19;1398:1~art69"], ["Art. 81 c.p.", "regio.decreto:1930-10-19;1398:1~art81"], ["Art. 163 c.p.", "regio.decreto:1930-10-19;1398:1~art163"], ["Art. 442 c.p.p.", "decreto.del.presidente.della.repubblica:1988-09-22;447~art442"], ["Art. 444 c.p.p.", "decreto.del.presidente.della.repubblica:1988-09-22;447~art444"]]
+  },
+  "parcella-penale": {
+    intro: "Calcola il compenso dell'avvocato nel processo penale con la tabella 15 del DM 55/2014 (aggiornata dal DM 147/2022), per autorità e fase, con spese generali, Cassa Forense e IVA.",
+    come: [
+      "Si sceglie l'autorità o l'attività (indagini, tribunale monocratico, collegiale, corte d'assise, appello, cassazione…) e le fasi svolte.",
+      "Le fasi sono quattro: studio, introduttiva, istruttoria o dibattimentale, decisionale (art. 12, c. 3).",
+      "I valori medi si possono aumentare fino al 50% o diminuire fino al 50% secondo gravità, complessità, numero di udienze ed esito (art. 12, c. 1).",
+      "Per più assistiti con la stessa posizione il compenso aumenta del 30% per ciascuno fino a dieci e del 10% oltre, fino a trenta (art. 12, c. 2)."
+    ],
+    esempio: "Difesa davanti al tribunale monocratico in tutte le fasi, valori medi: studio 473 €, introduttiva 567 €, dibattimentale 1.134 €, decisionale 1.418 €, compenso 3.592,00 €; spese generali 538,80 €, Cassa 165,23 €, IVA 945,13 €. Totale 5.241,16 €.",
+    errori: [
+      "Inserire fasi non previste per quell'autorità.",
+      "Dimenticare l'aumento per più assistiti con la stessa posizione.",
+      "Non applicare la riduzione di un terzo nel patrocinio a spese dello Stato.",
+      "Usare i parametri civili per la parte civile nel processo penale, che segue invece la tabella penale (art. 16)."
+    ],
+    faq: [
+      ["Come si calcola il compenso per il patrocinio a spese dello Stato?", "Con gli stessi parametri, ridotti di un terzo (art. 106-bis DPR 115/2002)."],
+      ["La parte civile ha parametri diversi?", "No: per la parte civile e la persona offesa si applicano gli stessi parametri della difesa (art. 16 DM 55/2014)."],
+      ["Davanti al tribunale per i minorenni quali valori si usano?", "Quelli dell'autorità che sarebbe stata competente per un maggiorenne (art. 12, c. 3-ter)."]
+    ],
+    norme: [["Art. 12 DM 55/2014", "decreto.ministeriale:2014-03-10;55~art12"], ["Art. 2 DM 55/2014", "decreto.ministeriale:2014-03-10;55~art2"], ["Art. 106-bis DPR 115/2002", "decreto.del.presidente.della.repubblica:2002-05-30;115~art106bis"]]
   }
 };
 function guidaHtml(id){
