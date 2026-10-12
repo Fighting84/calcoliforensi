@@ -21,6 +21,7 @@ const PAGINE = {
   "contributo-unificato": ["calcolo-contributo-unificato", "Calcolo contributo unificato 2026 per valore e grado"],
   "parcella": ["calcolo-parcella-avvocato", "Calcolo parcella avvocato civile: parametri forensi DM 55/2014"],
   "preventivo": ["preventivo-avvocato", "Preventivo avvocato ex art. 13 L. 247/2012"],
+  "fattura-avvocato": ["calcolo-fattura-avvocato", "Calcolo fattura avvocato 2026: spese generali, Cassa Forense, IVA e ritenuta d’acconto"],
   "precetto": ["calcolo-atto-di-precetto", "Calcolo atto di precetto: capitale, interessi, spese e compensi"],
   "prescrizione": ["calcolo-prescrizione-diritti", "Calcolo prescrizione dei diritti (codice civile)"],
   "pignoramento": ["calcolo-pignoramento-stipendio-pensione", "Calcolo pignoramento di stipendio e pensione"],

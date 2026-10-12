@@ -361,6 +361,17 @@ ck("lire: 1.000 € = 1.936.270 lire", ENGINES.lireEuro(1000, "eur2lire"), 19362
   eq("cedolare: 8940 e 1940 (ris. 12/E/2023)", ENGINES.ravvedimento({ tributo: "ced_saldo", imposta: 100, scadenza: "2026-06-30", pagamento: "2026-07-10" }).righe.map(x => x.codice).join(" "), "1842 8940 1940");
   eq("scadenza di sabato segnalata", rv({ scadenza: "2026-05-16", pagamento: "2026-07-10" }).avvisi.some(a => /sabato/.test(a)), true);
   eq("nessun codice soppresso (8906, 8913, 1992, 8903, 8908)", /"(8906|8913|1992|8903|8908)"/.test(html.slice(html.indexOf("const RAVV_TRIBUTI"), html.indexOf("const prevMese"))), false); }
+// Fattura dell avvocato (verificata anche con lo strumento MCP fattura_avvocato: imponibile 1.150 → CPA 46, IVA 263,12, ritenuta 230)
+{ const fa = o => ENGINES.fatturaAvvocato({ compenso: 1000, sg: 15, regime: "ordinario", sostituto: true, esenti: 0, bollo: true, ...o });
+  const A = fa({}); ck("fattura: spese generali 15%", A.speseGen, 150); ck("fattura: CPA 4%", A.cpa, 46); ck("fattura: IVA 22%", A.iva, 263.12); ck("fattura: totale", A.totale, 1459.12); ck("fattura: ritenuta 20%", A.ritenuta, 230); ck("fattura: netto", A.netto, 1229.12);
+  ck("fattura: cliente privato, niente ritenuta", fa({ sostituto: false }).netto, 1459.12);
+  ck("fattura: anticipazioni 98 € esenti → bollo 2 €", fa({ esenti: 98 }).totale, 1559.12);
+  ck("fattura: forfetario 1.000 → 1.196 + bollo 2", fa({ regime: "forfetario" }).totale, 1198);
+  ck("fattura: forfetario senza ritenuta", fa({ regime: "forfetario" }).ritenuta, 0);
+  ck("fattura dal netto 1.229,12 → compenso 1.000", ENGINES.fatturaAvvocato({ modo: "netto", netto: 1229.12, sg: 15, regime: "ordinario", sostituto: true, esenti: 0, bollo: true }).compenso, 1000);
+  ck("fattura dal netto forfetario 1.198 → compenso 1.000", ENGINES.fatturaAvvocato({ modo: "netto", netto: 1198, sg: 15, regime: "forfetario", esenti: 0, bollo: true }).compenso, 1000);
+  let peggio = 0; for (let n = 50; n < 20000; n += 137.37) { const R = ENGINES.fatturaAvvocato({ modo: "netto", netto: r2(n), sg: 15, regime: "ordinario", sostituto: true, esenti: 0, bollo: true }); peggio = Math.max(peggio, Math.abs(R.netto - r2(n))); }
+  ck("fattura dal netto: scarto massimo su 146 importi entro 1 centesimo (netto non sempre raggiungibile al centesimo)", peggio <= 0.011 ? 0 : peggio, 0); }
 // Sanzioni civili INPS (art. 116, c. 8, L. 388/2000; circ. INPS 90/2024 e 98/2026). Valori calcolati a mano:
 // tasso BCE 2,15% dall'11/06/2025, 2,40% dal 17/06/2026, 2,65% dal 16/09/2026; 4,25% dal 12/06/2024.
 { const si = (...a) => ENGINES.sanzioniInps(...a);
