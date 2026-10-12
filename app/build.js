@@ -2,6 +2,10 @@
 const fs = require("fs"), path = require("path");
 const src = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
 const body = src.replace(/^<meta charset="utf-8">\s*/i, "").replace(/^<title>.*?<\/title>\s*/i, "");
+// Contatore delle visite Cloudflare Web Analytics (senza cookie): token assegnato da Cloudflare; vuoto = contatore spento
+const ANALYTICS_TOKEN = "";
+const contatore = ANALYTICS_TOKEN ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"${ANALYTICS_TOKEN}","spa":true}'></script>
+` : "";
 const title = "Calcoli Forensi — calcolatori legali e fiscali per professionisti";
 const desc = "Calcolatori per avvocati, commercialisti, consulenti del lavoro, notai, agenti immobiliari, medici legali e CAF: danno biologico (TUN, art. 139, Tabelle di Milano), interessi e rivalutazione ISTAT, parcella DM 55/2014, scadenze, TFR, IMU, successioni, locazioni. Formula e fonte accanto a ogni risultato, dati aggiornati ogni giorno.";
 const out = `<!doctype html>
@@ -28,7 +32,7 @@ body{margin:0;font-family:system-ui,sans-serif;font-size:14px}
 img{max-width:100%}
 [hidden]{display:none!important}
 </style>
-</head>
+${contatore}</head>
 <body>
 ${body}
 </body>
