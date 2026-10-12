@@ -247,6 +247,18 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
 .f24 .tot td{font-weight:600}
 @media print{.f24{overflow:visible;font-size:10.5px}.f24 th,.f24 td{border-color:#000;color:#000}.f24 h4{background:#eee;border-color:#000}}
 .print-head,.print-foot{display:none;font-family:var(--serif)}
+.guida{max-width:780px;margin:28px 0 8px;padding-top:18px;border-top:1px solid var(--line)}
+.guida h2{font-family:var(--serif);font-size:22px;margin:0 0 8px}
+.guida h3{font-size:15px;margin:18px 0 6px}
+.guida p,.guida li{line-height:1.6;color:var(--ink)}
+.guida ol,.guida ul{padding-left:20px;margin:0}
+.guida li{margin:4px 0}
+.guida .es{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px}
+.guida details{border-bottom:1px solid var(--line);padding:8px 0}
+.guida summary{cursor:pointer;font-weight:600}
+.guida details p{margin:6px 0 0}
+.guida .agg{font-size:12px;color:var(--ink-3)}
+@media print{.guida{display:none}}
 .foot-calc{font-size:12px;line-height:1.7;color:var(--ink-2)} .foot-calc a{color:inherit}
 @media print{.foot-calc{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -283,6 +295,7 @@ dialog input{width:100%;padding:9px 10px;border:1px solid var(--line);border-rad
     
   </div></div>
   </div>
+  
   <div class="print-foot">Elaborazione automatica su dati normativi e tabellari pubblici, verificati alla data indicata; non costituisce consulenza legale e non sostituisce la valutazione del professionista.</div></main>
 </div>
 
@@ -324,7 +337,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.24.0 — 12 ottobre 2026",
+  version: "0.25.0 — 12 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -1448,6 +1461,204 @@ const F24 = {
   svuota(){ if(typeof confirm==="function"&&!confirm("Eliminare tutte le righe del modello F24?")) return; this.salva([]); this.aggiorna(); },
   stampa(){ document.body.classList.add("solo-f24"); try{ window.print(); }finally{ setTimeout(()=>document.body.classList.remove("solo-f24"),500); } }
 };
+/* ===================== GUIDE SOTTO I CALCOLATORI =====================
+   Testi basati sulle note dei calcolatori (fonti verificate) ed esempi calcolati con gli stessi motori.
+   Struttura: intro, come (passi), esempio, errori, faq [domanda, risposta], norme [etichetta, urn Normattiva]. */
+const NRM = u => "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:" + u;
+const GUIDE = {
+  "scadenze": {
+    intro: "Il calcolatore conta i termini processuali civili in avanti o a ritroso, applicando la sospensione feriale di agosto e la proroga delle scadenze che cadono di sabato o in un giorno festivo.",
+    come: [
+      "Il giorno iniziale non si conta (art. 155, c. 1, c.p.c.): un termine di 30 giorni dalla notifica del 15 luglio inizia a decorrere dal 16 luglio.",
+      "I termini a mesi o ad anni seguono il calendario comune: non si trasformano in 30 o 365 giorni.",
+      "Dal 1° al 31 agosto il decorso dei termini è sospeso (L. 742/1969), salvo le materie escluse dall'art. 3 della stessa legge e dall'art. 92 R.D. 12/1941.",
+      "Se la scadenza cade in un giorno festivo, o di sabato per gli atti da compiere fuori udienza, è prorogata al primo giorno successivo non festivo (art. 155, c. 4 e 5, c.p.c.).",
+      "Nei termini a ritroso, come le memorie da depositare un certo numero di giorni prima dell'udienza, la scadenza festiva si anticipa al giorno precedente non festivo, secondo l'orientamento prevalente."
+    ],
+    esempio: "Sentenza notificata il 15/07/2026; termine breve di 30 giorni per l'appello (art. 325 c.p.c.). Senza sospensione la scadenza sarebbe venerdì 14/08/2026; con la sospensione feriale i 31 giorni di agosto non si contano e il termine scade lunedì 14/09/2026, dopo 61 giorni di calendario.",
+    errori: [
+      "Contare il giorno della notifica o della comunicazione.",
+      "Dimenticare la sospensione di agosto, oppure applicarla alle materie che ne sono escluse.",
+      "Non controllare la festa del santo patrono del luogo, che il calcolatore non conosce.",
+      "Trasformare un termine a mesi in un numero fisso di giorni."
+    ],
+    faq: [
+      ["Il sabato proroga la scadenza?", "Sì: per gli atti processuali da compiere fuori udienza la scadenza che cade di sabato è prorogata al primo giorno non festivo successivo (art. 155, c. 5, c.p.c.)."],
+      ["Fino a che ora si può depositare con il processo telematico?", "Il deposito telematico è tempestivo se eseguito entro le 24:00 dell'ultimo giorno utile (art. 196-sexies disp. att. c.p.c.)."],
+      ["Quando opera la sospensione feriale?", "Ogni anno dal 1° al 31 agosto: il termine si ferma e riprende a decorrere dal 1° settembre (L. 742/1969)."]
+    ],
+    norme: [["Art. 155 c.p.c.", "regio.decreto:1940-10-28;1443:1~art155"], ["Art. 325 c.p.c.", "regio.decreto:1940-10-28;1443:1~art325"], ["Art. 327 c.p.c.", "regio.decreto:1940-10-28;1443:1~art327"], ["L. 742/1969 (sospensione feriale)", "legge:1969-10-07;742"]]
+  },
+  "interessi-legali": {
+    intro: "Calcola gli interessi legali su un capitale tra due date, applicando a ciascun anno il saggio fissato dal Ministro dell'Economia (art. 1284 c.c.).",
+    come: [
+      "Il periodo si divide per anni solari, perché il saggio cambia ogni 1° gennaio: 5% nel 2023, 2,5% nel 2024, 2% nel 2025, 1,6% nel 2026.",
+      "Per ciascun anno: capitale × saggio × giorni / 365.",
+      "Il giorno iniziale non si conta (dies a quo non computatur).",
+      "Gli interessi sono semplici: non producono a loro volta interessi, salvo i casi dell'art. 1283 c.c."
+    ],
+    esempio: "Capitale di 10.000 € dal 01/01/2024 al 31/12/2025: nel 2024 365 giorni al 2,5% = 250,00 €; nel 2025 365 giorni al 2% = 200,00 €. Totale interessi 450,00 €, montante 10.450,00 €.",
+    errori: [
+      "Applicare un unico saggio a tutto il periodo.",
+      "Confondere gli interessi legali con quelli di mora delle transazioni commerciali (D.Lgs. 231/2002), che seguono il tasso BCE maggiorato di 8 punti.",
+      "Dimenticare che, se le parti non hanno fissato la misura, dalla domanda giudiziale si applica il saggio delle transazioni commerciali (art. 1284, c. 4, c.c.).",
+      "Calcolare interessi sugli interessi fuori dai casi ammessi (anatocismo)."
+    ],
+    faq: [
+      ["Qual è il saggio degli interessi legali nel 2026?", "L'1,60% annuo, fissato con decreto del Ministro dell'Economia e delle finanze."],
+      ["Come si combinano rivalutazione e interessi?", "Per i crediti di valore si calcolano gli interessi sul capitale rivalutato anno per anno (Cass. SU 1712/1995): usa il calcolatore della rivalutazione ISTAT, che li somma automaticamente."],
+      ["Il calcolo usa 365 o 366 giorni?", "Il calcolatore usa la base convenzionale di 365 giorni anche negli anni bisestili."]
+    ],
+    norme: [["Art. 1284 c.c.", "regio.decreto:1942-03-16;262:2~art1284"], ["Art. 1224 c.c.", "regio.decreto:1942-03-16;262:2~art1224"], ["Art. 1283 c.c.", "regio.decreto:1942-03-16;262:2~art1283"]]
+  },
+  "danno-micro": {
+    intro: "Liquida il danno biologico per le lesioni di lieve entità (fino al 9%) causate dalla circolazione di veicoli a motore e natanti, con gli importi aggiornati annualmente (art. 139 del Codice delle assicurazioni private).",
+    come: [
+      "Valore del punto = 988,45 € (DM MIMIT 20/07/2026) × un coefficiente che cresce con la percentuale di invalidità (da 1,0 a 2,3).",
+      "L'importo si riduce dello 0,5% per ogni anno di età a partire dall'undicesimo (art. 139, c. 1, lett. a).",
+      "L'inabilità temporanea vale 57,64 € al giorno se totale ed è proporzionale se parziale (75%, 50%, 25%).",
+      "Il giudice può aumentare l'importo fino al 20% per le condizioni soggettive del danneggiato (art. 139, c. 3); il calcolatore consente di indicarlo."
+    ],
+    esempio: "Invalidità permanente del 5% a 35 anni: danno permanente 5.275,85 €. Con 10 giorni di inabilità temporanea totale (10 × 57,64 €) si aggiungono 576,40 €, per un totale di 5.852,25 €.",
+    errori: [
+      "Usare le Tabelle di Milano per le lesioni lievi da sinistro stradale, per le quali la legge impone l'art. 139.",
+      "Applicare gli importi di un anno diverso: si usano quelli in vigore al momento della liquidazione.",
+      "Dimenticare rivalutazione e interessi, che vanno calcolati a parte.",
+      "Riconoscere il danno permanente senza l'accertamento clinico strumentale obiettivo, o visivo per lesioni come le cicatrici, richiesto dall'art. 139, c. 2."
+    ],
+    faq: [
+      ["Quanto vale il punto di invalidità nel 2026?", "988,45 € per il primo punto e 57,64 € al giorno per l'inabilità temporanea totale (DM MIMIT 20/07/2026, pubblicato nella GU n. 173 del 28/07/2026)."],
+      ["E per le lesioni dal 10% in su?", "Si applica la Tabella Unica Nazionale dell'art. 138 (DPR 12/2025): usa il calcolatore dedicato alle macropermanenti."],
+      ["Il risultato comprende interessi e rivalutazione?", "No: il calcolatore restituisce il valore capitale; interessi e rivalutazione si calcolano con gli strumenti dedicati."]
+    ],
+    norme: [["Art. 139 D.Lgs. 209/2005", "decreto.legislativo:2005-09-07;209~art139"], ["Art. 138 D.Lgs. 209/2005", "decreto.legislativo:2005-09-07;209~art138"]]
+  },
+  "prescrizione-reato": {
+    intro: "Calcola quando un reato si prescrive, tenendo conto della pena massima, delle aggravanti ad effetto speciale, degli atti interruttivi, delle sospensioni e del regime che dipende dalla data del fatto.",
+    come: [
+      "Il tempo necessario a prescrivere è pari al massimo della pena edittale, e comunque non inferiore a 6 anni per i delitti e a 4 per le contravvenzioni (art. 157 c.p.).",
+      "Contano solo le aggravanti ad effetto speciale o di specie diversa, nella misura massima; attenuanti e aggravanti comuni non si considerano.",
+      "Gli atti interruttivi (art. 160) fanno ripartire il termine, che però non può superare il massimo: di regola la pena aumentata di un quarto (art. 161, c. 2).",
+      "Le sospensioni (art. 159) si sommano al termine.",
+      "Per i fatti dal 1° gennaio 2020 la prescrizione cessa definitivamente con la sentenza di primo grado (art. 161-bis); nei gradi successivi opera l'improcedibilità (art. 344-bis c.p.p.)."
+    ],
+    esempio: "Delitto punito con la reclusione fino a 3 anni, commesso il 10/03/2021: il termine ordinario è di 6 anni (minimo per i delitti) e scade il 10/03/2027. Con atti interruttivi il termine massimo è di 7 anni e 6 mesi e scade il 10/09/2028.",
+    errori: [
+      "Ridurre il termine per le attenuanti o aumentarlo per le aggravanti comuni.",
+      "Dimenticare le sospensioni del procedimento.",
+      "Applicare a un fatto anteriore al 2020 le regole della riforma del 2019, o viceversa.",
+      "Confondere la prescrizione con l'improcedibilità nei giudizi di impugnazione."
+    ],
+    faq: [
+      ["Cosa cambia per i fatti commessi dal 1° gennaio 2020?", "La prescrizione si ferma definitivamente con la sentenza di primo grado, di condanna o di assoluzione, e riprende solo se un annullamento fa regredire il processo (art. 161-bis c.p.)."],
+      ["Cos'è l'improcedibilità?", "Il giudizio di appello deve concludersi entro 2 anni e quello di cassazione entro 1 anno, salvo proroghe e sospensioni; altrimenti l'azione diventa improcedibile (art. 344-bis c.p.p.)."],
+      ["Da quando decorre la prescrizione?", "Dalla consumazione del reato; nel tentativo dalla cessazione dell'attività; nel reato permanente dalla cessazione della permanenza (art. 158 c.p.)."]
+    ],
+    norme: [["Art. 157 c.p.", "regio.decreto:1930-10-19;1398:1~art157"], ["Art. 158 c.p.", "regio.decreto:1930-10-19;1398:1~art158"], ["Art. 160 c.p.", "regio.decreto:1930-10-19;1398:1~art160"], ["Art. 161 c.p.", "regio.decreto:1930-10-19;1398:1~art161"], ["Art. 161-bis c.p.", "regio.decreto:1930-10-19;1398:1~art161bis"], ["Art. 344-bis c.p.p.", "decreto.del.presidente.della.repubblica:1988-09-22;447~art344bis"]]
+  },
+  "parcella": {
+    intro: "Calcola il compenso dell'avvocato con i parametri forensi del DM 55/2014 (tabelle aggiornate dal DM 147/2022), per fase e scaglione di valore, con spese generali, Cassa Forense e IVA.",
+    come: [
+      "Si sceglie la tabella del tipo di procedimento e lo scaglione in base al valore della controversia.",
+      "Per ogni fase svolta (studio, introduttiva, istruttoria o trattazione, decisionale) si parte dal valore medio.",
+      "Ogni fase si può aumentare fino al 50% o ridurre fino al 50% (art. 4, c. 1).",
+      "Al compenso si aggiungono le spese generali del 15% (art. 2, c. 2), il contributo integrativo del 4% e l'IVA."
+    ],
+    esempio: "Causa davanti al tribunale del valore di 20.000 € (scaglione fino a 26.000 €), quattro fasi ai valori medi: studio 919 €, introduttiva 777 €, istruttoria 1.680 €, decisionale 1.701 €. Compenso 5.077 €, spese generali 761,55 €, contributo integrativo 233,54 €, IVA 1.335,86 €: totale 7.407,95 €.",
+    errori: [
+      "Scegliere lo scaglione sbagliato rispetto al valore della causa.",
+      "Inserire fasi non svolte, per esempio l'istruttoria in una causa decisa senza istruzione.",
+      "Superare i limiti di aumento o riduzione del 50% senza motivazione.",
+      "Calcolare il contributo integrativo sul solo compenso, dimenticando le spese generali."
+    ],
+    faq: [
+      ["Si possono superare i valori medi?", "Sì, fino al 50% in più per ciascuna fase, in base ai criteri dell'art. 4, c. 1, DM 55/2014; allo stesso modo si possono ridurre fino al 50%."],
+      ["Il preventivo è obbligatorio?", "Sì: l'avvocato deve comunicare per iscritto al cliente la prevedibile misura del costo della prestazione (art. 13, c. 5, L. 247/2012). Usa il calcolatore del preventivo."],
+      ["Quanto sono le spese generali?", "Il 15% del compenso (art. 2, c. 2, DM 55/2014)."]
+    ],
+    norme: [["Art. 2 DM 55/2014", "decreto.ministeriale:2014-03-10;55~art2"], ["Art. 4 DM 55/2014", "decreto.ministeriale:2014-03-10;55~art4"], ["Art. 13 L. 247/2012", "legge:2012-12-31;247~art13"]]
+  },
+  "ravvedimento": {
+    intro: "Calcola sanzione ridotta, interessi e righe del modello F24 per regolarizzare un versamento di imposte omesso o tardivo con il ravvedimento operoso.",
+    come: [
+      "Sanzione base per omesso o tardivo versamento: 25% per le violazioni dal 1° settembre 2024, ridotta al 12,5% fino a 90 giorni di ritardo e a 1/15 per ogni giorno fino a 15 giorni (art. 13 D.Lgs. 471/1997).",
+      "Riduzione per ravvedimento (art. 13 D.Lgs. 472/1997): 1/10 entro 30 giorni, 1/9 entro 90 giorni, 1/8 entro il termine della dichiarazione dell'anno della violazione, 1/7 oltre.",
+      "Interessi al saggio legale, giorno per giorno, dalla scadenza al versamento.",
+      "Si versano insieme imposta, sanzione e interessi, ciascuno con il proprio codice tributo."
+    ],
+    esempio: "Saldo IRPEF di 1.000 € scaduto il 30/06/2026 e versato il 15/07/2026, con 15 giorni di ritardo: sanzione 25% × 15/15 = 12,5%, ridotta a 1/10 → 1,25% = 12,50 €; interessi legali all'1,6% per 15 giorni = 0,66 €. Totale da versare 1.013,16 €.",
+    errori: [
+      "Versare l'imposta senza sanzione e interessi: il ravvedimento non si perfeziona.",
+      "Usare il codice tributo dell'imposta anche per sanzione e interessi.",
+      "Applicare le misure in vigore prima del 1° settembre 2024 a violazioni successive, o viceversa.",
+      "Ravvedersi dopo la notifica di un atto di liquidazione o di accertamento, che lo preclude."
+    ],
+    faq: [
+      ["Fino a quando ci si può ravvedere?", "Senza limite temporale per i tributi dell'Agenzia delle entrate, finché non è notificato un atto di liquidazione o di accertamento; la riduzione è minore quanto più tardi si regolarizza."],
+      ["Si può ravvedere solo una parte dell'imposta?", "Sì, il ravvedimento parziale è ammesso (art. 13-bis D.Lgs. 472/1997)."],
+      ["Cosa cambia dal 2027?", "La disciplina passa negli artt. 14 e 38 del testo unico delle sanzioni tributarie (D.Lgs. 173/2024), applicabile dal 1° gennaio 2027."]
+    ],
+    norme: [["Art. 13 D.Lgs. 471/1997", "decreto.legislativo:1997-12-18;471~art13"], ["Art. 13 D.Lgs. 472/1997", "decreto.legislativo:1997-12-18;472~art13"], ["Art. 14 D.Lgs. 173/2024 (dal 2027)", "decreto.legislativo:2024-11-05;173~art14"]]
+  },
+  "sanzioni-inps": {
+    intro: "Calcola le sanzioni civili sui contributi INPS versati in ritardo, con il ravvedimento introdotto dal 1° settembre 2024 e il tasso BCE in vigore giorno per giorno.",
+    come: [
+      "Omissione (contributi indicati nelle denunce ma non versati): tasso BCE delle operazioni di rifinanziamento principali + 5,5 punti all'anno, fino al 40% dei contributi.",
+      "Se si paga entro 120 giorni dalla scadenza, in unica soluzione e prima di richieste dell'INPS, la maggiorazione di 5,5 punti non si applica.",
+      "Evasione (denunce omesse o non veritiere): 30% all'anno fino al 60%; con denuncia spontanea entro 12 mesi la misura scende al tasso BCE + 5,5 punti se si paga entro 30 giorni dalla denuncia, + 7,5 punti entro 90 giorni.",
+      "Dopo un accertamento d'ufficio o un'ispezione, la sanzione si dimezza se si paga entro 30 giorni dalla notifica."
+    ],
+    esempio: "Contributi di 1.000 € scaduti il 16/06/2026 e pagati spontaneamente il 31/08/2026, dopo 76 giorni: entro i 120 giorni si applica il solo tasso BCE del 2,40% → 5,00 €. Se il pagamento avviene il 30/10/2026 (136 giorni) si paga la misura ordinaria: 91 giorni al 7,90% e 45 giorni all'8,15% → 29,75 €.",
+    errori: [
+      "Confondere omissione ed evasione, che hanno misure molto diverse.",
+      "Pagare a rate pensando di conservare il beneficio dei 120 giorni, che spetta solo in unica soluzione.",
+      "Pagare oltre 30 giorni dalla notifica dell'accertamento, perdendo la riduzione del 50%.",
+      "Applicare le regole nuove a scadenze anteriori al 1° settembre 2024."
+    ],
+    faq: [
+      ["Qual è la sanzione per omissione oggi?", "Dal 16 settembre 2026 l'8,15% annuo (tasso BCE del 2,65% + 5,5 punti), oppure il solo 2,65% con il ravvedimento entro 120 giorni (circ. INPS 98/2026)."],
+      ["Cosa succede quando si raggiunge il tetto?", "Raggiunto il 40% (o il 60% per l'evasione), sul debito residuo maturano gli interessi di mora dell'art. 30 DPR 602/1973 (art. 116, c. 9, L. 388/2000)."],
+      ["Il calcolo dell'INPS può essere diverso?", "La quantificazione definitiva spetta all'INPS, che verifica il regime applicabile in base alla data effettiva del pagamento (circ. INPS 90/2024)."]
+    ],
+    norme: [["Art. 116 L. 388/2000", "legge:2000-12-23;388~art116"]]
+  },
+  "fattura-avvocato": {
+    intro: "Calcola la fattura dell'avvocato a partire dal compenso, oppure trova il compenso da indicare per incassare una cifra netta, con spese generali, Cassa Forense, IVA, ritenuta d'acconto, regime forfetario e bollo.",
+    come: [
+      "Spese generali: di regola il 15% del compenso (art. 2, c. 2, DM 55/2014).",
+      "Contributo integrativo Cassa Forense: 4% su compenso e spese generali.",
+      "IVA 22% su compenso, spese generali e contributo integrativo.",
+      "Ritenuta d'acconto del 20% su compenso e spese generali, se il cliente è sostituto d'imposta (art. 25 DPR 600/1973).",
+      "Le spese anticipate per conto del cliente sono escluse da IVA e ritenuta (art. 15 DPR 633/1972); nel forfetario niente IVA e niente ritenuta, con bollo di 2 € oltre 77,47 €."
+    ],
+    esempio: "Compenso di 1.000 € in regime ordinario a un cliente sostituto d'imposta: spese generali 150,00 €, contributo integrativo 46,00 €, IVA 263,12 €, totale fattura 1.459,12 €; ritenuta 230,00 €, netto da incassare 1.229,12 €. Nel regime forfetario lo stesso compenso dà 1.196,00 € più 2 € di bollo.",
+    errori: [
+      "Applicare la ritenuta anche al contributo integrativo o all'IVA.",
+      "Assoggettare a IVA le spese anticipate in nome e per conto del cliente.",
+      "Dimenticare il bollo da 2 € nelle fatture del forfetario.",
+      "Applicare la ritenuta a un cliente privato, che non è sostituto d'imposta."
+    ],
+    faq: [
+      ["La ritenuta si calcola anche sulla Cassa Forense?", "No: la ritenuta del 20% si applica a compenso e spese generali, non al contributo integrativo né all'IVA."],
+      ["Il forfetario applica il contributo integrativo?", "Sì, il 4% è dovuto anche nel regime forfetario; non si applicano invece IVA e ritenuta (art. 1, c. 58 e 67, L. 190/2014; dal 2027 artt. 234 e 235 D.Lgs. 117/2026)."],
+      ["Quando va messo il bollo?", "Quando le somme non soggette a IVA superano 77,47 €: 2 € (art. 13 della Tariffa allegata al DPR 642/1972), indicati nel campo «Bollo virtuale» della fattura elettronica."]
+    ],
+    norme: [["Art. 2 DM 55/2014", "decreto.ministeriale:2014-03-10;55~art2"], ["Art. 25 DPR 600/1973", "decreto.del.presidente.della.repubblica:1973-09-29;600~art25"], ["Art. 15 DPR 633/1972", "decreto.del.presidente.della.repubblica:1972-10-26;633~art15"]]
+  }
+};
+function guidaHtml(id){
+  const G=GUIDE[id]; if(!G) return "";
+  const li=a=>a.map(x=>`<li>${esc(x)}</li>`).join("");
+  return `<section class="guida" aria-labelledby="guida-tit"><h2 id="guida-tit">Guida: come si calcola</h2>
+    <p>${esc(G.intro)}</p>
+    <h3>Il calcolo passo per passo</h3><ol>${li(G.come)}</ol>
+    <h3>Esempio svolto</h3><p class="es">${esc(G.esempio)}</p>
+    <h3>Errori frequenti</h3><ul>${li(G.errori)}</ul>
+    <h3>Domande frequenti</h3>${G.faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}
+    <h3>Norme di riferimento</h3><p class="norme">${G.norme.map(([t,u])=>`<a href="${NRM(u)}" target="_blank" rel="noopener">${esc(t)}</a>`).join(" · ")}</p>
+    <p class="agg">Testo verificato sulle fonti ufficiali al ${MONITOR.fonti}.</p></section>`;
+}
+
 /* ===================== LICENZA ===================== */
 const LIC = {
   key:null, valid:false,
@@ -1751,6 +1962,7 @@ function renderCalc(id){
       <div class="form">${V.form()}</div></div></div>
     <div class="panel" id="result"></div>
   </div>
+  ${guidaHtml(id)}
   <div class="print-foot">Elaborazione automatica su dati normativi e tabellari pubblici, verificati alla data indicata; non costituisce consulenza legale e non sostituisce la valutazione del professionista.</div>`;
   const aggiornaTestata=()=>{ const ph=$(".print-head b"); if(!ph) return; const p=(state.inputs.rifPratica||"").trim();
     const el=$(".print-head"); const base=`<b>${esc(c.title)}</b> — relazione del ${fmtD(todayISO())}${p?` — pratica: ${esc(p)}`:""}`;

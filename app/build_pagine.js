@@ -58,7 +58,8 @@ async function costruisci() {
     await sleep(250);
     const d = dom.window.document;
     const r = { main: d.querySelector("#main").innerHTML, nav: d.querySelector("#nav").innerHTML,
-      calc: dom.window.eval("CATALOG.flatMap(g=>g.items.map(i=>({id:i.id,title:i.title,desc:i.desc,group:g.group})))") };
+      calc: dom.window.eval("CATALOG.flatMap(g=>g.items.map(i=>({id:i.id,title:i.title,desc:i.desc,group:g.group})))"),
+      faq: id ? JSON.parse(dom.window.eval(`JSON.stringify((typeof GUIDE!=="undefined"&&GUIDE[${JSON.stringify(id)}]||{}).faq||[])`)) : [] };
     dom.window.close();
     return r;
   };
@@ -93,6 +94,11 @@ async function costruisci() {
       .replace('<main class="main" id="main"></main>', `<main class="main" id="main">${v.main}</main>`)
       .replace("<body>", `<body>\n<script>window.CF_START=${JSON.stringify(c.id)};</script>`);
     if (!html.includes(`window.CF_START=`) || !html.includes(v.main.slice(0, 60))) throw new Error("pagina non composta: " + c.id);
+    // domande frequenti della guida come dati strutturati per Google (FAQPage)
+    if (v.faq.length) {
+      const ld = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: v.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) };
+      html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>\n</head>`);
+    }
     fs.mkdirSync(path.join(DOCS, slug), { recursive: true });
     fs.writeFileSync(path.join(DOCS, slug, "index.html"), html);
   }
