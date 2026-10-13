@@ -293,7 +293,7 @@ const TITOLARE = {
 };
 const ND="in corso di attribuzione (società in costituzione)";
 const CONFIG = {
-  version: "0.28.0 — 13 ottobre 2026",
+  version: "0.29.0 — 13 ottobre 2026",
   checkoutPro:   "#/piani",   // sostituito con URL Lemon Squeezy dopo apertura dello store
   checkoutStudio:"#/piani",
   checkoutReport:"#/piani",
@@ -576,6 +576,28 @@ const testoDi=el=>!el?"":((el.innerText!=null?el.innerText:el.textContent)||"");
 
 /* ===================== MOTORI DI CALCOLO ===================== */
 const ENGINES = {
+  // Indennità di licenziamento, contratto a tutele crescenti (D.Lgs. 23/2015, assunti dal 7 marzo 2015):
+  // art. 3, c. 1 (6–36 mensilità, misura rimessa al giudice: Corte cost. 194/2018), art. 4 (2–12: Corte cost. 150/2020),
+  // art. 6 (offerta di conciliazione: 1 mensilità per anno, 3–27, esente), art. 8 (frazioni: mese intero da 15 giorni),
+  // art. 9 (datori sotto soglia: importi dimezzati, senza il tetto di 6 mensilità eliminato da Corte cost. 118/2025).
+  indennitaLicenziamento(o){
+    const rm=+o.retribuzione||0, da=o.assunzione, al=o.licenziamento;
+    if(!(rm>0)||!/^\d{4}-\d{2}-\d{2}$/.test(da||"")||!/^\d{4}-\d{2}-\d{2}$/.test(al||"")||al<=da) return null;
+    const G=ENGINES.giorniDate(da,al,false); let mesi=G.anni*12+G.mesi+(G.giorni>=15?1:0);
+    const anni=mesi/12, piccola=!!o.piccola, f=piccola?0.5:1, avvisi=[];
+    if(da<"2015-03-07") avvisi.push("Assunzione anteriore al 7 marzo 2015: si applica l'art. 18 della L. 300/1970 (o la L. 604/1966 per i datori sotto soglia), non il D.Lgs. 23/2015. Fanno eccezione le conversioni e le qualificazioni successive previste dall'art. 1, c. 2 e 3.");
+    const T={
+      illegittimo:{per:2,min:6,max:36,norma:"art. 3, c. 1",giudice:true},
+      formale:{per:1,min:2,max:12,norma:"art. 4",giudice:true},
+      conciliazione:{per:1,min:3,max:27,norma:"art. 6",giudice:false}
+    };
+    const out={};
+    for(const [k,t] of Object.entries(T)){
+      const min=t.min*f, max=t.max*f, rif=Math.min(max,Math.max(min,r2(t.per*f*anni)));
+      out[k]={norma:t.norma,giudice:t.giudice,min,max,rif,impMin:r2(min*rm),impMax:r2(max*rm),impRif:r2(rif*rm)};
+    }
+    return {rm,da,al,mesi,anni:r2(anni),anniInt:Math.floor(mesi/12),mesiRes:mesi%12,piccola,out,avvisi};
+  },
   // Decreto penale di condanna (artt. 459-460 c.p.p.): pena pecuniaria anche in sostituzione della detentiva
   // (valore giornaliero 5-250 €), diminuzione fino alla metà, pagamento ridotto di un quinto entro 15 giorni,
   // termine di opposizione (art. 172, c. 3: proroga se scade in giorno festivo; il sabato non è festivo).
@@ -2239,6 +2261,28 @@ const GUIDE = {
       ["Quando si estingue il reato?", "Se, pagata la pena, entro cinque anni per i delitti o due anni per le contravvenzioni non si commette un delitto o una contravvenzione della stessa indole: si estingue ogni effetto penale (art. 460, c. 5)."]
     ],
     norme: [["Art. 459 c.p.p.", "decreto.del.presidente.della.repubblica:1988-09-22;447~art459"], ["Art. 460 c.p.p.", "decreto.del.presidente.della.repubblica:1988-09-22;447~art460"], ["Art. 461 c.p.p.", "decreto.del.presidente.della.repubblica:1988-09-22;447~art461"], ["Art. 172 c.p.p.", "decreto.del.presidente.della.repubblica:1988-09-22;447~art172"]]
+  },
+  "licenziamento": {
+    intro: "Calcola le indennità del contratto a tutele crescenti (assunti dal 7 marzo 2015) per licenziamento illegittimo, vizi formali e offerta di conciliazione, anche per i datori di lavoro più piccoli.",
+    come: [
+      "Si calcola l'anzianità: le frazioni di anno si riproporzionano e le frazioni di mese di almeno 15 giorni contano come mese intero (art. 8 D.Lgs. 23/2015).",
+      "Licenziamento illegittimo: indennità tra 6 e 36 mensilità dell'ultima retribuzione di riferimento per il TFR (art. 3, c. 1); la misura è fissata dal giudice, perché la Corte costituzionale (sent. 194/2018) ha eliminato le 2 mensilità automatiche per anno.",
+      "Vizi formali o procedurali: tra 2 e 12 mensilità (art. 4); offerta di conciliazione: 1 mensilità per anno, tra 3 e 27, esente da IRPEF e contributi (art. 6).",
+      "Per i datori sotto le soglie dell'art. 18 dello Statuto dei lavoratori gli importi sono dimezzati, senza più il tetto di 6 mensilità (Corte cost. 118/2025)."
+    ],
+    esempio: "Retribuzione mensile di 2.500 €, assunzione il 01/03/2018, licenziamento il 15/09/2026: anzianità di 8 anni e 6 mesi (i 14 giorni residui non contano). Licenziamento illegittimo tra 15.000 € e 90.000 €, con un riferimento per anzianità di 17 mensilità (42.500 €); offerta di conciliazione 8,5 mensilità, 21.250 € esenti.",
+    errori: [
+      "Applicare automaticamente 2 mensilità per anno, criterio eliminato dalla Corte costituzionale.",
+      "Usare la retribuzione netta invece dell'ultima retribuzione di riferimento per il calcolo del TFR.",
+      "Applicare ancora il tetto di 6 mensilità ai piccoli datori di lavoro.",
+      "Usare queste regole per i lavoratori assunti prima del 7 marzo 2015, soggetti all'art. 18 dello Statuto dei lavoratori."
+    ],
+    faq: [
+      ["Il giudice deve dare 2 mensilità per ogni anno?", "No: dopo la sentenza della Corte costituzionale n. 194/2018 il giudice determina l'indennità tra 6 e 36 mensilità tenendo conto dell'anzianità e degli altri criteri, come il numero dei dipendenti, le dimensioni dell'attività e il comportamento delle parti."],
+      ["Quanto spetta con l'offerta di conciliazione?", "Una mensilità per ogni anno di servizio, da 3 a 27, con assegno circolare in sede protetta; la somma non è tassata né soggetta a contributi (art. 6 D.Lgs. 23/2015)."],
+      ["E per le piccole imprese?", "Gli importi sono dimezzati (art. 9); dal 2025 non vale più il limite massimo di 6 mensilità, dichiarato illegittimo dalla Corte costituzionale con la sentenza n. 118/2025."]
+    ],
+    norme: [["Art. 3 D.Lgs. 23/2015", "decreto.legislativo:2015-03-04;23~art3"], ["Art. 4 D.Lgs. 23/2015", "decreto.legislativo:2015-03-04;23~art4"], ["Art. 6 D.Lgs. 23/2015", "decreto.legislativo:2015-03-04;23~art6"], ["Art. 8 D.Lgs. 23/2015", "decreto.legislativo:2015-03-04;23~art8"], ["Art. 9 D.Lgs. 23/2015", "decreto.legislativo:2015-03-04;23~art9"]]
   }
 };
 function guidaHtml(id){
@@ -2310,6 +2354,7 @@ const CATALOG = [
   ]},
   {group:"Lavoro", items:[
     {id:"sanzioni-inps", title:"Sanzioni civili INPS e ravvedimento sui contributi", desc:"Contributi versati in ritardo: omissione o evasione, ravvedimento entro 120 giorni, denuncia spontanea entro 12 mesi, riduzione del 50% dopo l'accertamento, tasso BCE giorno per giorno e tetti del 40% e del 60%.", refs:"Art. 116, c. 8-9, L. 388/2000 (art. 30 DL 19/2024) — circ. INPS 90/2024 e 98/2026 — DM MEF 26/09/2005", status:"free"},
+    {id:"licenziamento", title:"Indennità di licenziamento (tutele crescenti)", desc:"Licenziamento illegittimo, vizi formali e offerta di conciliazione per gli assunti dal 7 marzo 2015: mensilità minime e massime, riferimento per anzianità, piccole imprese senza il tetto di 6 mensilità.", refs:"D.Lgs. 23/2015, artt. 3, 4, 6, 8 e 9 — Corte cost. 194/2018, 150/2020 e 118/2025", status:"free"},
     {id:"tfr", title:"TFR — trattamento di fine rapporto", desc:"Art. 2120 c.c.: quote annue, rivalutazione con indici FOI reali (1,5% + 75% ISTAT), imposta sostitutiva 17%, netto in tassazione separata.", refs:"Art. 2120 c.c. — L. 297/1982 — art. 19 TUIR (dal 1° gennaio 2027 art. 21 TU imposte sui redditi, D.Lgs. 117/2026) — indici FOI ISTAT (serie reale)", status:"free"},
   ]},
   {group:"Immobili, locazioni e successioni", items:[
@@ -2340,6 +2385,7 @@ const CERCA_KW={"danno-micro":"risarcimento sinistro incidente lesioni lievi col
   "fattura-avvocato":"fattura avvocato cassa forense cpa iva ritenuta d acconto spese generali forfettario bollo scorporo netto lordo",
   "giorni-date":"calcolo giorni tra due date giorni lavorativi differenza date contare giorni festivi aggiungere giorni data",
   "decreto-penale":"decreto penale di condanna opposizione riduzione un quinto pena pecuniaria sostitutiva valore giornaliero 459 460",
+  "licenziamento":"indennita licenziamento illegittimo tutele crescenti jobs act mensilita offerta conciliazione indennizzo lavoratore piccole imprese",
   "interessi-legali":"saggio legale interessi","interessi-mora":"ritardato pagamento fatture commerciali transazioni","rivalutazione":"istat inflazione svalutazione","scadenze":"termini processuali calcolo termini appello cassazione","contributo-unificato":"cu marca iscrizione a ruolo",
   "parcella":"compenso onorario avvocato notula dm 55","parcella-penale":"compenso onorario difensore penale","preventivo":"compenso onorario cliente","pignoramento":"quinto stipendio pensione","prescrizione":"termine diritto credito","precetto":"esecuzione titolo esecutivo",
   "usura":"mutuo tasso soglia teg banca interessi usurari","quote-ereditarie":"eredita successione legittima eredi testamento","successione":"tasse eredita","pena":"patteggiamento abbreviato condanna","prescrizione-reato":"estinzione reato",
@@ -3637,6 +3683,28 @@ const VIEWS = {
         ${R.scadenza?`<tr><td>Ultimo giorno per pagare in misura ridotta o proporre opposizione</td><td class="r">${fmtD(R.scadenza)}${R.prorogata?" (prorogato: festivo)":""}</td></tr>`:""}
         <tr><td>Estinzione del reato se non si commettono ${R.delitto?"delitti":"contravvenzioni della stessa indole"} per</td><td class="r">${R.delitto?"5 anni":"2 anni"}</td></tr></table></div>
       <div class="note">Il decreto penale applica solo una pena pecuniaria, anche in sostituzione di una detentiva: il valore giornaliero va da 5 a 250 € e si moltiplica per i giorni di pena detentiva (art. 459, c. 1-bis, c.p.p.); il pubblico ministero può chiedere una pena diminuita fino alla metà del minimo edittale (c. 2). Entro 15 giorni dalla notifica il condannato può pagare la pena ridotta di un quinto rinunciando all'opposizione, oppure proporre opposizione chiedendo il giudizio immediato, l'abbreviato, il patteggiamento o la messa alla prova (artt. 460-461; Corte cost. n. 201/2016). Il termine scade il quindicesimo giorno dopo la notifica e, se cade in un giorno festivo, è prorogato al giorno successivo non festivo (art. 172, c. 3); il sabato non è festivo. Entro lo stesso termine si può chiedere la sostituzione con il lavoro di pubblica utilità (art. 459, c. 1-ter). Il decreto non comporta spese del procedimento né pene accessorie; il reato si estingue se, pagata la pena, nei cinque anni (delitti) o nei due anni (contravvenzioni) non si commette un delitto o una contravvenzione della stessa indole (art. 460, c. 5). La pena pecuniaria può essere rateizzata (art. 133-ter c.p.).</div></div>${actions()}`;
+    }
+  },
+  "licenziamento":{
+    form:()=>[
+      field("liRetr","Ultima retribuzione mensile utile per il TFR (€)","number",2500,{min:0,step:0.01,full:true,hint:"retribuzione di riferimento per il calcolo del TFR, rapportata al mese"}),
+      field("liDa","Data di assunzione","date","2018-03-01"),
+      field("liAl","Data del licenziamento","date","2026-09-15"),
+      field("liPic","Dimensioni del datore di lavoro","select","no",{full:true,options:[["no","Oltre 15 dipendenti nell'unità produttiva o nel comune, o oltre 60 in totale"],["si","Fino a 15 dipendenti (o 5 se impresa agricola) e non oltre 60 in totale: importi dimezzati"]]}),
+    ].join(""),
+    result:()=>{
+      const R=ENGINES.indennitaLicenziamento({retribuzione:num("liRetr"),assunzione:val("liDa"),licenziamento:val("liAl"),piccola:val("liPic")==="si"});
+      if(!R) return empty("Indica retribuzione, assunzione e licenziamento.");
+      const m=x=>fmtN(x,x%1?2:0), O=R.out;
+      return `<div class="total"><div class="eyebrow">Licenziamento illegittimo (art. 3, c. 1)</div><div class="big">${fmt.format(O.illegittimo.impMin)} – ${fmt.format(O.illegittimo.impMax)}</div><div class="sub">da ${m(O.illegittimo.min)} a ${m(O.illegittimo.max)} mensilità · riferimento per anzianità ${m(O.illegittimo.rif)} mensilità = ${fmt.format(O.illegittimo.impRif)} · anzianità ${R.anniInt} anni e ${R.mesiRes} mesi</div></div>
+      <div class="pb">${R.avvisi.map(x=>`<div class="warn" style="margin:0 0 8px">${esc(x)}</div>`).join("")}<div class="tblwrap"><table class="rows">
+        <tr><th>Ipotesi</th><th class="r">Mensilità</th><th class="r">Importo</th></tr>
+        <tr><td>Licenziamento illegittimo (art. 3, c. 1): forbice di legge</td><td class="r">${m(O.illegittimo.min)}–${m(O.illegittimo.max)}</td><td class="r">${fmt.format(O.illegittimo.impMin)} – ${fmt.format(O.illegittimo.impMax)}</td></tr>
+        <tr><td>… riferimento per anzianità (${R.piccola?"1":"2"} per anno)</td><td class="r">${m(O.illegittimo.rif)}</td><td class="r">${fmt.format(O.illegittimo.impRif)}</td></tr>
+        <tr><td>Vizi formali o procedurali (art. 4): forbice di legge</td><td class="r">${m(O.formale.min)}–${m(O.formale.max)}</td><td class="r">${fmt.format(O.formale.impMin)} – ${fmt.format(O.formale.impMax)}</td></tr>
+        <tr><td>… riferimento per anzianità (${R.piccola?"0,5":"1"} per anno)</td><td class="r">${m(O.formale.rif)}</td><td class="r">${fmt.format(O.formale.impRif)}</td></tr>
+        <tr class="sum"><td>Offerta di conciliazione (art. 6): esente da IRPEF e contributi</td><td class="r">${m(O.conciliazione.rif)}</td><td class="r">${fmt.format(O.conciliazione.impRif)}</td></tr></table></div>
+      <div class="note">Contratto a tutele crescenti, assunti dal 7 marzo 2015 (D.Lgs. 23/2015). Licenziamento senza giusta causa o giustificato motivo: indennità tra 6 e 36 mensilità dell'ultima retribuzione di riferimento per il TFR, non soggetta a contributi (art. 3, c. 1). La Corte costituzionale (sent. 194/2018) ha eliminato il calcolo automatico di 2 mensilità per anno: il giudice fissa la misura considerando l'anzianità di servizio e gli altri criteri desumibili dal sistema (numero dei dipendenti, dimensioni dell'attività, comportamento e condizioni delle parti); il riferimento di 2 mensilità per anno è quindi solo indicativo. Vizi formali e procedurali: tra 2 e 12 mensilità (art. 4; Corte cost. 150/2020). Offerta di conciliazione in sede protetta entro i termini di impugnazione: 1 mensilità per anno, tra 3 e 27, con assegno circolare, esente da IRPEF e contributi (art. 6). Frazioni di anno riproporzionate, frazioni di mese di almeno 15 giorni come mese intero (art. 8). Datori di lavoro sotto le soglie dell'art. 18, c. 8 e 9, L. 300/1970: importi dimezzati (art. 9), senza il tetto di 6 mensilità dichiarato illegittimo dalla Corte costituzionale (sent. 118/2025). Non sono calcolate la reintegrazione (licenziamento nullo o discriminatorio, insussistenza del fatto materiale: artt. 2 e 3, c. 2; Corte cost. 128/2024) né l'indennità sostitutiva del preavviso.</div></div>${actions()}`;
     }
   },
   "interessi-legali":{

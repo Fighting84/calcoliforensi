@@ -31,6 +31,7 @@ const PAGINE = {
   "decreto-penale": ["calcolo-decreto-penale-di-condanna", "Calcolo decreto penale di condanna: pena pecuniaria, riduzione di un quinto e opposizione"],
   "parcella-penale": ["calcolo-parcella-avvocato-penale", "Calcolo parcella avvocato penale: parametri forensi"],
   "sanzioni-inps": ["calcolo-sanzioni-civili-inps", "Calcolo sanzioni civili INPS 2026 e ravvedimento sui contributi"],
+  "licenziamento": ["calcolo-indennita-licenziamento", "Calcolo indennità di licenziamento illegittimo (tutele crescenti, D.Lgs. 23/2015)"],
   "tfr": ["calcolo-tfr", "Calcolo TFR: rivalutazione e tassazione"],
   "imu": ["calcolo-imu-valore-catastale", "Calcolo IMU e valore catastale"],
   "compravendita": ["imposte-acquisto-casa", "Calcolo imposte sull'acquisto di un immobile: registro, IVA, ipotecaria e catastale"],

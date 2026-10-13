@@ -390,6 +390,15 @@ ck("lire: 1.000 € = 1.936.270 lire", ENGINES.lireEuro(1000, "eur2lire"), 19362
   ck("decreto: notifica 16/09/2026 → 01/10/2026", dp({ notifica: "2026-09-16" }).scadenza === "2026-10-01" ? 1 : 0, 1);
   ck("decreto: scadenza di domenica 04/10/2026 → lunedì 05/10/2026", dp({ notifica: "2026-09-19" }).scadenza === "2026-10-05" ? 1 : 0, 1);
   ck("decreto: scadenza di sabato non prorogata (03/10/2026)", dp({ notifica: "2026-09-18" }).scadenza === "2026-10-03" ? 1 : 0, 1); }
+// Indennità di licenziamento (D.Lgs. 23/2015; Corte cost. 194/2018, 150/2020, 118/2025)
+{ const L = o => ENGINES.indennitaLicenziamento({ retribuzione: 2500, assunzione: "2018-03-01", licenziamento: "2026-09-15", piccola: false, ...o });
+  const A = L({}); ck("licenziamento: mesi di anzianità (14 giorni non contano)", A.mesi, 102);
+  ck("licenziamento: art. 3 minimo 6 mensilità", A.out.illegittimo.impMin, 15000); ck("licenziamento: art. 3 massimo 36", A.out.illegittimo.impMax, 90000);
+  ck("licenziamento: riferimento 17 mensilità", A.out.illegittimo.impRif, 42500); ck("licenziamento: conciliazione 8,5 mensilità", A.out.conciliazione.impRif, 21250);
+  ck("licenziamento: 15 giorni contano come mese", L({ licenziamento: "2026-09-16" }).mesi, 103);
+  const P = L({ piccola: true }); ck("piccola impresa: massimo 18 (senza tetto 6)", P.out.illegittimo.max, 18); ck("piccola impresa: conciliazione 4,25", P.out.conciliazione.rif, 4.25);
+  ck("anzianità breve: minimo 6 mensilità", L({ assunzione: "2025-09-01" }).out.illegittimo.rif, 6);
+  ck("assunto prima del 7/3/2015: avviso art. 18", L({ assunzione: "2014-01-10" }).avvisi.length, 1); }
 // Sanzioni civili INPS (art. 116, c. 8, L. 388/2000; circ. INPS 90/2024 e 98/2026). Valori calcolati a mano:
 // tasso BCE 2,15% dall'11/06/2025, 2,40% dal 17/06/2026, 2,65% dal 16/09/2026; 4,25% dal 12/06/2024.
 { const si = (...a) => ENGINES.sanzioniInps(...a);

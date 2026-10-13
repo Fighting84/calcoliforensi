@@ -851,5 +851,40 @@
   "calc": [
    "decreto-penale"
   ]
+ },
+ {
+  "id": "dlgs23-2015-3",
+  "urn": "decreto.legislativo:2015-03-04;23~art3",
+  "calc": [
+   "licenziamento"
+  ]
+ },
+ {
+  "id": "dlgs23-2015-4",
+  "urn": "decreto.legislativo:2015-03-04;23~art4",
+  "calc": [
+   "licenziamento"
+  ]
+ },
+ {
+  "id": "dlgs23-2015-6",
+  "urn": "decreto.legislativo:2015-03-04;23~art6",
+  "calc": [
+   "licenziamento"
+  ]
+ },
+ {
+  "id": "dlgs23-2015-8",
+  "urn": "decreto.legislativo:2015-03-04;23~art8",
+  "calc": [
+   "licenziamento"
+  ]
+ },
+ {
+  "id": "dlgs23-2015-9",
+  "urn": "decreto.legislativo:2015-03-04;23~art9",
+  "calc": [
+   "licenziamento"
+  ]
  }
 ]
