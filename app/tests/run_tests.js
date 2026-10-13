@@ -372,6 +372,15 @@ ck("lire: 1.000 € = 1.936.270 lire", ENGINES.lireEuro(1000, "eur2lire"), 19362
   ck("fattura dal netto forfetario 1.198 → compenso 1.000", ENGINES.fatturaAvvocato({ modo: "netto", netto: 1198, sg: 15, regime: "forfetario", esenti: 0, bollo: true }).compenso, 1000);
   let peggio = 0; for (let n = 50; n < 20000; n += 137.37) { const R = ENGINES.fatturaAvvocato({ modo: "netto", netto: r2(n), sg: 15, regime: "ordinario", sostituto: true, esenti: 0, bollo: true }); peggio = Math.max(peggio, Math.abs(R.netto - r2(n))); }
   ck("fattura dal netto: scarto massimo su 146 importi entro 1 centesimo (netto non sempre raggiungibile al centesimo)", peggio <= 0.011 ? 0 : peggio, 0); }
+// Giorni tra due date e festività (art. 2 L. 260/1949, 4 ottobre dal 2026)
+{ const G = ENGINES.giorniDate("2026-01-01", "2026-12-31", false);
+  ck("giorni 2026: calendario", G.calendario, 364); ck("giorni 2026: lavorativi", G.lavorativi, 254); ck("giorni 2026: festivi feriali", G.festivi, 6);
+  ck("giorni 2026 con giorno iniziale", ENGINES.giorniDate("2026-01-01", "2026-12-31", true).calendario, 365);
+  ck("anni/mesi/giorni 15/01/2020 → 10/03/2026", [ENGINES.giorniDate("2020-01-15", "2026-03-10").anni, ENGINES.giorniDate("2020-01-15", "2026-03-10").mesi, ENGINES.giorniDate("2020-01-15", "2026-03-10").giorni].join("/") === "6/1/23" ? 1 : 0, 1);
+  ck("4 ottobre 2027 (lunedì) non lavorativo", ENGINES.aggiungiGiorni("2027-10-01", 1, "lavorativi", "avanti").data === "2027-10-05" ? 1 : 0, 1);
+  ck("4 ottobre 2024 lavorativo (prima della L. 151/2025)", ENGINES.aggiungiGiorni("2024-10-03", 1, "lavorativi", "avanti").data === "2024-10-04" ? 1 : 0, 1);
+  ck("30 giorni di calendario dal 15/07/2026", ENGINES.aggiungiGiorni("2026-07-15", 30, "calendario", "avanti").data === "2026-08-14" ? 1 : 0, 1);
+  ck("scadenza processuale che cade il 4/10/2027 → prorogata al 5/10/2027", ENGINES.scadenza("2027-09-04", 30, "giorni", "avanti", false, false).scadenza === "2027-10-05" ? 1 : 0, 1); }
 // Sanzioni civili INPS (art. 116, c. 8, L. 388/2000; circ. INPS 90/2024 e 98/2026). Valori calcolati a mano:
 // tasso BCE 2,15% dall'11/06/2025, 2,40% dal 17/06/2026, 2,65% dal 16/09/2026; 4,25% dal 12/06/2024.
 { const si = (...a) => ENGINES.sanzioniInps(...a);

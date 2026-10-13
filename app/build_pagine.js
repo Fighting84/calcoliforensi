@@ -16,6 +16,7 @@ const PAGINE = {
   "usura": ["verifica-usura-tassi-soglia", "Verifica usura: tassi soglia trimestrali dal 1997 (L. 108/1996)"],
   "interessi-mora": ["calcolo-interessi-di-mora", "Calcolo interessi di mora commerciali (D.Lgs. 231/2002)"],
   "rivalutazione": ["rivalutazione-monetaria-istat", "Rivalutazione monetaria ISTAT e interessi sul capitale rivalutato"],
+  "giorni-date": ["calcolo-giorni-tra-due-date", "Calcolo giorni tra due date e giorni lavorativi (con le festività 2026)"],
   "scadenze": ["calcolo-termini-processuali", "Calcolo termini processuali civili con sospensione feriale"],
   "calendario-processo": ["calendario-memorie-cartabia", "Calendario delle memorie integrative (riforma Cartabia, art. 171-ter c.p.c.)"],
   "contributo-unificato": ["calcolo-contributo-unificato", "Calcolo contributo unificato 2026 per valore e grado"],

@@ -827,5 +827,15 @@
   "calc": [
    "sanzioni-inps"
   ]
+ },
+ {
+  "id": "l260-2",
+  "urn": "legge:1949-05-27;260~art2",
+  "calc": [
+   "giorni-date",
+   "scadenze",
+   "calendario-processo",
+   "ravvedimento"
+  ]
  }
 ]
