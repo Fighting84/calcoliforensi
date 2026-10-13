@@ -28,6 +28,7 @@ const PAGINE = {
   "pignoramento": ["calcolo-pignoramento-stipendio-pensione", "Calcolo pignoramento di stipendio e pensione"],
   "pena": ["calcolo-pena-patteggiamento-abbreviato", "Calcolo della pena: circostanze, patteggiamento e abbreviato"],
   "prescrizione-reato": ["calcolo-prescrizione-reato", "Calcolo prescrizione del reato (Cirielli, Orlando, Bonafede, Cartabia)"],
+  "decreto-penale": ["calcolo-decreto-penale-di-condanna", "Calcolo decreto penale di condanna: pena pecuniaria, riduzione di un quinto e opposizione"],
   "parcella-penale": ["calcolo-parcella-avvocato-penale", "Calcolo parcella avvocato penale: parametri forensi"],
   "sanzioni-inps": ["calcolo-sanzioni-civili-inps", "Calcolo sanzioni civili INPS 2026 e ravvedimento sui contributi"],
   "tfr": ["calcolo-tfr", "Calcolo TFR: rivalutazione e tassazione"],

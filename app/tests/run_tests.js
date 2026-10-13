@@ -381,6 +381,15 @@ ck("lire: 1.000 € = 1.936.270 lire", ENGINES.lireEuro(1000, "eur2lire"), 19362
   ck("4 ottobre 2024 lavorativo (prima della L. 151/2025)", ENGINES.aggiungiGiorni("2024-10-03", 1, "lavorativi", "avanti").data === "2024-10-04" ? 1 : 0, 1);
   ck("30 giorni di calendario dal 15/07/2026", ENGINES.aggiungiGiorni("2026-07-15", 30, "calendario", "avanti").data === "2026-08-14" ? 1 : 0, 1);
   ck("scadenza processuale che cade il 4/10/2027 → prorogata al 5/10/2027", ENGINES.scadenza("2027-09-04", 30, "giorni", "avanti", false, false).scadenza === "2027-10-05" ? 1 : 0, 1); }
+// Decreto penale di condanna (artt. 459-460 e 172 c.p.p.)
+{ const dp = o => ENGINES.decretoPenale({ tipo: "detentiva", anni: 0, mesi: 3, giorni: 0, valoreGiorno: 75, diminuzione: 0, reato: "delitto", ...o });
+  ck("decreto: 90 giorni × 75 €", dp({}).pena, 6750); ck("decreto: riduzione di un quinto", dp({}).ridotta, 5400);
+  ck("decreto: diminuzione 50% → 45 giorni", dp({ diminuzione: 50 }).pena, 3375);
+  ck("decreto: valore giornaliero fuori limite", dp({ valoreGiorno: 300 }).errore ? 1 : 0, 1);
+  ck("decreto: multa 3.000 € ridotta di un quinto", ENGINES.decretoPenale({ tipo: "pecuniaria", importo: 3000 }).ridotta, 2400);
+  ck("decreto: notifica 16/09/2026 → 01/10/2026", dp({ notifica: "2026-09-16" }).scadenza === "2026-10-01" ? 1 : 0, 1);
+  ck("decreto: scadenza di domenica 04/10/2026 → lunedì 05/10/2026", dp({ notifica: "2026-09-19" }).scadenza === "2026-10-05" ? 1 : 0, 1);
+  ck("decreto: scadenza di sabato non prorogata (03/10/2026)", dp({ notifica: "2026-09-18" }).scadenza === "2026-10-03" ? 1 : 0, 1); }
 // Sanzioni civili INPS (art. 116, c. 8, L. 388/2000; circ. INPS 90/2024 e 98/2026). Valori calcolati a mano:
 // tasso BCE 2,15% dall'11/06/2025, 2,40% dal 17/06/2026, 2,65% dal 16/09/2026; 4,25% dal 12/06/2024.
 { const si = (...a) => ENGINES.sanzioniInps(...a);
