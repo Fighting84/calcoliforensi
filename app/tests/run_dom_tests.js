@@ -145,13 +145,13 @@ function apri(licenza) {
   // pagine informative e contatti
   await vai3("#/informazioni");
   const info = $3("#main").textContent;
-  ck("informazioni: solo partita IVA, senza nome, codice fiscale, email né campi societari", /04399910274/.test(info) && !/Giacomello/.test(info) && !/GCMFBA/.test(info) && !/studiolegaleometto/.test(info) && !/REA/.test(info) && !/in costituzione/.test(info) && !/Ordine degli Avvocati/.test(info));
+  ck("informazioni: ditta individuale Giacomello Fabio con P. IVA, senza codice fiscale né campi societari", /Giacomello Fabio \(ditta individuale\)/.test(info) && /04399910274/.test(info) && !/GCMFBA/.test(info) && !/REA/.test(info) && !/in costituzione/.test(info));
   ck("informazioni: condizioni e disdetta", /disdett/i.test(info));
   ck("informazioni: privacy", /Regolamento UE 2016\/679/.test(info));
   ck("informazioni: recesso", /recesso/i.test(info));
   ck("informazioni: assistenza", /assistenza/i.test(info));
   ck("footer con link informativi", !!$3('.foot a[href="#/informazioni"]'));
-  ck("footer con erogatore e contatto", /^P\. IVA 04399910274$/.test($3("#footTitolare").textContent.trim()));
+  ck("footer con erogatore e contatto", /^Giacomello Fabio \(ditta individuale\) — P\. IVA 04399910274$/.test($3("#footTitolare").textContent.trim()));
 
   // ravvedimento: righe F24 e cambio di tributo
   await vai3("#/ravvedimento");
