@@ -11,3 +11,8 @@ monitoraggio/codici.json
 cod.log
 monitoraggio/norme_novita.json
 norme.log
+
+# documenti interni (non pubblicare)
+PROSECUZIONE.md
+PROMPT_NUOVO_AGENTE.md
+*.docx
