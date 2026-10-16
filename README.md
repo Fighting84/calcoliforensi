@@ -16,7 +16,7 @@ Piano completo: `C:\Users\Admin\.claude\plans\ti-do-50-euro-stateless-neumann.md
 - 17/09/2026 — v0.1.1: 4 calcolatori attivi (danno micro, interessi legali, mora, contributo unificato),
   64/64 test coincidenti con gli MCP. Anteprima: https://claude.ai/artifact/6syxbxKKtUNZvnkh5cHxJq
 - 17/09/2026 — v0.2.0: +Tabelle di Milano 2024 (1–100%) e danno parentale a punti, dati trascritti dal PDF
-  ufficiale del Tribunale di Milano (`fonti/`). 94/94 test (MCP + celle tabella + esempi Osservatorio).
+  ufficiale del Tribunale di Milano (`interno/fonti/`, repository privato). 94/94 test (MCP + celle tabella + esempi Osservatorio).
 - Dominio: l'utente lo registra su Hostinger (account già esistente).
 - Test: `node app/tests/run_tests.js`
 

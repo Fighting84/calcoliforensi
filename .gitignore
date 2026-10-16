@@ -16,3 +16,6 @@ norme.log
 PROSECUZIONE.md
 PROMPT_NUOVO_AGENTE.md
 *.docx
+
+# documenti interni: repository privato separato (ponderis-interno)
+interno/
