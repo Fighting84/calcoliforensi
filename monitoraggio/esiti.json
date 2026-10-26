@@ -1,1 +1,5 @@
-[]
+[
+ {"issue": 31, "commento": "Esaminata: errore tecnico del controllo (pdftotext non disponibile), non una novità normativa; dati usura già aggiornati al 4° trim. 2026. Modifica: nessuna.", "chiudi": true},
+ {"issue": 32, "commento": "Esaminata: stesso errore tecnico di #31 (pdftotext). Modifica: nessuna.", "chiudi": true},
+ {"issue": 33, "commento": "Esaminata: errore pdftotext (come #31) e HTTP 500 temporaneo della fonte FOI; nessuna novità sui dati. Modifica: nessuna.", "chiudi": true}
+]
